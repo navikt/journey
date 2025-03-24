@@ -3,7 +3,6 @@ spring:
     name: journey
 management:
   endpoint:
-    prometheus.enabled: true
     health.probes.enabled: true
     health.show-details: always
   endpoints.web:
@@ -13,3 +12,5 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
 
+sykmelding:
+  topic: "tsm.tsm-sykmeldinger"
