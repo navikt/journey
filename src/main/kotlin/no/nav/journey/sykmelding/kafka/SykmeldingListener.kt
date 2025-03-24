@@ -1,5 +1,6 @@
-package no.nav.journey.kafka
+package no.nav.journey.sykmelding.kafka
 
+import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.utils.applog
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
@@ -15,13 +16,11 @@ class SykmeldingListener {
     @KafkaListener(
         topics = ["\${sykmelding.topic}"],
         groupId = "journey-consumer",
-        properties = ["auto.offset.reset = none"],
-        containerFactory = "aivenKafkaListenerContainerFactory",
+        containerFactory = "containerFactory",
     )
-    fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+    fun listen(cr: ConsumerRecord<String, SykmeldingRecord>, acknowledgment: Acknowledgment) {
         logger.info("Received sykmelding with key ${cr.key()}")
+        acknowledgment.acknowledge()
     }
-
-
 
 }
