@@ -16,11 +16,11 @@ class SykmeldingListener {
     @KafkaListener(
         topics = ["\${sykmelding.topic}"],
         groupId = "journey-consumer",
+        properties = ["auto.offset.reset = none"],
         containerFactory = "containerFactory",
     )
-    fun listen(cr: ConsumerRecord<String, SykmeldingRecord>, acknowledgment: Acknowledgment) {
-        logger.info("Received sykmelding with key ${cr.key()}")
-        acknowledgment.acknowledge()
+    fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+        logger.info(">>>> INNE I LYTTER: key=${cr.key()}, offset=${cr.offset()}, payload=${cr.value()}")
     }
 
 }
