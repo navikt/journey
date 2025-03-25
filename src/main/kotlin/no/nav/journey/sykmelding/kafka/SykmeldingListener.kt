@@ -14,12 +14,11 @@ class SykmeldingListener {
     val logger = applog()
 
     @KafkaListener(
-        topics = ["\${sykmelding.topic}"],
+        topics = ["\${spring.kafka.topics.sykmeldinger-output}"],
         groupId = "journey-consumer",
-        properties = ["auto.offset.reset = none"],
         containerFactory = "containerFactory",
     )
-    fun listen(cr: ConsumerRecord<String, String>, acknowledgment: Acknowledgment) {
+    fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
         logger.info(">>>> INNE I LYTTER: key=${cr.key()}, offset=${cr.offset()}, payload=${cr.value()}")
     }
 

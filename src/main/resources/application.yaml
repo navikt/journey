@@ -25,5 +25,3 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
 
-sykmelding:
-  topic: "tsm.tsm-sykmeldinger"
