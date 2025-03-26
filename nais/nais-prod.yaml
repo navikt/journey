@@ -28,6 +28,6 @@ spec:
       cpu: 250m
       memory: 512Mi
   secureLogs:
-    enabled: false
+    enabled: true
   kafka:
     pool: nav-prod
