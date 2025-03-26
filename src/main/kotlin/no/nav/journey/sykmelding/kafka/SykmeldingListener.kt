@@ -19,7 +19,7 @@ class SykmeldingListener {
         containerFactory = "containerFactory",
     )
     fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
-        logger.info(">>>> INNE I LYTTER: key=${cr.key()}, offset=${cr.offset()}, payload=${cr.value()}")
+        logger.info("key=${cr.key()}, offset=${cr.offset()}")
     }
 
 }
