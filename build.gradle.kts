@@ -1,6 +1,7 @@
 val kafkaClientsVersion = "3.9.0"
 val logstashLogbackEncoderVersion = "8.0"
 val jackson_version= "2.17.2"
+val tokenSupportVersion = "5.0.19"
 
 plugins {
 	kotlin("jvm") version "1.9.25"
@@ -26,6 +27,10 @@ dependencies {
 	implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version")
 	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version")
+	implementation("no.nav.security:token-support:$tokenSupportVersion")
+	implementation("no.nav.security:token-validation-core:$tokenSupportVersion")
+	implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
+	implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
