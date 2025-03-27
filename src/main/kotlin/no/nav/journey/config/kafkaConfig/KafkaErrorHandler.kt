@@ -1,4 +1,4 @@
-package no.nav.journey.config
+package no.nav.journey.config.kafkaConfig
 
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord

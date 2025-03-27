@@ -31,4 +31,15 @@ spec:
     enabled: true
   kafka:
     pool: nav-dev
+  azure:
+    application:
+      allowAllUsers: true
+      enabled: true
+      claims:
+        extra:
+          - NAVident
+  env:
+    - name: TSM_BUCKET
+      value: tsm-sykmelding-dev
+
 
