@@ -62,4 +62,4 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: nais/nais-dev.yaml
-          VAR: image=${{ needs.deploy-prod.outputs.image }}
+          VAR: image=${{ needs.build.outputs.image }}

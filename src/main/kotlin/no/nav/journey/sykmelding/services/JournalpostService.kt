@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class JournalpostService(
-    val dokarkivClient: DokarkivClient
+    val dokarkivClient: DokarkivClient,
+    val bucketService: BucketService
 ) {
 
     val log = applog()
@@ -20,6 +21,10 @@ class JournalpostService(
         if (!skalOpprettePdf(avsenderSystem)){
             log.info("Oppretter ikke ny pdf for papirsykmelding ${sykmelding.sykmelding.id} fordi avsenderSystem er: $avsenderSystem")
             return
+        }
+        val vedlegg = sykmelding.metadata.vedlegg
+        if (!vedlegg.isNullOrEmpty()) {
+            vedlegg.apply { bucketService.getVedleggFromBucket(sykmelding.sykmelding.id) }
         }
     }
 
