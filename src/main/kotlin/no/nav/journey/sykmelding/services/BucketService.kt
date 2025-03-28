@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 class BucketService(
     @Value("\${tsm.bucket}") private val bucket: String,
     val storage: Storage,
-    val metricRegister: MetricRegister,
+    val metricRegister: MetricRegister
     val xmlHandler: XmlHandler,
 ) {
 

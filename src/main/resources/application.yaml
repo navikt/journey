@@ -48,20 +48,21 @@ management:
 
 tsm.bucket: ${TSM_SYKMELDING_BUCKET}
 dokarkiv.url: ${DOKARKIV_URL}
+tsm.bucket: ${TSM_BUCKET}
 
 no.nav.security.jwt:
   issuer:
     azureator:
       discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
       accepted_audience: ${AZURE_APP_CLIENT_ID}
-  client:
-    dokarkiv-m2m:
-      token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
-      scope: api://${DOKARKIV_CLIENT_ID}/.default
-      grant-type: client_credentials
-      authentication:
-        client-id: ${AZURE_APP_CLIENT_ID}
-        client-secret: ${AZURE_APP_CLIENT_SECRET}
-        client-auth-method: client_secret_basic
+#  client:
+#    dokarkiv-m2m:
+#      token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
+#      scope: api://${DOKARKIV_CLIENT_ID}/.default
+#      grant-type: client_credentials
+#      authentication:
+#        client-id: ${AZURE_APP_CLIENT_ID}
+#        client-secret: ${AZURE_APP_CLIENT_SECRET}
+#        client-auth-method: client_secret_basic
 
 

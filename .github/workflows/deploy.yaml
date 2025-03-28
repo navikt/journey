@@ -62,8 +62,4 @@ jobs:
         env:
           CLUSTER: dev-gcp
           RESOURCE: nais/nais-dev.yaml
-<<<<<<< HEAD
           VAR: image=${{ needs.build.outputs.image }}
-=======
-          VAR: image=${{ needs.deploy-prod.outputs.image }}
->>>>>>> aa845d2 (fix: workflow)

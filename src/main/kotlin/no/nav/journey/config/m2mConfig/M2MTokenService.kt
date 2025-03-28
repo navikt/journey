@@ -1,11 +1,13 @@
 package no.nav.journey.config.m2mConfig
 import no.nav.security.token.support.client.core.oauth2.OAuth2AccessTokenService
 import no.nav.security.token.support.client.spring.ClientConfigurationProperties
+import no.nav.security.token.support.client.spring.oauth2.EnableOAuth2Client
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
 import org.springframework.stereotype.Service
 
 @Configuration
+@EnableOAuth2Client
 @EnableConfigurationProperties(ClientConfigurationProperties::class)
 class ClientPropertiesConfig
 

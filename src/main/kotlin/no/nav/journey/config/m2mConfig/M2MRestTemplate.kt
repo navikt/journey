@@ -13,12 +13,12 @@ class M2MRestTemplate(
     private val restTemplateBuilder: RestTemplateBuilder,
     private val m2mTokenService: M2MTokenService,
 ) {
-    @Bean
+    /*@Bean
     fun dokarkivRestTemplate(): RestTemplate {
         return restTemplateBuilder
             .additionalInterceptors(bearerTokenInterceptor("dokarkiv-m2m"))
             .build()
-    }
+    }*/
     private fun bearerTokenInterceptor(type: String): ClientHttpRequestInterceptor {
         return ClientHttpRequestInterceptor { request: HttpRequest, body: ByteArray, execution: ClientHttpRequestExecution ->
             val token = m2mTokenService.getM2MToken(type)
