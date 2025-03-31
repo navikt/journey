@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class JournalpostService(
-    val dokarkivClient: DokarkivClient
+    val dokarkivClient: DokarkivClient,
     val bucketService: BucketService
 ) {
 
@@ -23,6 +23,7 @@ class JournalpostService(
             return
         }
         val vedlegg = sykmelding.metadata.vedlegg
+        log.info("vedlegg: $vedlegg")
         if (!vedlegg.isNullOrEmpty()) {
             log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
             vedlegg.apply { bucketService.getVedleggFromBucket(sykmelding.sykmelding.id) }
