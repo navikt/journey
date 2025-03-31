@@ -21,7 +21,7 @@ class SykmeldingListener(
         containerFactory = "containerFactory",
     )
     fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
-        logger.info("key=${cr.key()}, offset=${cr.offset()}")
+        logger.info("key=${cr.key()}, offset=${cr.offset()} value=${cr.value()}")
         sykmeldingService.handleSykmelding(cr.value())
     }
 
