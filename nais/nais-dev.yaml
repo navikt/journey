@@ -31,6 +31,13 @@ spec:
     enabled: true
   kafka:
     pool: nav-dev
+  azure:
+    application:
+      allowAllUsers: true
+      enabled: true
+      claims:
+        extra:
+          - NAVident
   env:
     - name: DOKARKIV_URL
       value: https://dokarkiv.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
