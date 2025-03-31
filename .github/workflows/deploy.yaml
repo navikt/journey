@@ -32,6 +32,7 @@ jobs:
           salsa: true
           identity_provider: ${{ secrets.NAIS_WORKLOAD_IDENTITY_PROVIDER }}
           project_id: ${{ vars.NAIS_MANAGEMENT_PROJECT_ID }}
+
   deploy-prod:
     if: ${{ github.event.pull_request.user.login != 'dependabot[bot]' && github.ref_name == 'main'}}
     name: Deploy to prod
@@ -47,6 +48,7 @@ jobs:
           CLUSTER: prod-gcp
           RESOURCE: nais/nais-prod.yaml
           VAR: image=${{ needs.build.outputs.image }}
+
   deploy-dev:
     name: Deploy to dev
     needs: [build]
