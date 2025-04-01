@@ -7,6 +7,10 @@ val prometheusVersion = "0.16.0"
 val mockitoKotlinVersion = "5.4.0"
 val testContainersVersion = "1.20.6"
 val mockkVersion = "1.13.17"
+val syfoXmlCodegenVersion = "2.0.1"
+val jaxbRuntimeVersion = "2.4.0-b180830.0438"
+val jaxbApiVersion = "2.4.0-b180830.0359"
+val javaTimeAdapterVersion = "1.1.3"
 
 plugins {
 	kotlin("jvm") version "1.9.25"
@@ -21,6 +25,10 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
 	mavenCentral()
+	maven(url = "https://packages.confluent.io/maven/")
+	maven {
+		url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
+	}
 }
 
 dependencies {
@@ -41,6 +49,13 @@ dependencies {
 	implementation("no.nav.security:token-validation-core:$tokenSupportVersion")
 	implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
 	implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
+	implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
+	implementation("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVersion")
+	implementation("no.nav.helse.xml:kith-hodemelding:$syfoXmlCodegenVersion")
+	implementation("no.nav.helse.xml:kith-apprec:$syfoXmlCodegenVersion")
+	implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
+	implementation("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
+	implementation("com.migesok", "jaxb-java-time-adapters", javaTimeAdapterVersion)
 	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
