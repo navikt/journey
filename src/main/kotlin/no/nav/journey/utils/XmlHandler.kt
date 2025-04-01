@@ -72,6 +72,7 @@ class XmlHandler {
                 val content = contentElement.textContent
                 Vedlegg(Content(contentType, content), type, description)
             }
+
         return vedleggList.ifEmpty { null }
     }
 
