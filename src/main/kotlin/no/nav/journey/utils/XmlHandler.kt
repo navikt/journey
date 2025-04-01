@@ -21,12 +21,14 @@ import javax.xml.bind.Unmarshaller
 import javax.xml.parsers.SAXParserFactory
 import javax.xml.transform.Source
 import javax.xml.transform.sax.SAXSource
+import kotlin.math.log
 
 
 inline fun <reified T> XMLEIFellesformat.get() = this.any.find { it is T } as T
 
 @Component
 class XmlHandler {
+    val log = applog()
     val fellesformatJaxBContext: JAXBContext =
         JAXBContext.newInstance(
             XMLEIFellesformat::class.java,
@@ -70,7 +72,6 @@ class XmlHandler {
                 val content = contentElement.textContent
                 Vedlegg(Content(contentType, content), type, description)
             }
-
         return vedleggList.ifEmpty { null }
     }
 

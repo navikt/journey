@@ -21,32 +21,24 @@ class BucketService(
     val log = applog()
 
     fun getVedleggFromBucket(sykmeldingId: String): List<Vedlegg>? {
-        val fellesformat = downloadXml(sykmeldingId) ?: return null // TODO: kan det være null????
-        return xmlHandler.getVedlegg(fellesformat)
+        val fellesformat = downloadXml(sykmeldingId) ?: return null
+        val vedlegg = xmlHandler.getVedlegg(fellesformat)
+        log.info("Antall vedlegg ${vedlegg?.size} for sykmeldingId ${sykmeldingId}")
+        return vedlegg
     }
 
     fun downloadXml(sykmeldingId: String): XMLEIFellesformat? {
         val blob = storage.get(bucket, sykmeldingId)
-        log.info("blob from bucket: {}", blob)
-
         return if (blob != null && blob.exists()) {
             val compressedData = blob.getContent()
             val decompressed = ungzip(compressedData)
             metricRegister.storageDownloadCounter("download").increment()
+            log.info("Downloaded ${compressedData.size} vedlegg from sykmeldingId $sykmeldingId")
             return xmlHandler.unmarshal(decompressed)
         } else {
             metricRegister.storageDownloadCounter("not_found").increment()
+            log.info("blob from bucket not found sykmmeldingId $sykmeldingId")
             null
         }
     }
-
-
-
-
-
-
-
-
-
-
 }
