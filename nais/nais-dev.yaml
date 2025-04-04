@@ -38,8 +38,8 @@ spec:
       claims:
         extra:
           - NAVident
-  env:
-    - name: TSM_BUCKET
-      value: tsm-sykmelding-dev
+  envFrom:
+    - secret: sykmelding-bucket
+
 
 
