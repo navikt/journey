@@ -22,6 +22,7 @@ class JournalpostService(
         }
         val vedlegg = sykmelding.metadata.vedlegg
         if (!vedlegg.isNullOrEmpty()) {
+            log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
             vedlegg.apply { bucketService.getVedleggFromBucket(sykmelding.sykmelding.id) }
         }
     }

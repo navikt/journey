@@ -17,11 +17,16 @@ class SykmeldingListener(
 
     @KafkaListener(
         topics = ["\${spring.kafka.topics.sykmeldinger-output}"],
-        groupId = "journey-consumer-3",
+        groupId = "journey-consumer-4",
         containerFactory = "containerFactory",
     )
     fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
         logger.info("sykmeldingRecord from kafka: key=${cr.key()}, offset=${cr.offset()}")
+        val sykmeldignValue = cr.value()
+        if (sykmeldignValue == null) {
+            logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
+            return
+        }
         sykmeldingService.handleSykmelding(cr.value())
     }
 }
