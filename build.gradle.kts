@@ -1,11 +1,11 @@
-val kafkaClientsVersion = "3.9.0"
-val logstashLogbackEncoderVersion = "8.0"
-val jackson_version= "2.17.2"
+val kafkaClientsVersion = "4.0.0"
+val logstashLogbackEncoderVersion = "8.1"
+val jackson_version= "2.18.3"
 
 plugins {
-	kotlin("jvm") version "1.9.25"
-	kotlin("plugin.spring") version "1.9.25"
-	id("org.springframework.boot") version "3.4.3"
+	kotlin("jvm") version "2.1.20"
+	kotlin("plugin.spring") version "2.1.20"
+	id("org.springframework.boot") version "3.4.4"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
