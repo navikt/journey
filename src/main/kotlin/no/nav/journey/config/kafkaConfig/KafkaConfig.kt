@@ -22,7 +22,7 @@ class KafkaConfig {
     ): ConcurrentKafkaListenerContainerFactory<String, SykmeldingRecord> {
         val consumerFactory = DefaultKafkaConsumerFactory(
             props.buildConsumerProperties(null).apply {
-                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
                 put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
                 put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
             }, StringDeserializer(), SykmeldingDeserializer(SykmeldingRecord::class)
