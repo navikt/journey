@@ -46,7 +46,7 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
 
-tsm.bucket: ${TSM_BUCKET}
+tsm.bucket: ${TSM_SYKMELDING_BUCKET}
 
 
 
