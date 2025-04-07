@@ -18,18 +18,16 @@ class KafkaErrorHandler : DefaultErrorHandler(
     companion object {
         private const val BACKOFF_INTERVAL = 60_000L
     }
+
     private val log = LoggerFactory.getLogger(KafkaErrorHandler::class.java)
 
     override fun handleOne(
-        thrownException: java.lang.Exception,
+        thrownException: Exception,
         record: ConsumerRecord<*, *>,
         consumer: Consumer<*, *>,
         container: MessageListenerContainer
     ): Boolean {
-        log.error(
-            "Feil i prossesseringen av record med offset: ${record.offset()}, key: ${record.key()} på topic ${record.topic()}",
-            thrownException
-        )
+        logDetailedError(thrownException, record)
         return super.handleOne(thrownException, record, consumer, container)
     }
 
@@ -37,18 +35,13 @@ class KafkaErrorHandler : DefaultErrorHandler(
         thrownException: Exception,
         records: MutableList<ConsumerRecord<*, *>>,
         consumer: Consumer<*, *>,
-        container: MessageListenerContainer,
+        container: MessageListenerContainer
     ) {
-        records.forEach { record ->
-            log.error(
-                "Feil i prossesseringen av record med offset: ${record.offset()}, key: ${record.key()} på topic ${record.topic()}",
-                thrownException
-            )
-        }
         if (records.isEmpty()) {
-            log.error("Feil i listener uten noen records", thrownException)
+            log.error("KafkaErrorHandler: Feil i listener uten noen records", thrownException)
+        } else {
+            records.forEach { logDetailedError(thrownException, it) }
         }
-
         super.handleRemaining(thrownException, records, consumer, container)
     }
 
@@ -57,17 +50,30 @@ class KafkaErrorHandler : DefaultErrorHandler(
         data: ConsumerRecords<*, *>,
         consumer: Consumer<*, *>,
         container: MessageListenerContainer,
-        invokeListener: Runnable,
+        invokeListener: Runnable
     ) {
         if (data.isEmpty) {
-            log.error("Feil i listener uten noen records", thrownException)
-        }
-        data.forEach { record ->
-            log.error(
-                "Feil i prossesseringen av record med offset: ${record.offset()}, key: ${record.key()} på topic ${record.topic()}",
-                thrownException
-            )
+            log.error("KafkaErrorHandler: Feil i listener uten noen records", thrownException)
+        } else {
+            data.forEach { logDetailedError(thrownException, it) }
         }
         super.handleBatch(thrownException, data, consumer, container, invokeListener)
+    }
+
+    private fun logDetailedError(thrownException: Exception, record: ConsumerRecord<*, *>) {
+        log.error(
+            """
+            KafkaErrorHandler: Feil i prosesseringen av record
+            Topic: ${record.topic()}
+            Partition: ${record.partition()}
+            Offset: ${record.offset()}
+            Key: ${record.key()}
+            Timestamp: ${record.timestamp()}
+            Exception Type: ${thrownException::class.simpleName}
+            Exception Message: ${thrownException.message}
+            Stacktrace:
+            """.trimIndent(),
+            thrownException
+        )
     }
 }
