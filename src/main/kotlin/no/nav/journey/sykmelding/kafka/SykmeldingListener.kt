@@ -17,7 +17,7 @@ class SykmeldingListener(
 
     @KafkaListener(
         topics = ["\${spring.kafka.topics.sykmeldinger-output}"],
-        groupId = "journey-consumer",
+        groupId = "journey-consumer-1",
         containerFactory = "containerFactory",
     )
     fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
