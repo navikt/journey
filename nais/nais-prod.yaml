@@ -33,11 +33,7 @@ spec:
     pool: nav-prod
   azure:
     application:
-      allowAllUsers: true
       enabled: true
-      claims:
-        extra:
-          - NAVident
   envFrom:
     - secret: sykmelding-bucket
 
