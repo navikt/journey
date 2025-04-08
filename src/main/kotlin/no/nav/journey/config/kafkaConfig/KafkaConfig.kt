@@ -1,13 +1,9 @@
-package no.nav.journey.config
+package no.nav.journey.config.kafkaConfig
 
 import no.nav.journey.sykmelding.kafka.util.SykmeldingDeserializer
-import no.nav.journey.sykmelding.kafka.util.SykmeldingRecordSerializer
 import no.nav.journey.sykmelding.models.SykmeldingRecord
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.producer.KafkaProducer
-import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean

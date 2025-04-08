@@ -31,3 +31,10 @@ spec:
     enabled: true
   kafka:
     pool: nav-prod
+  azure:
+    application:
+      enabled: true
+  envFrom:
+    - secret: sykmelding-bucket
+
+

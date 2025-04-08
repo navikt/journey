@@ -1,4 +1,15 @@
+server:
+  port: 8080
+  shutdown: graceful
+  error:
+    whitelabel:
+      enabled: false
+
 spring:
+  main:
+    banner-mode: 'off'
+  profiles:
+    active: default
   application:
     name: journey
   kafka:
@@ -14,8 +25,18 @@ spring:
       key-store-password: ${kafka.credstore.password}
     topics:
       sykmeldinger-output: tsm.tsm-sykmeldinger
+  security:
+    basic:
+      enabled: false
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${AZURE_OPENID_CONFIG_ISSUER}
+          jwk-set-uri: ${AZURE_OPENID_CONFIG_JWKS_URI}
+          audiences: ${AZURE_APP_CLIENT_ID}
 management:
   endpoint:
+    prometheus.enabled: true
     health.probes.enabled: true
     health.show-details: always
   endpoints.web:
@@ -24,4 +45,8 @@ management:
   health:
     livenessstate.enabled: true
     readinessState.enabled: true
+
+tsm.bucket: ${TSM_SYKMELDING_BUCKET}
+
+
 
