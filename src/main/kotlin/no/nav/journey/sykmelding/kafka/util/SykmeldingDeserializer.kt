@@ -8,7 +8,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import no.nav.journey.sykmelding.models.SykmeldingModule
 import no.nav.journey.utils.applog
-import org.apache.kafka.common.errors.SerializationException
 import org.apache.kafka.common.serialization.Deserializer
 import kotlin.reflect.KClass
 

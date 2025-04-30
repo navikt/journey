@@ -1,21 +1,31 @@
 package no.nav.journey.sykmelding.models
-
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ObjectNode
-import no.nav.journey.sykmelding.models.metadata.*
+import no.nav.journey.sykmelding.models.metadata.EDIEmottak
+import no.nav.journey.sykmelding.models.metadata.Egenmeldt
+import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
+import no.nav.journey.sykmelding.models.metadata.MessageMetadata
+import no.nav.journey.sykmelding.models.metadata.MetadataType
+import no.nav.journey.sykmelding.models.metadata.Papir
+import no.nav.journey.sykmelding.models.metadata.Utenlandsk
+import no.nav.journey.sykmelding.models.validation.InvalidRule
+import no.nav.journey.sykmelding.models.validation.OKRule
+import no.nav.journey.sykmelding.models.validation.PendingRule
+import no.nav.journey.sykmelding.models.validation.Rule
+import no.nav.journey.sykmelding.models.validation.RuleType
 import kotlin.reflect.KClass
 
 class SykmeldingModule : SimpleModule() {
     init {
-        addDeserializer(ISykmelding::class.java, SykmeldingDeserializer())
+        addDeserializer(Sykmelding::class.java, SykmeldingDeserializer())
         addDeserializer(Aktivitet::class.java, AktivitetDeserializer())
         addDeserializer(ArbeidsgiverInfo::class.java, ArbeidsgiverInfoDeserializer())
         addDeserializer(IArbeid::class.java, IArbeidDeserializer())
         addDeserializer(Rule::class.java, RuleDeserializer())
-        addDeserializer(Meldingsinformasjon::class.java, MeldingsinformasjonDeserializer())
+        addDeserializer(MessageMetadata::class.java, MeldingsinformasjonDeserializer())
     }
 }
 
@@ -30,21 +40,22 @@ abstract class CustomDeserializer<T : Any> : JsonDeserializer<T>() {
         return p.codec.treeToValue(node, clazz.java)
     }
 }
-class SykmeldingDeserializer : CustomDeserializer<ISykmelding>() {
-    override fun getClass(type: String): KClass<out ISykmelding> {
+class SykmeldingDeserializer : CustomDeserializer<Sykmelding>() {
+    override fun getClass(type: String): KClass<out Sykmelding> {
         return when (SykmeldingType.valueOf(type)) {
-            SykmeldingType.SYKMELDING -> Sykmelding::class
-            SykmeldingType.UTENLANDSK_SYKMELDING -> UtenlandskSykmelding::class
+            SykmeldingType.XML -> XmlSykmelding::class
+            SykmeldingType.PAPIR -> Papirsykmelding::class
+            SykmeldingType.UTENLANDSK -> UtenlandskSykmelding::class
         }
     }
 }
-class MeldingsinformasjonDeserializer : CustomDeserializer<Meldingsinformasjon>() {
-    override fun getClass(type: String): KClass<out Meldingsinformasjon> {
+class MeldingsinformasjonDeserializer : CustomDeserializer<MessageMetadata>() {
+    override fun getClass(type: String): KClass<out MessageMetadata> {
         return when (MetadataType.valueOf(type)) {
             MetadataType.ENKEL -> EmottakEnkel::class
             MetadataType.EMOTTAK -> EDIEmottak::class
             MetadataType.UTENLANDSK_SYKMELDING -> Utenlandsk::class
-            MetadataType.PAPIRSYKMELDING -> Papirsykmelding::class
+            MetadataType.PAPIRSYKMELDING -> Papir::class
             MetadataType.EGENMELDT -> Egenmeldt::class
         }
     }

@@ -11,9 +11,11 @@ val syfoXmlCodegenVersion = "2.0.1"
 val jaxbRuntimeVersion = "2.4.0-b180830.0438"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val javaTimeAdapterVersion = "1.1.3"
+val pdfgencoreVersion = "1.1.46"
+val verapdfVersion = "1.26.1"
 
 plugins {
-	kotlin("jvm") version "1.9.25"
+	kotlin("jvm") version "2.1.0"
 	kotlin("plugin.spring") version "1.9.25"
 	id("org.springframework.boot") version "3.4.3"
 	id("io.spring.dependency-management") version "1.1.7"
@@ -57,6 +59,13 @@ dependencies {
 	implementation("no.nav.security:token-validation-core:$tokenSupportVersion")
 	implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
 	implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
+	implementation("no.nav.pdfgen:pdfgen-core:$pdfgencoreVersion")
+	implementation("org.verapdf:validation-model:$verapdfVersion")
+	implementation("com.github.jknack:handlebars:4.3.1")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+
+	testImplementation("org.apache.tika:tika-core:3.1.0")
+	testImplementation("org.apache.tika:tika-parsers-standard-package:3.1.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 	testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
@@ -68,6 +77,7 @@ dependencies {
 tasks {
 	bootJar {
 		archiveFileName = "app.jar"
+		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	}
 	test {
 		useJUnitPlatform()
