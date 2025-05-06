@@ -24,7 +24,7 @@ spring:
       key-store-type: PKCS12
       key-store-password: ${kafka.credstore.password}
     topics:
-      sykmeldinger-output: tsm.tsm-sykmeldinger
+      sykmeldinger-output: tsm.sykmeldinger
   security:
     basic:
       enabled: false
@@ -48,7 +48,6 @@ management:
 
 tsm.bucket: ${TSM_SYKMELDING_BUCKET}
 dokarkiv.url: ${DOKARKIV_URL}
-tsm.bucket: ${TSM_BUCKET}
 
 no.nav.security.jwt:
   issuer:
