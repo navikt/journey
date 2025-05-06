@@ -1,13 +1,18 @@
 package no.nav.journey.sykmelding.models
 
-import no.nav.journey.sykmelding.models.metadata.*
+import no.nav.journey.sykmelding.models.metadata.Adresse
+import no.nav.journey.sykmelding.models.metadata.HelsepersonellKategori
+import no.nav.journey.sykmelding.models.metadata.Kontaktinfo
+import no.nav.journey.sykmelding.models.metadata.MessageMetadata
+import no.nav.journey.sykmelding.models.metadata.Navn
+import no.nav.journey.sykmelding.models.metadata.PersonId
+import no.nav.journey.sykmelding.models.validation.ValidationResult
 import java.time.LocalDate
 import java.time.OffsetDateTime
 
-
 data class SykmeldingRecord(
-    val metadata: Meldingsinformasjon,
-    val sykmelding: ISykmelding,
+    val metadata: MessageMetadata,
+    val sykmelding: Sykmelding,
     val validation: ValidationResult,
 )
 
@@ -26,23 +31,25 @@ data class Behandler(
     val kontaktinfo: List<Kontaktinfo>,
 )
 
-data class SignerendeBehandler(
+data class Sykmelder(
     val ids: List<PersonId>,
     val helsepersonellKategori: HelsepersonellKategori,
 )
 
 enum class SykmeldingType {
-    SYKMELDING,
-    UTENLANDSK_SYKMELDING
+    XML,
+    PAPIR,
+    UTENLANDSK
 }
 
-sealed interface ISykmelding {
+sealed interface Sykmelding {
     val type: SykmeldingType
     val id: String
     val metadata: SykmeldingMetadata
     val pasient: Pasient
     val medisinskVurdering: MedisinskVurdering
     val aktivitet: List<Aktivitet>
+    val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>?
 }
 
 data class UtenlandskSykmelding(
@@ -51,29 +58,50 @@ data class UtenlandskSykmelding(
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
     override val aktivitet: List<Aktivitet>,
+    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
     val utenlandskInfo: UtenlandskInfo
-) : ISykmelding {
-    override val type = SykmeldingType.UTENLANDSK_SYKMELDING
+) : Sykmelding {
+    override val type = SykmeldingType.UTENLANDSK
 }
 
 
-data class Sykmelding(
+data class XmlSykmelding(
     override val id: String,
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
     override val aktivitet: List<Aktivitet>,
-    val behandler: Behandler,
+    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
     val arbeidsgiver: ArbeidsgiverInfo,
-    val signerendeBehandler: SignerendeBehandler,
+    val behandler: Behandler,
+    val sykmelder: Sykmelder,
     val prognose: Prognose?,
     val tiltak: Tiltak?,
     val bistandNav: BistandNav?,
     val tilbakedatering: Tilbakedatering?,
     val utdypendeOpplysninger: Map<String, Map<String, SporsmalSvar>>?,
-) : ISykmelding {
-    override val type = SykmeldingType.SYKMELDING
+) : Sykmelding {
+    override val type = SykmeldingType.XML
 }
+data class Papirsykmelding(
+    override val id: String,
+    override val metadata: SykmeldingMetadata,
+    override val pasient: Pasient,
+    override val medisinskVurdering: MedisinskVurdering,
+    override val aktivitet: List<Aktivitet>,
+    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
+    val arbeidsgiver: ArbeidsgiverInfo,
+    val behandler: Behandler,
+    val sykmelder: Sykmelder,
+    val prognose: Prognose?,
+    val tiltak: Tiltak?,
+    val bistandNav: BistandNav?,
+    val tilbakedatering: Tilbakedatering?,
+    val utdypendeOpplysninger: Map<String, Map<String, SporsmalSvar>>?,
+) : Sykmelding {
+    override val type = SykmeldingType.PAPIR
+}
+
 
 data class AvsenderSystem(val navn: String, val versjon: String)
 data class SykmeldingMetadata(
@@ -91,7 +119,7 @@ data class BistandNav(
 )
 
 data class Tiltak(
-    val tiltakNAV: String?,
+    val tiltakNav: String?,
     val andreTiltak: String?,
 )
 
@@ -106,18 +134,3 @@ data class Tilbakedatering(
     val begrunnelse: String?,
 )
 
-data class UtenlandskInfo(
-    val land: String,
-    val folkeRegistertAdresseErBrakkeEllerTilsvarende: Boolean,
-    val erAdresseUtland: Boolean?,
-)
-data class SporsmalSvar(
-    val sporsmal: String?,
-    val svar: String,
-    val restriksjoner: List<SvarRestriksjon>
-)
-enum class SvarRestriksjon {
-    SKJERMET_FOR_ARBEIDSGIVER,
-    SKJERMET_FOR_PASIENT,
-    SKJERMET_FOR_NAV,
-}

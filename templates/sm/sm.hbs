@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="description" content="HelseOpplysninger ved arbeidsuførhet"/>
+    <meta name="author" content="smpdfgen"/>
+    <meta name="subject" content="Sykmelding"/>
+    <style>
+        @page {
+            margin: 1cm;
+        }
+        * {
+            font-family: "Source Sans Pro", SourceSansPro, Source_Sans_Pro, ArialSystem, sans-serif;
+        }
+        td span {
+            float:right; width:100%; min-width:100%;
+        }
+        td {
+            font-size: 0.9em;
+        }
+
+        table {
+            width: 100%;
+            border: 1px black solid;
+            margin-bottom: 0.5cm;
+        }
+
+        td {
+            vertical-align: top;
+            word-wrap: break-word;
+        }
+
+        table thead {
+            background-color: lightblue;
+        }
+
+        table thead td {
+            border: none;
+        }
+
+        td h5 {
+            margin: 0;
+        }
+
+        td h4 {
+            margin: 0;
+        }
+
+        td h3 {
+            margin: 0;
+        }
+
+        td p {
+            margin: 0;
+        }
+
+        body {
+            page-break-inside: avoid;
+        }
+
+        .header {
+
+        }
+
+        .tr10 {
+            width: 10%;
+        }
+
+        .tr15 {
+
+        }
+
+        .tr20 {
+            width: 20%;
+        }
+
+        .tr25 {
+            width: 25%;
+        }
+
+        .tr30 {
+            width: 30%;
+        }
+
+        .tr60 {
+            width: 60%;
+        }
+
+        .tr65 {
+            width: 65%;
+        }
+
+        .tr75 {
+            width: 75%;
+        }
+
+        .infoblock {
+        }
+        .header-ikon {
+                    width: 20%;
+                    position: relative;
+                    left: 560px;
+        }
+    </style>
+    <title>
+        {{#each validation.rules}}
+            {{#eq this.name "TILBAKEDATERING_UGYLDIG_TILBAKEDATERING"}}
+                <tr>
+                <td><strong>AVSLÅTT</strong></td>
+                </tr>
+            {{/eq}}
+        {{/each}}
+        {{#eq metadata.type "PAPIRSYKMELDING"}}Papirsykmelding {{/eq}}
+        {{#eq metadata.type "EGENMELDT"}}Egenmeldt {{/eq}}
+        {{#eq validation.status "INVALID" }}AVVIST {{/eq}}Sykmelding for {{ sykmelding.pasient.navn.fornavn }} {{#if sykmelding.pasient.navn.mellomnavn }} {{sykmelding.pasient.navn.mellomnavn}}{{/if}} {{sykmelding.pasient.navn.etternavn}}</title>
+</head>
+<body>
+<img class="header-ikon" alt="NAV logo"
+     src="{{ image "NAVLogoRed.png" }}" />
+<table class="header">
+    <thead>
+    <tr>
+        <td class="tr65">
+            {{#each validation.rules}}
+              {{#eq this.name "TILBAKEDATERING_UGYLDIG_TILBAKEDATERING"}}
+                <tr>
+                  <td><strong>AVSLÅTT</strong></td>
+                </tr>
+              {{/eq}}
+            {{/each}}
+            {{#eq metadata.type "PAPIRSYKMELDING"}}Papirsykmelding {{/eq}} {{#eq metadata.type "EGENMELDT"}}EGENMELDING FOR SELVSTENDIG NÆRINGSDRIVENDE ELLER FRILANSER {{/eq}} {{#eq validation.status "INVALID" }}AVVIST {{/eq}}</td>
+    <td align="left">Genereringsdato: {{ iso_to_nor_date sykmelding.metadata.genDate }} </td>
+    </tr>
+    <tr>
+        <td>Mottatt dato NAV: {{ iso_to_nor_date sykmelding.metadata.mottattDato }}</td>
+        <td>Behandlet dato: {{ iso_to_nor_date sykmelding.metadata.behandletTidspunkt }}</td>
+    </tr>
+    </thead>
+</table>
+
+<table class="infoblock">
+    <thead>
+    <tr>
+        <td class="tr10"><h4>0</h4></td>
+        <td class="tr65"><h4>Syketilfelle startdato</h4></td>
+        <td></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><h4>0</h4></td>
+        <td>
+            {{#eq metadata.type "EGENMELDT"}}
+                <h4>Startdato for egenmeldingen</h4>
+            {{else}}
+                <h4>Når startet det legemeldte fraværet (angitt av behandler)</h4>
+            {{/eq}}
+        </td>
+        <td>{{ iso_to_date sykmelding.medisinskVurdering.syketilfelletStartDato }}</td>
+    </tr>
+    </tbody>
+</table>
+
+
+<table class="infoblock">
+    <thead>
+    <tr>
+        <td class="tr10"><h4>1</h4></td>
+        <td class="tr65"><h4>Pasientopplysninger</h4></td>
+        <td></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><h4>1.1.1</h4></td>
+        <td><h4>Etternavn</h4></td>
+        <td>{{ sykmelding.pasient.navn.etternavn }}</td>
+    </tr>
+    <tr>
+        <td><h4>1.1.2</h4></td>
+        <td><h4>Fornavn</h4></td>
+        <td>{{ sykmelding.pasient.navn.fornavn }}</td>
+    </tr>
+    <tr>
+        <td><h4>1.2</h4></td>
+        <td><h4>Fødselsnummer</h4></td>
+        <td>{{ sykmelding.pasient.fnr }}</td>
+    </tr>
+    {{#eq sykmelding.metadata.regelsettVersjon "3"}}
+    {{else}}
+        <tr>
+            <td><h4>1.3</h4></td>
+            <td><h4>Telefon</h4></td>
+            {{#each sykmelding.pasient.kontaktinfo}}
+                {{#eq this.type "TLF"}}
+                    <tr>
+                        <td>{{this.value}}</td>
+                    </tr>
+                {{/eq}}
+            {{/each}}
+        </tr>
+        <tr>
+            <td><h4>1.4</h4></td>
+            <td><h4>Navn på pasientens fastlege</h4></td>
+            <td>{{ sykmelding.pasient.navnFastlege }}</td>
+        </tr>
+    {{/eq}}
+    </tbody>
+</table>
+
+<table class="infoblock">
+    <thead>
+    <tr>
+        <td class="tr10"><h4>2</h4></td>
+        <td class="tr65"><h4>Arbeidsgiver</h4></td>
+        <td></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><h4>2.1</h4></td>
+        <td><h4>Pasienten har:</h4></td>
+        <td>
+            {{#eq sykmelding.arbeidsgiver.type "EN_ARBEIDSGIVER"}}Én arbeidsgiver{{/eq}}
+            {{#eq sykmelding.arbeidsgiver.type "FLERE_ARBEIDSGIVERE"}}Flere arbeidsgivere{{/eq}}
+            {{#eq sykmelding.arbeidsgiver.type "INGEN_ARBEIDSGIVER"}}Ingen arbeidsgiver{{/eq}}
+        </td>
+    </tr>
+    {{#eq sykmelding.arbeidsgiver.type "FLERE_ARBEIDSGIVERE"}}
+        <tr>
+            <td><h4>2.2</h4></td>
+            <td><h4>Arbeidsgiver for denne perioden</h4></td>
+            <td>{{ sykmelding.arbeidsgiver.navn }}</td>
+        </tr>
+        <tr>
+            <td><h4>2.3</h4></td>
+            <td>
+                {{#eq metadata.type "EGENMELDT"}}
+                    <h4>Yrke /stilling for denne egenmeldingen</h4>
+                {{else}}
+                    <h4>Yrke/stilling for denne sykmeldingen</h4>
+                {{/eq}}
+            </td>
+            <td>{{ sykmelding.arbeidsgiver.yrkesbetegnelse }}</td>
+        </tr>
+        <tr>
+            <td><h4>2.4</h4></td>
+            <td><h4>Stillingsprosent</h4></td>
+            <td>{{ sykmelding.arbeidsgiver.stillingsprosent }}</td>
+        </tr>
+    {{/eq}}
+    </tbody>
+</table>
+
+<table class="infoblock">
+    <thead>
+    <tr>
+        <td class="tr10"><h4>3</h4></td>
+        <td class="tr20"><h4>Diagnose</h4></td>
+        <td class="tr30"></td>
+        <td class="tr15"></td>
+        <td class="tr25"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {{#if sykmelding.medisinskVurdering.hovedDiagnose }}
+        <tr>
+            <td><h4>3.1</h4></td>
+            <td><h4>Hoveddiagnose</h4></td>
+            <td>
+                <h4>3.1.1 Kodesystem</h4>
+                <p>
+                    {{#eq sykmelding.medisinskVurdering.hovedDiagnose.system "ICPC2" }}ICPC-2{{/eq}}
+                    {{#eq sykmelding.medisinskVurdering.hovedDiagnose.system "ICD10" }}ICD-10{{/eq}}
+                </p>
+            </td>
+            <td>
+                <h4>3.1.2 Kode</h4>
+                <p>{{ sykmelding.medisinskVurdering.hovedDiagnose.kode }}</p>
+            </td>
+            <td>
+                <h4>3.1.3 Diagnose</h4>
+                <p>{{ sykmelding.medisinskVurdering.hovedDiagnose.tekst }}</p>
+            </td>
+        </tr>
+    {{/if}}
+    {{#if sykmelding.medisinskVurdering.biDiagnoser }}
+        <tr>
+            <td><h4>3.2</h4></td>
+            <td><h4>Bidiagnoser</h4></td>
+            <td>
+                <h4>3.1.1 Kodesystem</h4>
+                {{#each sykmelding.medisinskVurdering.biDiagnoser }}
+                    {{#eq system "ICPC2" }}
+                    <p>  ICPC-2 </p>
+                    {{/eq}}
+                    {{#eq system "ICD10" }}
+                    <p> ICD-10 </p>
+                    {{/eq}}
+                {{/each}}
+            </td>
+            <td>
+                <h4>3.1.2 Kode</h4>
+                {{#each sykmelding.medisinskVurdering.biDiagnoser }}
+                    <p>
+                        {{ kode }}</p>
+                {{/each}}
+            </td>
+            <td>
+                <h4>3.1.3 Diagnose</h4>
+                {{#each sykmelding.medisinskVurdering.biDiagnoser }}
+                    <p>{{ tekst }}</p>
+                {{/each}}
+            </td>
+        </tr>
+    {{/if}}
+    {{#if sykmelding.medisinskVurdering.annenFraversArsak}}
+        <tr>
+            <td><h4>3.3</h4></td>
+            <td><h4>Annen fraværsgrunn</h4></td>
+            <td colspan="2">
+                <h4>3.3.1 Lovfestet fraværsgrunn</h4>
+                {{#each sykmelding.medisinskVurdering.annenFraversArsak.arsak}}
+                    <p>{{this}}</p>
+                {{/each}}
+            </td>
+            <td>
+                <h4>3.3.2 Beskriv fravær</h4>
+                <p>{{sykmelding.medisinskVurdering.annenFraversArsak.beskrivelse}}</p>
+            </td>
+        </tr>
+    {{/if}}
+    {{#if sykmelding.medisinskVurdering.svangerskap }}
+        <tr>
+            <td><h4>3.4</h4></td>
+            <td colspan="4">
+                <h4>Sykdommen er svangerskapsrelatert</h4>
+            </td>
+        </tr>
+    {{/if}}
+    {{#if sykmelding.medisinskVurdering.yrkesskade}}
+        <tr>
+            <td><h4>3.5</h4></td>
+            <td colspan="4"><h4>Sykmeldingen kan skyldes yrkesskade/yrkessykdom</h4></td>
+        </tr>
+        <tr>
+            <td><h4>3.6</h4></td>
+            <td><h4>Skadedato</h4></td>
+            <td colspan="3">{{iso_to_date sykmelding.medisinskVurdering.yrkesskade.yrkesskadeDato }}</td>
+        </tr>
+    {{/if}}
+    {{#if sykmelding.medisinskVurdering.skjermesForPasient }}
+        <tr>
+            <td><h4>3.7</h4></td>
+            <td colspan="4"><h4>Pasienten må skjermes for medisinske opplysninger</h4></td>
+        </tr>
+    {{/if}}
+    </tbody>
+</table>
+<table>
+    <thead>
+    <tr>
+        <td class="tr10"><h4>4</h4></td>
+        <td class="tr30"><h4>Mulighet for arbeid</h4></td>
+        <td class="tr10"></td>
+        <td class="tr10"></td>
+        <td class="tr10"></td>
+        <td class="tr10"></td>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each sykmelding.aktiviteter}}
+        {{#eq @key "AVVENTENDE"}}
+            <tr>
+                <td><h4>4.1</h4></td>
+                <td><h4>Pasienten kan benytte avventende sykmelding</h4></td>
+                <td><h5>4.1.1 f.o.m.</h5></td>
+                <td><h5>4.1.2 t.o.m.</h5></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {{#each this}}
+                <tr>
+                    <td colspan="2"></td>
+                    <td>{{iso_to_date fom}}</td>
+                    <td>{{iso_to_date tom}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><h4>4.1.3</h4></td>
+                    <td>
+                        <h4>Innspill til arbeidsgiver om tilrettelegging</h4>
+                        {{innspillTilArbeidsgiver}}
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            {{/each}}
+        {{/eq}}
+
+        {{#eq @key "GRADERT"}}
+            <tr>
+                <td><h4>4.2</h4></td>
+                <td><h4>Pasienten kan være delvis i arbeid (sykmeldingsgrad)</h4></td>
+                <td><h5>4.2.1 f.o.m.</h5></td>
+                <td><h5>4.2.2 t.o.m.</h5></td>
+                <td><h5>4.2.3 grad for sykmelding</h5></td>
+                <td><h5>4.2.4 reisetilskudd</h5></td>
+            </tr>
+            {{#each this}}
+                <tr>
+                    <td colspan="2"></td>
+                    <td>{{iso_to_date fom}}</td>
+                    <td>{{iso_to_date tom}}</td>
+                    <td>{{grad}}</td>
+                    <td>
+                        {{#if reisetilskudd}} Ja {{else}} Nei {{/if}}
+                    </td>
+                </tr>
+            {{/each}}
+        {{/eq}}
+
+        {{#eq @key "AKTIVITET_IKKE_MULIG"}}
+            <tr>
+                <td><h4>4.3</h4></td>
+                <td><h4>Pasienten kan ikke være i arbeid (100 % sykmeldt)</h4></td>
+                <td><h5>4.3.1 f.o.m</h5></td>
+                <td><h5>4.3.2 t.o.m</h5></td>
+                <td></td>
+                <td></td>
+            </tr>
+            {{#each this}}
+                <tr>
+                    <td colspan="2"></td>
+                    <td>{{iso_to_date fom}}</td>
+                    <td>{{iso_to_date tom}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                {{#if medisinskArsak}}
+                    <tr>
+                        <td><h4>4.3.3</h4></td>
+                        <td><h4>Medisinske årsaker hindrer arbeidsrelatert aktivitet</h4></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {{#if medisinskArsak.arsak}}
+                        <tr>
+                            <td><h4>4.3.3.1</h4></td>
+                            <td>
+                                <h4>Angi hva som er årsaken</h4>
+                                {{#each medisinskArsak.arsak}}
+                                    <li>{{this}}</li>
+                                {{/each}}
+                            </td>
+                        </tr>
+                    {{/if}}
+                    {{#if medisinskArsak.beskrivelse}}
+                        <tr>
+                            <td><h4>4.3.3.2</h4></td>
+                            <td>
+                                <h4>Beskriv nærmere</h4>
+                                <ul>
+                                    <li>{{medisinskArsak.beskrivelse}}</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    {{/if}}
+                {{/if}}
+            {{/each}}
+        {{/eq}}
+        {{#eq @key "BEHANDLINGSDAGER"}}
+            <tr>
+                <td><h4>4.4</h4></td>
+                <td><h4>Pasienten kan ikke være i arbeid på behandlingsdager</h4></td>
+                <td><h5>4.4.1 f.o.m.</h5></td>
+                <td><h5>4.4.2 t.o.m.</h5></td>
+                <td><h5>4.4.3 Antall dager</h5></td>
+            </tr>
+            {{#each this}}
+                <tr>
+                    <td colspan="2"></td>
+                    <td>{{iso_to_date fom}}</td>
+                    <td>{{iso_to_date tom}}</td>
+                    <td>{{antallBehandlingsdager}}</td>
+                </tr>
+            {{/each}}
+        {{/eq}}
+        {{#eq @key "REISETILSKUDD"}}
+            <tr>
+                <td><h4>4.5</h4></td>
+                <td><h4>Pasienten kan være i fullt arbeid ved bruk av reisetilskudd</h4></td>
+                <td><h5>4.5.1 f.o.m.</h5></td>
+                <td><h5>4.5.2 t.o.m.</h5></td>
+                <td></td>
+            </tr>
+            {{#each this}}
+                <tr>
+                    <td colspan="2"></td>
+                    <td>{{iso_to_date fom}}</td>
+                    <td>{{iso_to_date tom}}</td>
+                    <td></td>
+                </tr>
+            {{/each}}
+        {{/eq}}
+    {{/each}}
+    </tbody>
+</table>
+
+{{#if sykmelding.prognose}}
+    <table>
+        <thead>
+        <tr>
+            <td class="tr10"><h4>5</h4></td>
+            <td class="tr60"><h4>Friskmelding/Prognose</h4></td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><h4>5.1</h4></td>
+            <td><h4>Pasienten er 100 prosent arbeidsfør etter denne perioden</h4></td>
+            <td>
+                    {{#if sykmelding.prognose.arbeidsforEtterPeriode}}
+                        Ja
+                    {{else}}
+                        Nei
+                    {{/if}}
+            </td>
+        </tr>
+        {{#if sykmelding.prognose.hensynArbeidsplassen }}
+            <tr>
+                <td><h4>5.1.1</h4></td>
+                <td><h4>Beskriv eventuelle hensyn som må tas på arbeidsplassen</h4></td>
+
+            </tr>
+            <tr>
+                <td></td>
+                <td colspan="2">
+                    {{ sykmelding.prognose.hensynArbeidsplassen }}
+                </td>
+            </tr>
+        {{/if}}
+        {{#eq sykmelding.metadata.regelsettVersjon "3"}}
+        {{else}}
+            {{#eq sykmelding.prognose.arbeid.type "ER_I_ARBEID"}}
+                <tr>
+                    <td><h4>5.2</h4></td>
+                    <td><h4>Pasient med arbeidsgiver: Utdypende opplysninger ved 7 uker</h4></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><h4>5.2.1</h4></td>
+                    <td><h4>Jeg antar at pasienten på sikt kan komme tilbake til samme arbeidsgiver</h4></td>
+                    <td>
+                        {{#if sykmelding.prognose.arbeid.egetArbeidPaSikt }}
+                            Ja
+                        {{else}}
+                            Nei
+                        {{/if}}
+                    </td>
+                </tr>
+
+                {{#if sykmelding.prognose.arbeid.arbeidFOM}}
+                    <tr>
+                        <td></td>
+                        <td>Anslå når du tror dette kan skje</td>
+                        <td>{{ iso_to_date sykmelding.prognose.arbeid.arbeidFOM }}</td>
+                    </tr>
+                {{/if}}
+
+                <tr>
+                    <td><h4>5.2.2</h4></td>
+                    <td><h4>Jeg antar at pasienten på sikt kan komme i arbeid hos annen arbeidsgiver</h4></td>
+                    <td colspan="2">
+                        {{#if sykmelding.prognose.arbeid.annetArbeidPaSikt }}
+                            Ja
+                        {{else}}
+                            Nei
+                        {{/if}}
+                    </td>
+                </tr>
+
+                {{#if sykmelding.prognose.arbeid.vurderingsdato}}
+                    <tr>
+                        <td><h4>5.2.3</h4></td>
+                        <td><h4>Hvis usikker: Når antar du å kunne gi tilbakemelding på dette?</h4></td>
+                        <td>{{ iso_to_date prognose.arbeid.vurderingsdato }}</td>
+                    </tr>
+                {{/if}}
+            {{/eq}}
+            {{#eq sykmelding.prognose.arbeid.type "ER_IKKE_I_ARBEID"}}
+                <tr>
+                    <td><h4>5.3</h4></td>
+                    <td><h4>Pasient uten arbeidsgiver: Utdypende opplysninger ved 7 uker</h4></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td><h4>5.3.1</h4></td>
+                    <td><h4>Jeg antar at pasienten på sikt kan komme tilbake i arbeid</h4></td>
+                    <td colspan="2">
+                        {{#eq sykmelding.prognose.arbeid.type "ER_IKKE_I_ARBEID"}}
+                            Ja
+                        {{else}}
+                            Nei
+                        {{/eq}}
+                    </td>
+                </tr>
+
+                {{#eq sykmelding.prognose.arbeid.type "ER_IKKE_I_ARBEID"}}
+                    {{#if sykmelding.prognose.arbeid.arbeidsforPaSikt }}
+                        <tr>
+                            <td></td>
+                            <td>Anslå når du tror dette kan skje</td>
+                            <td>{{ iso_to_date sykmelding.prognose.arbeid.arbeidsforFOM }}</td>
+                        </tr>
+                    {{/if}}
+                {{/eq}}
+
+                {{#if sykmelding.prognose.arbeid.vurderingsdato }}
+                    <tr>
+                        <td><h4>5.3.2</h4></td>
+                        <td><h4>Hvis usikker: Når antar du å kunne gi tilbakemelding på dette?</h4></td>
+                        <td>{{ iso_to_date sykmelding.prognose.arbeid.vurderingsdato }}</td>
+                    </tr>
+                {{/if}}
+            {{/eq}}
+        {{/eq}}
+
+        </tbody>
+    </table>
+{{/if}}
+
+{{#eq metadata.type "EGENMELDT"}}
+
+{{else}}
+{{#if sykmelding.utdypendeOpplysninger }}
+{{#not_eq sykmelding.utdypendeOpplysninger "{}"}}
+    <table>
+        <thead>
+        <tr>
+            <td class="tr10"><h4>6</h4></td>
+            <td><h4>Utdypende opplysninger</h4></td>
+        </tr>
+        </thead>
+        {{#each sykmelding.utdypendeOpplysninger}}
+            <tr>
+                <td><h4>{{@key}}</h4></td>
+                <td>
+                    <h4>
+                        {{#eq @key "6.1"}}Utdypende opplysninger ved 4,12 og 28 uker ved visse diagnoser{{/eq}}
+                        {{#eq @key "6.2"}}Utdypende opplysninger ved 8,17 og 39 uker{{/eq}}
+                        {{#eq @key "6.3"}}Opplysninger ved vurdering av aktivitetskravet{{/eq}}
+                        {{#eq @key "6.4"}}Helseopplysninger ved 17 uker{{/eq}}
+                        {{#eq @key "6.5"}}Utdypende opplysninger ved 39 uker{{/eq}}
+                        {{#eq @key "6.6"}}Helseopplysninger dersom pasienten søker om AAP{{/eq}}
+                    </h4>
+                </td>
+            </tr>
+        {{@value}}
+            {{#each this}}
+                <tr>
+                    <td><h4>{{ @key }}</h4></td>
+                    <td><h4>{{ sporsmal }}</h4></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>{{ svar }}</td>
+                </tr>
+            {{/each}}
+        {{/each}}
+    </table>
+{{/not_eq}}
+{{/if}}
+{{/eq}}
+{{#eq sykmelding.metadata.regelsettVersjon "3"}}
+{{else}}
+    {{#any sykmelding.arbeidsgiver.tiltakArbeidsplassen sykmelding.tiltak.tiltakNAV sykmelding.tiltak.andreTiltak}}
+        <table>
+            <thead>
+            <tr>
+                <td class="tr10"><h4>7</h4></td>
+                <td><h4>Hva skal til for  bedre arbeidsevnen?</h4></td>
+            </tr>
+            </thead>
+            <tbody>
+            {{#if sykmelding.arbeidsgiver.tiltakArbeidsplassen}}
+                <tr>
+                    <td><h4>7.1</h4></td>
+                    <td><h4>Tilrettelegging/hensyn som bør tas på arbeidsplassen. Beskriv</h4></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>{{ sykmelding.arbeidsgiver.tiltakArbeidsplassen }}</td>
+                </tr>
+            {{/if}}
+            {{#if sykmelding.tiltak.tiltakNav }}
+                <tr>
+                    <td><h4>7.2</h4></td>
+                    <td><h4>Tiltak i regi av NAV. Beskriv</h4></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>{{ sykmelding.tiltak.tiltakNav }}</td>
+                </tr>
+            {{/if}}
+            {{#if sykmelding.tiltak.andreTiltak }}
+                <tr>
+                    <td><h4>7.3</h4></td>
+                    <td><h4>Eventuelle andre innspill til NAV. Beskriv</h4></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>{{ sykmelding.tiltak.andreTiltak }}</td>
+                </tr>
+            {{/if}}
+            </tbody>
+        </table>
+    {{/any}}
+{{/eq}}
+{{#if sykmelding.bistandNav.beskrivBistand}}
+    <table>
+        <thead>
+        <tr>
+            <td class="tr10"><h4>8</h4></td>
+            <td><h4>Melding til NAV</h4></td>
+        </tr>
+        </thead>
+        <tbody>
+        {{#eq sykmelding.metadata.regelsettVersjon "3"}}
+            {{#if sykmelding.bistandNav.beskrivBistand}}
+                <tr>
+                    <td><h4>8.1</h4></td>
+                    <td><h4>Ønskes bistand fra NAV</h4></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>{{ sykmelding.bistandNav.beskrivBistand }}</td>
+                </tr>
+            {{/if}}
+        {{else}}
+            {{#if sykmelding.bistandNav.bistandUmiddelbart}}
+                <tr>
+                    <td><h4>8.1</h4></td>
+                    <td><h4>Ønsker du bistand fra NAV nå</h4></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>Ja</td>
+                </tr>
+            {{/if}}
+            <tr>
+                <td><h4>8.2</h4></td>
+                <td><h4>Begrunnelse</h4></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>{{ sykmelding.bistandNav.beskrivBistand }}</td>
+            </tr>
+        {{/eq}}
+        </tbody>
+    </table>
+{{/if}}
+{{#if sykmelding.arbeidsgiver.meldingTilArbeidsgiver}}
+    <table>
+        <thead>
+        <tr>
+            <td class="tr10"><h4>9</h4></td>
+            <td class="Melding til arbeidsgiver"></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><h4>9.1</h4></td>
+            {{#eq sykmelding.metadata.regelsettVersjon "3"}}
+                <td><h4>Innspill til arbeidsgiver</h4></td>
+            {{else}}
+                <td><h4>Andre innspill til arbeidsgiver</h4></td>
+            {{/eq}}
+        </tr>
+        <tr>
+            <td></td>
+            <td>{{ sykmelding.arbeidsgiver.meldingTilArbeidsgiver }}</td>
+        </tr>
+        </tbody>
+    </table>
+{{/if}}
+
+{{#eq metadata.type "EGENMELDT"}}
+
+{{else}}
+{{#any sykmelding.tilbakedatering.kontaktDato sykmelding.tilbakedatering.begrunnelse}}
+    <table>
+        <thead>
+        <tr>
+            <td class="tr10"><h4>11</h4></td>
+            <td class="tr60"><h4>Tilbakedatering</h4></td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        {{#if sykmelding.tilbakedatering.kontaktDato}}
+        <tr>
+            <td><h4>11.1</h4></td>
+            <td><h4>Dato for dokumenterbar kontakt med pasienten</h4></td>
+            <td>{{ sykmelding.tilbakedatering.kontaktDato }}</td>
+        </tr>
+        {{/if}}
+        {{#if sykmelding.tilbakedatering.begrunnelse }}
+        <tr>
+            <td><h4>11.2</h4></td>
+            <td><h4>Begrunn årsaken til tilbakedateringen</h4></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td colspan="2">
+                {{ sykmelding.tilbakedatering.begrunnelse }}
+            </td>
+        </tr>
+        {{/if}}
+        </tbody>
+    </table>
+{{/any}}
+{{/eq}}
+
+
+<table>
+    <thead>
+    <tr>
+        <td class="tr10"><h4>12</h4></td>
+        <td class="tr60"><h4>Bekreftelse</h4></td>
+        <td></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><h4>12.1</h4></td>
+        <td><h4>
+            {{#eq metadata.type "EGENMELDT"}}
+                Dato for når egenmeldingen ble registrert hos NAV
+            {{else}}
+                Pasienten er kjent eller har vist legitimasjon
+            {{/eq}}
+        </h4></td>
+        <td>{{iso_to_nor_date sykmelding.metadata.behandletTidspunkt }}</td>
+    </tr>
+    <tr>
+        <td><h4>12.2</h4></td>
+        <td><h4>Sykmelders navn</h4></td>
+        <td>{{ sykmelding.behandler.navn.fornavn }}{{#if sykmelding.behandler.navn.mellomnavn}} {{sykmelding.behandler.navn.mellomnavn}}{{/if}} {{sykmelding.behandler.navn.etternavn}}</td>
+    </tr>
+    {{#each sykmelding.behandler.ids}}
+        {{#eq type "HPR"}}
+            <tr>
+                <td><h4>12.4</h4></td>
+                <td><h4>HPR-nummer</h4></td>
+                <td>{{id}}</td>
+            </tr>
+        {{/eq}}
+    {{/each}}
+    {{#each sykmelding.behandler.kontaktinfo}}
+        {{#if (eq type "TLF")}}
+            <tr>
+                <td><h4>12.5</h4></td>
+                <td><h4>Telefon</h4></td>
+                <td>{{value}}</td>
+            </tr>
+        {{/if}}
+    {{/each}}
+    <tr>
+        <td><h4>12.6</h4></td>
+        <td><h4>Adresse</h4></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td colspan="2">
+            {{ sykmelding.behandler.adresse.gateadresse }}{{#if  sykmelding.behandler.adresse.gateadresse}},{{/if}} {{  sykmelding.behandler.adresse.postnummer }} {{ sykmelding.behandler.adresse.kommune }}
+        </td>
+    </tr>
+    <tr>
+        <td><h4></h4></td>
+        <td><h4>Organisasjonsnavn</h4></td>
+        <td>{{ metadata.sender.navn }}</td>
+    </tr>
+    <tr>
+        <td><h4></h4></td>
+        <td><h4>Avsendersystem</h4></td>
+        <td>
+            <li> Navn: {{ sykmelding.metadata.avsenderSystem.navn }} </li>
+            <li> Versjon: {{ sykmelding.metadata.avsenderSystem.versjon }} </li>
+        </td>
+    </tr>
+    {{#each sykmelding.signerendeBehandler.ids}}
+        {{#if (eq type "HPR")}}
+            <tr>
+                <td><h4></h4></td>
+                <td><h4>Signerende behandler HPR-nummer</h4></td>
+                <td>{{id}}</td>
+            </tr>
+        {{/if}}
+    {{/each}}
+    </tbody>
+</table>
+
+{{#eq validation.status "INVALID" }}
+<table>
+    <thead>
+    <tr>
+        <td class="tr10"><h4>13</h4></td>
+        <td class="tr20"><h4>Begrunnelse for avvisning</h4></td>
+        <td><h4>Begrunnelse til sykmeldt</h4></td>
+        <td><h4>Begrunnelse til sykmelder</h4></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td colspan="1"></td>
+        <td colspan="1"></td>
+        <td>
+            <ul>{{#each validation.rules}}
+                {{#eq this.type "INVALID" }}
+                <li>{{this.reason.sykmeldt}}</li>
+                {{/eq}}
+            {{/each}}
+            </ul>
+        </td>
+        <td>
+            <ul>{{#each validation.rules}}
+                {{#eq this.type "INVALID" }}
+                <li>{{this.reason.sykmelder}}</li>
+                {{/eq}}
+            {{/each}}
+            </ul>
+        </td>
+    </tr>
+    </tbody>
+</table>
+{{/eq}}
+
+{{#if validation.rules }}
+    <table>
+        <thead>
+        <tr>
+            <td><h4>-</h4></td>
+            <td><h4>Merknader</h4></td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+            {{#each validation.rules}}
+                {{#eq name "TILBAKEDATERING_UGYLDIG_TILBAKEDATERING" }}
+                    <tr>
+                        <td></td>
+                        <td><h4>Avslått</h4></td>
+                        <td>Sykmeldingen er registrert med merknad om avslag pga. ugyldig tilbakedatering.</td>
+                    </tr>
+                {{/eq}}
+                {{#eq name "TILBAKEDATERING_KREVER_FLERE_OPPLYSNINGER" }}
+                    <tr>
+                        <td></td>
+                        <td><h4>Krever flere opplysninger</h4></td>
+                        <td>NAV trenger flere opplysninger for å vurdere om sykmeldingen gir rett på sykepenger for den tilbakedaterte perioden.</td>
+                    </tr>
+                {{/eq}}
+            {{/each}}
+        </tbody>
+    </table>
+{{/if}}
+
+<table class="footer">
+    <thead>
+    <tr>
+        <td>Teknisk sporingsinformasjon for denne sykmeldingen: {{ sykmelding.id }} </td>
+    </tr>
+    </thead>
+</table>
+
+</body>
+</html>

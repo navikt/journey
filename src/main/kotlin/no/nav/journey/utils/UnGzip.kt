@@ -1,9 +1,7 @@
 package no.nav.journey.utils
 
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.util.zip.GZIPInputStream
-import java.util.zip.GZIPOutputStream
 
 fun ungzip(input: ByteArray): String {
     ByteArrayInputStream(input).use { byteStream ->

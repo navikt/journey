@@ -22,8 +22,6 @@ class BucketServiceTest {
 
     private val bucketService = BucketService("test-bucket", storage, metrics, xmlHandler)
 
-
-
     @Test
     fun `should return decompressed XML when blob exists`() {
         val sykmeldingId = "syk-123"

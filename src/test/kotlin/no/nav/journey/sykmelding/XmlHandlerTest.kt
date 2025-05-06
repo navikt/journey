@@ -1,4 +1,4 @@
-package no.nav.journey.sykmelding.services
+package no.nav.journey.sykmelding
 
 import no.nav.journey.testUtils.loadResourceAsString
 import no.nav.journey.utils.XmlHandler
