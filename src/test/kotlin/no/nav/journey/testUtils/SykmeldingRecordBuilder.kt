@@ -213,13 +213,18 @@ class SykmeldingRecordBuilder {
         )
     }
 
-    private fun dummyOrganisasjon() = Organisasjon(
-        navn = "Legekontor",
-        type = OrganisasjonsType.UGYLDIG,
-        ids = emptyList(),
-        adresse = null,
-        kontaktinfo = null,
-        underOrganisasjon = null,
-        helsepersonell = null
-    )
 }
+fun sykmeldingRecord(init: SykmeldingRecordBuilder.() -> Unit): SykmeldingRecord {
+    return SykmeldingRecordBuilder().apply(init).build()
+}
+
+
+fun dummyOrganisasjon() = Organisasjon(
+    navn = "Legekontor",
+    type = OrganisasjonsType.UGYLDIG,
+    ids = emptyList(),
+    adresse = null,
+    kontaktinfo = null,
+    underOrganisasjon = null,
+    helsepersonell = null
+)
