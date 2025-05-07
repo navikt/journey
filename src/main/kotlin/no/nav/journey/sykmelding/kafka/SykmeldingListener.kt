@@ -22,11 +22,16 @@ class SykmeldingListener(
     )
     fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
         logger.info("sykmeldingRecord from kafka: key=${cr.key()}, offset=${cr.offset()}")
-        val sykmeldignValue = cr.value()
-        if (sykmeldignValue == null) {
+        val sykmeldingValue = cr.value()
+        if (sykmeldingValue == null) {
             logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
             return
         }
-        sykmeldingService.handleSykmelding(cr.value())
+        try {
+            sykmeldingService.handleSykmelding(cr.value())
+        } catch (e: Exception) {
+            logger.error("Exception caught while handling sykmelding ${e.message}", e)
+            throw e
+        }
     }
 }
