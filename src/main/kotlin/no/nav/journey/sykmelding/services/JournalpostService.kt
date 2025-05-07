@@ -23,13 +23,13 @@ class JournalpostService(
             log.info("Oppretter ikke ny pdf for papirsykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
             return
         }
-        val metadata = sykmelding.metadata
+       /* val metadata = sykmelding.metadata
         if (metadata is EmottakEnkel) {
             if (!metadata.vedlegg.isNullOrEmpty()){
                 log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
                 metadata.vedlegg.apply { bucketService.getVedleggFromBucket(sykmelding.sykmelding.id) }
             }
-        }
+        }*/
         // TODO: create pdf
     }
 }
