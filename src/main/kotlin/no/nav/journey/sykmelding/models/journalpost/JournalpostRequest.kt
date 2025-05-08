@@ -2,7 +2,6 @@ package no.nav.journey.sykmelding.models.journalpost
 
 data class JournalpostRequest(
     val avsenderMottaker: AvsenderMottaker?,
-    val behandlingsTema: String,
     val bruker: Bruker?,
     val dokumenter: List<Dokument>?,
     val eksternReferanseId: String,
@@ -27,7 +26,6 @@ data class Bruker(
 
 data class Dokument(
     val brevkode: String,
-    val dokumentKategori: String,
     val dokumentvarianter: List<Dokumentvarianter>,
     val tittel: String,
 )

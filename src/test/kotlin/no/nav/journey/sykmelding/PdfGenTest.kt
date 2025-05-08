@@ -5,6 +5,7 @@ import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.services.PdfService
 import no.nav.journey.testUtils.SykmeldingRecordBuilder
 import no.nav.journey.testUtils.extractTextFromPdf
+import no.nav.journey.testUtils.sykmeldingRecord
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
 import org.junit.jupiter.api.BeforeAll
@@ -53,10 +54,5 @@ class PdfGenTest {
         if (Desktop.isDesktopSupported()) {
             Desktop.getDesktop().open(fil)
         }
-    }
-
-
-    fun sykmeldingRecord(init: SykmeldingRecordBuilder.() -> Unit): SykmeldingRecord {
-        return SykmeldingRecordBuilder().apply(init).build()
     }
 }
