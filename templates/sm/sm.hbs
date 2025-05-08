@@ -249,6 +249,29 @@
             <td>{{ sykmelding.arbeidsgiver.stillingsprosent }}</td>
         </tr>
     {{/eq}}
+    {{#eq sykmelding.arbeidsgiver.type "EN_ARBEIDSGIVER"}}
+        <tr>
+            <td><h4>2.2</h4></td>
+            <td><h4>Arbeidsgiver for denne perioden</h4></td>
+            <td>{{ sykmelding.arbeidsgiver.navn }}</td>
+        </tr>
+        <tr>
+            <td><h4>2.3</h4></td>
+            <td>
+                {{#eq metadata.type "EGENMELDT"}}
+                    <h4>Yrke /stilling for denne egenmeldingen</h4>
+                {{else}}
+                    <h4>Yrke/stilling for denne sykmeldingen</h4>
+                {{/eq}}
+            </td>
+            <td>{{ sykmelding.arbeidsgiver.yrkesbetegnelse }}</td>
+        </tr>
+        <tr>
+            <td><h4>2.4</h4></td>
+            <td><h4>Stillingsprosent</h4></td>
+            <td>{{ sykmelding.arbeidsgiver.stillingsprosent }}</td>
+        </tr>
+    {{/eq}}
     </tbody>
 </table>
 
