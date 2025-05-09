@@ -15,7 +15,7 @@ class SykmeldingListener(
 
     val logger = applog()
 
-    @KafkaListener(
+/*    @KafkaListener(
         topics = ["\${spring.kafka.topics.sykmeldinger-output}"],
         groupId = "journey-consumer",
         containerFactory = "containerFactory",
@@ -33,5 +33,5 @@ class SykmeldingListener(
             logger.error("Exception caught while handling sykmelding ${e.message}", e)
             throw e
         }
-    }
+    }*/
 }
