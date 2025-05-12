@@ -49,20 +49,22 @@ class JournalpostService(
             return
         }
         try {
-
             val vedlegg = getVedlegg(sykmelding)
+            securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id} {}", vedlegg)
             val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
+            securelog.info("pdf for sykmeldingId ${sykmelding.sykmelding.id} {}", pdf)
             val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
             securelog.info(
-                "Journalpost avsender: " + journalpostPayload.avsenderMottaker.toString() + "{} {}",
-                kv("SykmeldingId", sykmelding.sykmelding.id)
+                "Journalpost avsender: " + journalpostPayload.avsenderMottaker.toString() + "{} {} {}",
+                kv("SykmeldingId", sykmelding.sykmelding.id),
+                kv("journalpost: ", journalpostPayload)
             )
             log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
             dokarkivClient.createJournalpost(journalpostPayload)
             log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}")
 
         } catch (ex: Exception) {
-            log.error("Could not create pdf for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
+            log.error("Could not create journalpost for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
             throw ex
         }
     }

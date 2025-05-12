@@ -52,7 +52,7 @@ class DokarkivClient(
             }
 
         } catch (e: Exception) {
-            log.error("Oppretting av journalpost feilet: ${e.message} {} ", kv("Nav -Callid", journalpostRequest.eksternReferanseId), e)
+            log.error("Oppretting av journalpost feilet for callid: ${journalpostRequest.eksternReferanseId} ", e)
             throw e
         }
     }
