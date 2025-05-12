@@ -36,6 +36,10 @@ spec:
       enabled: true
   envFrom:
     - secret: sykmelding-bucket
+  accessPolicy:
+    outbound:
+      external:
+        - host: dokarkiv.dev-fss-pub.nais.io
   env:
     - name: DOKARKIV_URL
       value: https://dokarkiv.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
