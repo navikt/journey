@@ -48,14 +48,23 @@ class JournalpostService(
             log.info("Oppretter ikke ny pdf for papirsykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
             return
         }
-        val vedlegg = getVedlegg(sykmelding)
-        val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
-        val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
-        securelog.info(
-            "Journalpost avsender: " + journalpostPayload.avsenderMottaker.toString() + "{} {}",
-            kv("SykmeldingId", sykmelding.sykmelding.id)
-        )
-        dokarkivClient.createJournalpost(journalpostPayload)
+        try {
+
+            val vedlegg = getVedlegg(sykmelding)
+            val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
+            val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
+            securelog.info(
+                "Journalpost avsender: " + journalpostPayload.avsenderMottaker.toString() + "{} {}",
+                kv("SykmeldingId", sykmelding.sykmelding.id)
+            )
+            log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
+            dokarkivClient.createJournalpost(journalpostPayload)
+            log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}")
+
+        } catch (ex: Exception) {
+            log.error("Could not create pdf for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
+            throw ex
+        }
     }
 
     fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
