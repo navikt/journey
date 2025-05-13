@@ -33,7 +33,7 @@ class DokarkivClient(
 
         try {
             val response = dokarkivRestTemplate.exchange(
-                "$url/",
+                url,
                 HttpMethod.POST,
                 HttpEntity(journalpostRequest, headers),
                 JournalpostResponse::class.java
