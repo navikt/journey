@@ -46,23 +46,13 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
 
+nais:
+  cluster: ${NAIS_CLUSTER_NAME}
+  texas:
+    endpoint: ${NAIS_TOKEN_ENDPOINT}
+
 tsm.bucket: ${TSM_SYKMELDING_BUCKET}
 dokarkiv.url: ${DOKARKIV_URL}
-
-no.nav.security.jwt:
-  issuer:
-    azureator:
-      discoveryurl: ${AZURE_APP_WELL_KNOWN_URL}
-      accepted_audience: ${AZURE_APP_CLIENT_ID}
-  client:
-    registration:
-      dokarkiv-m2m:
-        token-endpoint-url: ${AZURE_OPENID_CONFIG_TOKEN_ENDPOINT}
-        scope: api://${DOKARKIV_CLIENT_ID}/.default
-        grant-type: client_credentials
-        authentication:
-          client-id: ${AZURE_APP_CLIENT_ID}
-          client-secret: ${AZURE_APP_CLIENT_SECRET}
-          client-auth-method: client_secret_post
+dokarkiv.clientId: ${DOKARKIV_CLIENT_ID}
 
 
