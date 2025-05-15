@@ -25,6 +25,7 @@ import no.nav.journey.sykmelding.services.util.validatePersonAndDNumber
 import no.nav.journey.utils.applog
 import no.nav.journey.utils.securelog
 import no.nav.pdfgen.core.pdf.createPDFA
+import no.nav.security.token.support.client.core.OAuth2ClientException
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -63,7 +64,24 @@ class JournalpostService(
             dokarkivClient.createJournalpost(journalpostPayload)
             log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}")
 
-        } catch (ex: Exception) {
+        } catch (ex: OAuth2ClientException) {
+        val cause = ex.cause
+        if (cause is org.springframework.web.client.HttpClientErrorException) {
+            log.error(
+                "Token-endpoint feilet for sykmelding ${sykmelding.sykmelding.id}: " +
+                        "status=${cause.statusCode}, response=${cause.responseBodyAsString}, headers=${cause.responseHeaders}",
+                cause
+            )
+        } else {
+            log.error(
+                "OAuth2-feil ved kall til dokarkiv for sykmelding ${sykmelding.sykmelding.id} - " +
+                        "Message: ${ex.message}, Cause: ${ex.cause}, Details: ${ex.toString()}",
+                ex
+            )
+        }
+        throw ex
+    }
+        catch (ex: Exception) {
             log.error("Could not create journalpost for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
             throw ex
         }
