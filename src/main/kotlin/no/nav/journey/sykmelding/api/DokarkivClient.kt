@@ -16,7 +16,7 @@ import java.net.URI
 @Component
 class DokarkivClient(
     @Value("\${dokarkiv.url}") private val url: String,
-    @Value("\${dokarkiv.clientId}") private val service: String,
+    @Value("\${dokarkiv.scope}") private val scope: String,
     private val restTemplate: RestTemplate,
     private val texasClient: TexasClient,
 ) {
@@ -26,7 +26,7 @@ class DokarkivClient(
         journalpostRequest: JournalpostRequest,
     ): JournalpostResponse {
 
-        val texasToken = texasClient.getTexasToken(service)
+        val texasToken = texasClient.getTexasToken(scope)
         val headers = HttpHeaders().apply {
             contentType = MediaType.APPLICATION_JSON
             accept = listOf(MediaType.APPLICATION_JSON)

@@ -53,6 +53,6 @@ nais:
 
 tsm.bucket: ${TSM_SYKMELDING_BUCKET}
 dokarkiv.url: ${DOKARKIV_URL}
-dokarkiv.clientId: ${DOKARKIV_CLIENT_ID}
+dokarkiv.scope: ${DOKARKIV_SCOPE}
 
 
