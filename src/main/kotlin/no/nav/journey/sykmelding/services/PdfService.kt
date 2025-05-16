@@ -21,10 +21,10 @@ class PdfService {
         val pdfPayload = buildPdfPayload(sykmeldingRecord)
         val objectMapper = jacksonObjectMapper().registerModule(JavaTimeModule()).registerModule(JavaTimeModule())
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-        val test = createHtml("sm", "sm", objectMapper.valueToTree(pdfPayload))?.let { document ->
+        val pdf = createHtml("sm", "sm", objectMapper.valueToTree(pdfPayload))?.let { document ->
             createPDFA(document)
         }
-        return test
+        return pdf
 
     }
 
