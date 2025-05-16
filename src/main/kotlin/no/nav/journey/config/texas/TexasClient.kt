@@ -1,5 +1,6 @@
 package no.nav.journey.config.texas
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.utils.applog
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -40,18 +41,18 @@ class TexasClient(private val restTemplate: RestTemplate,
             .headers(headers)
             .body(texasRequest)
         try {
-            return restTemplate.exchange(requestEntity, TexasResponse::class.java).body
-                ?: throw RuntimeException("Failed to get Texas response")
-        } catch (ex: HttpClientErrorException) {
-            log.error(
-                "Texas svarte med feil: status=${ex.statusCode}, body='${ex.responseBodyAsString}'",
-                ex
-            )
-            throw RuntimeException("Feil ved kall til Texas: ${ex.message}", ex)
+            val response = restTemplate.exchange(requestEntity, String::class.java)
+            val raw = response.body ?: throw RuntimeException("Tom respons fra Texas")
+            log.info("Texas rårespons (status ${response.statusCode}): $raw")
 
-        } catch (ex: Exception) {
-            log.error("Feil ved kall til Texas (annet enn HTTP): ${ex.message}", ex)
-            throw ex
+            return jacksonObjectMapper().readValue(raw, TexasResponse::class.java)
+        } catch (e: HttpClientErrorException) {
+            val rawError = e.responseBodyAsString
+            log.error("Texas svarte med HTTP-feil: ${e.statusCode}, body: $rawError", e)
+            throw RuntimeException("Texas svarte med feil ved token-kall", e)
+        } catch (e: Exception) {
+            log.error("Feil ved parsing av Texas-tokenrespons: ${e.message}", e)
+            throw RuntimeException("Klarte ikke parse Texas-response", e)
         }
     }
 }
