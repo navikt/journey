@@ -22,6 +22,16 @@ class SykmeldingListener(
     )
     fun listen(cr: ConsumerRecord<String, SykmeldingRecord>) {
         logger.info("sykmeldingRecord from kafka: key=${cr.key()}, offset=${cr.offset()}")
+        val headerValue = cr.headers()
+            .lastHeader("processing-target")
+            ?.value()
+            ?.toString(Charsets.UTF_8)
+
+        if (headerValue != "tsm") {
+            logger.info("Ignorerer melding fordi processing-target='$headerValue'")
+            return
+        }
+
         try {
             val sykmeldingValue = cr.value()
             if (sykmeldingValue == null) {
