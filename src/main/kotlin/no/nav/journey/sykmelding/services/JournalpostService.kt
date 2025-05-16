@@ -41,11 +41,11 @@ class JournalpostService(
 
     fun createJournalpost(
         sykmelding: SykmeldingRecord,
-    ) {
+    ): String? {
         val metadataType = sykmelding.metadata.type
         if (metadataType != MetadataType.EMOTTAK){
             log.info("Oppretter ikke ny pdf for papirsykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
-            return
+            return null
         }
         try {
             val vedlegg = getVedlegg(sykmelding)
@@ -59,6 +59,7 @@ class JournalpostService(
             log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
             val response = dokarkivClient.createJournalpost(journalpostPayload)
             log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response.journalpostId}")
+            return response.journalpostId
         } catch (ex: Exception) {
             log.error("Could not create journalpost for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
             throw ex
@@ -84,6 +85,7 @@ class JournalpostService(
         validationResult: ValidationResult
     ): JournalpostRequest {
         val xmlSykmelding = (sykmelding.sykmelding as? XmlSykmelding) ?: throw IllegalArgumentException("The provided sykmelding is not of type XmlSykmelding id ${sykmelding.sykmelding.id}")
+        // TODO: legg til digital sykmelding også
 
         return JournalpostRequest(
             avsenderMottaker = createAvsenderMottaker(xmlSykmelding),

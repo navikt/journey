@@ -37,10 +37,17 @@ management:
     livenessstate.enabled: true
     readinessState.enabled: true
 
+aiven-kafka:
+  auto-offset-reset: none
+
 nais:
   cluster: ${NAIS_CLUSTER_NAME}
   texas:
     endpoint: ${NAIS_TOKEN_ENDPOINT}
+
+teamsykmelding:
+  topic:
+    journalOpprettet: "teamsykmelding.oppgave-journal-opprettet"
 
 tsm.bucket: ${TSM_SYKMELDING_BUCKET}
 dokarkiv.url: ${DOKARKIV_URL}
