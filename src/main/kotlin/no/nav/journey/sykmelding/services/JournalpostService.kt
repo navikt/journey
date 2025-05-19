@@ -1,6 +1,5 @@
 package no.nav.journey.sykmelding.services
 
-import net.logstash.logback.argument.StructuredArguments.kv
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.Aktivitet
 import no.nav.journey.sykmelding.models.Behandler
@@ -25,7 +24,6 @@ import no.nav.journey.sykmelding.services.util.validatePersonAndDNumber
 import no.nav.journey.utils.applog
 import no.nav.journey.utils.securelog
 import no.nav.pdfgen.core.pdf.createPDFA
-import no.nav.security.token.support.client.core.OAuth2ClientException
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -53,17 +51,14 @@ class JournalpostService(
             val vedlegg = getVedlegg(sykmelding)
             securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id} {}", vedlegg)
             val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
-            securelog.info("pdf for sykmeldingId ${sykmelding.sykmelding.id} {}", pdf)
+            securelog.info("pdf for sykmeldingId ${sykmelding.sykmelding.id}")
             val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
             securelog.info(
-                "Journalpost avsender: " + journalpostPayload.avsenderMottaker.toString() + "{} {} {}",
-                kv("SykmeldingId", sykmelding.sykmelding.id),
-                kv("journalpost: ", journalpostPayload)
+                "Journalpost avsender: ${journalpostPayload.avsenderMottaker.toString()} SykmeldingId, ${sykmelding.sykmelding.id}"
             )
             log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
-            dokarkivClient.createJournalpost(journalpostPayload)
-            log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}")
-
+            val response = dokarkivClient.createJournalpost(journalpostPayload)
+            log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response.journalpostId}")
         } catch (ex: Exception) {
             log.error("Could not create journalpost for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
             throw ex
