@@ -9,6 +9,7 @@ import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG
+import org.apache.kafka.clients.producer.ProducerConfig.COMPRESSION_TYPE_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG
@@ -64,8 +65,7 @@ class KafkaConfig(
                 KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java,
                 VALUE_SERIALIZER_CLASS_CONFIG to JacksonKafkaSerializer::class.java,
                 ACKS_CONFIG to "all",
-                RETRIES_CONFIG to 10,
-                RETRY_BACKOFF_MS_CONFIG to 100,
+                COMPRESSION_TYPE_CONFIG to "gzip"
             ) + commonConfig()
         return KafkaProducer<String, JournalKafkaMessage>(configs)
     }
