@@ -2,6 +2,8 @@ package no.nav.journey.sykmelding.services
 
 import no.nav.journey.config.kafkaConfig.JournalKafkaMessage
 import no.nav.journey.sykmelding.models.SykmeldingRecord
+import no.nav.journey.sykmelding.models.XmlSykmelding
+import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
 import no.nav.journey.utils.applog
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -18,10 +20,13 @@ class SykmeldingService(
     fun handleSykmelding(sykmelding: SykmeldingRecord){
         val journalpostId = journalpostService.createJournalpost(sykmelding)
         if (journalpostId != null) {
+            val emottakEnkel = (sykmelding.metadata as? EmottakEnkel) ?: throw IllegalArgumentException("The provided sykmelding is not of metadatatype EmottakEnkel id ${sykmelding.sykmelding.id}")
+            // TODO: her kan sykmelding også være digital
+
             val kafkaMessage = JournalKafkaMessage(
-                messageId = "AS36",
-                journalpostId = sykmelding.sykmelding.id,
-                journalpostKilde = journalpostId
+                messageId = emottakEnkel.msgInfo.msgId,
+                journalpostId = journalpostId,
+                journalpostKilde = "AS36"
             )
             try {
                 journalpostOpprettetProducer.send(
