@@ -6,6 +6,7 @@ import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
 import no.nav.journey.utils.applog
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
@@ -24,7 +25,7 @@ class DokarkivClient(
 
     fun createJournalpost(
         journalpostRequest: JournalpostRequest,
-    ): JournalpostResponse {
+    ): JournalpostResponse? {
 
         val texasToken = texasClient.getTexasToken(scope)
         val headers = HttpHeaders().apply {
@@ -43,6 +44,13 @@ class DokarkivClient(
             return response.body ?: throw RuntimeException("Tom respons fra dokarkiv")
 
         } catch (e: HttpClientErrorException) {
+            if (e.statusCode == HttpStatus.CONFLICT) {
+                log.error(
+                    "Dokarkiv svarte med feil: status=${e.statusCode}, body=${e.responseBodyAsString}, Nav-Callid=${journalpostRequest.eksternReferanseId}",
+                    e
+                )
+                return null
+            }
             log.error(
                 "Dokarkiv svarte med feil: status=${e.statusCode}, body=${e.responseBodyAsString}, Nav-Callid=${journalpostRequest.eksternReferanseId}",
                 e

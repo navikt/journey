@@ -58,8 +58,8 @@ class JournalpostService(
             )
             log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
             val response = dokarkivClient.createJournalpost(journalpostPayload)
-            log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response.journalpostId}")
-            return response.journalpostId
+            log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response?.journalpostId}")
+            return response?.journalpostId
         } catch (ex: Exception) {
             log.error("Could not create journalpost for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
             throw ex
