@@ -3,6 +3,8 @@ package no.nav.journey.sykmelding.services
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.Aktivitet
 import no.nav.journey.sykmelding.models.Behandler
+import no.nav.journey.sykmelding.models.Papirsykmelding
+import no.nav.journey.sykmelding.models.Sykmelding
 import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.models.XmlSykmelding
 import no.nav.journey.sykmelding.models.journalpost.AvsenderMottaker
@@ -84,14 +86,11 @@ class JournalpostService(
         pdf: ByteArray,
         validationResult: ValidationResult
     ): JournalpostRequest {
-        val xmlSykmelding = (sykmelding.sykmelding as? XmlSykmelding) ?: throw IllegalArgumentException("The provided sykmelding is not of type XmlSykmelding id ${sykmelding.sykmelding.id}")
-        // TODO: legg til digital sykmelding også
-
         return JournalpostRequest(
-            avsenderMottaker = createAvsenderMottaker(xmlSykmelding),
-            bruker = Bruker(xmlSykmelding.pasient.fnr, "FNR"),
-            dokumenter = leggTilDokumenter(vedlegg, xmlSykmelding, pdf, validationResult),
-            eksternReferanseId = xmlSykmelding.id,
+            avsenderMottaker = sykmelding.sykmelding.createAvsenderMottakerDelegert(),
+            bruker = Bruker(sykmelding.sykmelding.pasient.fnr, "FNR"),
+            dokumenter = sykmelding.sykmelding.leggTilDokumenterDelegert(vedlegg, pdf, validationResult),
+            eksternReferanseId = sykmelding.sykmelding.id,
             journalfoerendeEnhet = "9999",
             journalpostType = "INNGAAENDE",
             kanal = "HELSENETTET",
@@ -99,13 +98,22 @@ class JournalpostService(
                 sakstype = "GENERELL_SAK",
             ),
             tema = "SYM",
-            tittel = createTittleJournalpost(xmlSykmelding, validationResult)
+            tittel = sykmelding.sykmelding.createTittleJournalpostDelegert(validationResult)
         )
     }
 
-    private fun leggTilDokumenter(
+    fun Sykmelding.leggTilDokumenterDelegert(
         vedlegg: List<Vedlegg>?,
-        xmlSykmelding: XmlSykmelding,
+        pdf: ByteArray,
+        validationResult: ValidationResult
+    ): List<Dokument>? = when (this) {
+        //TODO legg til digital
+        is XmlSykmelding -> this.leggTilDokumenter(vedlegg, pdf, validationResult)
+        else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
+    }
+
+    private fun XmlSykmelding.leggTilDokumenter(
+        vedlegg: List<Vedlegg>?,
         pdf: ByteArray,
         validationResult: ValidationResult
     ): List<Dokument>? {
@@ -123,10 +131,10 @@ class JournalpostService(
                         filnavn = "Sykmelding json",
                         filtype = "JSON",
                         variantformat = "ORIGINAL",
-                        fysiskDokument = objectMapper.writeValueAsBytes(xmlSykmelding),
+                        fysiskDokument = objectMapper.writeValueAsBytes(this),
                     )
                 ),
-                tittel = createTittleJournalpost(xmlSykmelding, validationResult),
+                tittel = this.createTittleJournalpost(validationResult),
                 brevkode = "NAV 08-07.04 A",
             )
         )
@@ -139,12 +147,12 @@ class JournalpostService(
                         dokumentvarianter = listOf(
                             Dokumentvarianter(
                                 filtype = findFiltype(vedlegg),
-                                filnavn = "Vedlegg_nr_${index}_Sykmelding_${xmlSykmelding.id}",
+                                filnavn = "Vedlegg_nr_${index}_Sykmelding_${this.id}",
                                 variantformat = "ARKIV",
                                 fysiskDokument = vedlegg.content,
                             )
                         ),
-                        tittel = "Vedlegg til sykmelding ${getFomTomTekst(xmlSykmelding.aktivitet)}",
+                        tittel = "Vedlegg til sykmelding ${getFomTomTekst(this.aktivitet)}",
                         brevkode = "NAV 08-07.04 A",
                     )
                 )
@@ -187,18 +195,25 @@ class JournalpostService(
         }
 
 
-    private fun createTittleJournalpost(
-        xmlSykmelding: XmlSykmelding,
+    fun Sykmelding.createTittleJournalpostDelegert(
+        validationResult: ValidationResult
+    ): String = when (this) {
+        //TODO legg til digital
+        is XmlSykmelding -> this.createTittleJournalpost(validationResult)
+        else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
+    }
+
+    private fun XmlSykmelding.createTittleJournalpost(
         validationResult: ValidationResult
     ): String {
         return if (validationResult.status == RuleType.INVALID) {
-            "Avvist sykmelding ${getFomTomTekst(xmlSykmelding.aktivitet)}"
+            "Avvist sykmelding ${getFomTomTekst(this.aktivitet)}"
         } else if (validationResult.ugyldigTilbakedatering()) {
-            "Avslått sykmelding ${getFomTomTekst(xmlSykmelding.aktivitet)}"
+            "Avslått sykmelding ${getFomTomTekst(this.aktivitet)}"
         } else if (validationResult.delvisGodkjent()) {
-            "Delvis godkjent sykmelding ${getFomTomTekst(xmlSykmelding.aktivitet)}"
+            "Delvis godkjent sykmelding ${getFomTomTekst(this.aktivitet)}"
         } else {
-            "Sykmelding ${getFomTomTekst(xmlSykmelding.aktivitet)}"
+            "Sykmelding ${getFomTomTekst(this.aktivitet)}"
         }
     }
 
@@ -231,22 +246,27 @@ class JournalpostService(
         return dato.format(formatter)
     }
 
-    private fun createAvsenderMottaker(xmlSykmelding: XmlSykmelding): AvsenderMottaker {
-        val hpr = xmlSykmelding.behandler.ids.find { it.type == PersonIdType.HPR }?.id
+    fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when(this) {
+        is XmlSykmelding -> this.createAvsenderMottaker()
+        else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
+    }
+
+    private fun XmlSykmelding.createAvsenderMottaker(): AvsenderMottaker {
+        val hpr = this.behandler.ids.find { it.type == PersonIdType.HPR }?.id
         if (hpr != null) {
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(hpr),
                 idType = "HPRNR",
-                navn = xmlSykmelding.behandler.formatName()
+                navn = this.behandler.formatName()
             )
         }
 
-        val fnr = xmlSykmelding.behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
+        val fnr = this.behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         return fnr?.let {
             AvsenderMottaker(
                 id = it.id,
                 idType = it.type.name,
-                navn = xmlSykmelding.behandler.formatName()
+                navn = this.behandler.formatName()
             )
         } ?: throw IllegalArgumentException("Neither HPR nor valid FNR found for the given XmlSykmelding")
     }

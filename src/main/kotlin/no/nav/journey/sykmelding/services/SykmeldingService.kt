@@ -10,6 +10,7 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import java.util.UUID
 
 @Service
 class SykmeldingService(
@@ -21,16 +22,8 @@ class SykmeldingService(
     fun handleSykmelding(sykmelding: SykmeldingRecord){
         val journalpostId = journalpostService.createJournalpost(sykmelding)
         if (journalpostId != null) {
-            val msgId = when (val metadata = sykmelding.metadata) {
-                is EmottakEnkel -> metadata.msgInfo.msgId
-                is EDIEmottak -> metadata.msgInfo.msgId
-                //TODO: inkluder digital
-                else -> throw IllegalArgumentException("Ugyldig metadata-type for sykmeldingId=${sykmelding.sykmelding.id}")
-            }
-
-
             val kafkaMessage = JournalKafkaMessage(
-                messageId = msgId,
+                messageId = UUID.randomUUID().toString(),
                 journalpostId = journalpostId,
                 journalpostKilde = "AS36"
             )
