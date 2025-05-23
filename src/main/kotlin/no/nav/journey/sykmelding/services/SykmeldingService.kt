@@ -5,6 +5,8 @@ import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.models.XmlSykmelding
 import no.nav.journey.sykmelding.models.metadata.EDIEmottak
 import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
+import no.nav.journey.sykmelding.models.metadata.MetadataType
+import no.nav.journey.sykmelding.models.validation.RuleType
 import no.nav.journey.utils.applog
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -20,6 +22,17 @@ class SykmeldingService(
 ) {
     val log = applog()
     fun handleSykmelding(sykmelding: SykmeldingRecord){
+
+        val metadataType = sykmelding.metadata.type
+        if (metadataType != MetadataType.EMOTTAK){
+            log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
+            return
+        }
+        if (sykmelding.validation.status == RuleType.PENDING){
+            log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi validation status er: ${RuleType.PENDING}")
+            return
+        }
+
         val journalpostId = journalpostService.createJournalpost(sykmelding)
         if (journalpostId != null) {
             val kafkaMessage = JournalKafkaMessage(

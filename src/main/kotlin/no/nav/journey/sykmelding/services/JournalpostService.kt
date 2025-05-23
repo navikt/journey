@@ -44,11 +44,6 @@ class JournalpostService(
     fun createJournalpost(
         sykmelding: SykmeldingRecord,
     ): String? {
-        val metadataType = sykmelding.metadata.type
-        if (metadataType != MetadataType.EMOTTAK){
-            log.info("Oppretter ikke ny pdf for papirsykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
-            return null
-        }
         try {
             val vedlegg = getVedlegg(sykmelding)
             securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id} {}", vedlegg)
