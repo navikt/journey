@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.util.UriComponentsBuilder
-import java.net.URI
 
 @Component
 class DokarkivClient(
@@ -24,9 +23,29 @@ class DokarkivClient(
 ) {
     val log = applog()
 
+    fun getJournalpost(sykmeldingId: String): JournalpostResponse {
+        val texasToken = texasClient.getTexasToken(scope)
+        val uri = UriComponentsBuilder
+            .fromUriString("$url/$sykmeldingId")
+            .build()
+            .toUri()
+
+        val headers = HttpHeaders().apply {
+            setBearerAuth(texasToken.access_token)
+            accept = listOf(MediaType.APPLICATION_JSON)
+        }
+
+        val requestEntity = RequestEntity.get(uri).headers(headers).build()
+
+        val response = restTemplate.exchange(requestEntity, JournalpostResponse::class.java)
+        return response.body ?: throw RuntimeException("Fant ikke journalpost $sykmeldingId")
+    }
+
     fun createJournalpost(
         journalpostRequest: JournalpostRequest,
     ): JournalpostResponse? {
+
+        val existing = getJournalpost(journalpostRequest.eksternReferanseId)
 
         val texasToken = texasClient.getTexasToken(scope)
         val headers = HttpHeaders().apply {
