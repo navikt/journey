@@ -15,6 +15,7 @@ import org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG
 import org.apache.kafka.common.config.SslConfigs
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Value
@@ -43,16 +44,16 @@ class KafkaConfig(
     fun containerFactory(
         props: KafkaProperties,
         errorHandler: KafkaErrorHandler
-    ): ConcurrentKafkaListenerContainerFactory<String, SykmeldingRecord> {
+    ): ConcurrentKafkaListenerContainerFactory<String, ByteArray?> {
         val consumerFactory = DefaultKafkaConsumerFactory(
             props.buildConsumerProperties(null).apply {
                 put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
                 put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
                 put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
-            }, StringDeserializer(), SykmeldingDeserializer(SykmeldingRecord::class)
+            }, StringDeserializer(), ByteArrayDeserializer()
         )
 
-        val factory = ConcurrentKafkaListenerContainerFactory<String, SykmeldingRecord>()
+        val factory = ConcurrentKafkaListenerContainerFactory<String, ByteArray?>()
         factory.consumerFactory = consumerFactory
         factory.setCommonErrorHandler(errorHandler)
         return factory
