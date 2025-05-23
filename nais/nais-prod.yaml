@@ -39,7 +39,7 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: dokarkiv.dev-fss-pub.nais.io
+        - host: dokarkiv.prod-fss-pub.nais.io
   envFrom:
     - secret: sykmelding-bucket
   env:
