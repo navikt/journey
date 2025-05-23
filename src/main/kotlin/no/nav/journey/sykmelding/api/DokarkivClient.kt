@@ -12,6 +12,7 @@ import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
+import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
 
 @Component
@@ -34,8 +35,14 @@ class DokarkivClient(
             setBearerAuth(texasToken.access_token)
             set("Nav-Callid", journalpostRequest.eksternReferanseId)
         }
+        val uri = UriComponentsBuilder
+            .fromUriString(url)
+            .queryParam("forsoekFerdigstill", true)
+            .build()
+            .toUri()
+
         val requestEntity = RequestEntity
-            .post(URI(url))
+            .post(uri)
             .headers(headers)
             .body(journalpostRequest)
 
