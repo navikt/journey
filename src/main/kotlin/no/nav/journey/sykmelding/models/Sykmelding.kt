@@ -1,5 +1,7 @@
 package no.nav.journey.sykmelding.models
 
+import no.nav.journey.sykmelding.models.journalpost.Dokument
+import no.nav.journey.sykmelding.models.journalpost.Vedlegg
 import no.nav.journey.sykmelding.models.metadata.Adresse
 import no.nav.journey.sykmelding.models.metadata.HelsepersonellKategori
 import no.nav.journey.sykmelding.models.metadata.Kontaktinfo

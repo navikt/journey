@@ -3,6 +3,8 @@ kind: "Application"
 metadata:
   name: journey
   namespace: tsm
+  annotations:
+    texas.nais.io/enabled: "true"
 
 spec:
   image: {{ image }}
@@ -34,13 +36,17 @@ spec:
   azure:
     application:
       enabled: true
+  accessPolicy:
+    outbound:
+      external:
+        - host: dokarkiv.dev-fss-pub.nais.io
   envFrom:
     - secret: sykmelding-bucket
   env:
     - name: DOKARKIV_URL
       value: https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
-    - name: DOKARKIV_CLIENT_ID
-      value: prod-fss.teamdokumenthandtering.dokarkiv
+    - name: DOKARKIV_SCOPE
+      value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
 
 
 

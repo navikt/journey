@@ -1,7 +1,6 @@
 val kafkaClientsVersion = "3.9.0"
 val logstashLogbackEncoderVersion = "8.0"
 val jacksonVersion= "2.17.2"
-val tokenSupportVersion = "5.0.19"
 val googleCloudStorageVersion = "2.50.0"
 val prometheusVersion = "0.16.0"
 val mockitoKotlinVersion = "5.4.0"
@@ -55,10 +54,6 @@ dependencies {
 	implementation("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
 	implementation("com.migesok", "jaxb-java-time-adapters", javaTimeAdapterVersion)
 	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
-	implementation("no.nav.security:token-support:$tokenSupportVersion")
-	implementation("no.nav.security:token-validation-core:$tokenSupportVersion")
-	implementation("no.nav.security:token-validation-spring:$tokenSupportVersion")
-	implementation("no.nav.security:token-client-spring:$tokenSupportVersion")
 	implementation("no.nav.pdfgen:pdfgen-core:$pdfgencoreVersion")
 	implementation("org.verapdf:validation-model:$verapdfVersion")
 	implementation("com.github.jknack:handlebars:4.3.1")
