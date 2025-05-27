@@ -22,8 +22,13 @@
         <appender-ref ref="secure_log" />
     </logger>
 
+    <logger name="com.openhtmltopdf.general" level="OFF" additivity="false"/>
+    <logger name="com.openhtmltopdf.load" level="OFF" additivity="false"/>
+    <logger name="com.openhtmltopdf.match" level="OFF" additivity="false"/>
+    <logger name="com.openhtmltopdf.render" level="OFF" additivity="false"/>
+    <logger name="com.openhtmltopdf" level="OFF" additivity="false"/>
+
     <logger name="org.apache.kafka" level="warn" />
-    <logger name="com.openhtmltopdf" level="ERROR" additivity="false"/>
     <root level="INFO">
         <appender-ref ref="stdout_json"/>
     </root>
