@@ -58,6 +58,7 @@ dependencies {
 	implementation("org.verapdf:validation-model:$verapdfVersion")
 	implementation("com.github.jknack:handlebars:4.3.1")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+	implementation("org.slf4j:jul-to-slf4j:1.7.36")
 
 	testImplementation("org.apache.tika:tika-core:3.1.0")
 	testImplementation("org.apache.tika:tika-parsers-standard-package:3.1.0")

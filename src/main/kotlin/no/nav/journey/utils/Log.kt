@@ -14,3 +14,14 @@ inline fun <reified T> T.applog(): Logger {
 inline fun <reified T> T.securelog(): Logger {
     return LoggerFactory.getLogger("securelog")
 }
+
+@Configuration
+class LoggingBridgeConfig {
+
+    @PostConstruct
+    fun redirectJulToSlf4j() {
+        LogManager.getLogManager().reset()
+        SLF4JBridgeHandler.removeHandlersForRootLogger()
+        SLF4JBridgeHandler.install()
+    }
+}
