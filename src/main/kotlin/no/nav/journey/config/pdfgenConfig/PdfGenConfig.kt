@@ -1,5 +1,7 @@
 package no.nav.journey.config.pdfgenConfig
 
+import com.openhtmltopdf.slf4j.Slf4jLogger
+import com.openhtmltopdf.util.XRLog
 import jakarta.annotation.PostConstruct
 import no.nav.journey.utils.applog
 import no.nav.pdfgen.core.Environment
@@ -13,6 +15,7 @@ class PdfGenConfig {
     val log = applog()
     @PostConstruct
     fun init() {
+        XRLog.setLoggerImpl(Slf4jLogger())
         try {
             log.info("Initializing VeraGreenfieldFoundryProvider")
             VeraGreenfieldFoundryProvider.initialise()

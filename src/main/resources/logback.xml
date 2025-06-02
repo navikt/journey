@@ -21,12 +21,8 @@
     <logger name="securelog" level="INFO" additivity="false">
         <appender-ref ref="secure_log" />
     </logger>
-
-    <logger name="com.openhtmltopdf.general" level="OFF" additivity="false"/>
-    <logger name="com.openhtmltopdf.load" level="OFF" additivity="false"/>
-    <logger name="com.openhtmltopdf.match" level="OFF" additivity="false"/>
-    <logger name="com.openhtmltopdf.render" level="OFF" additivity="false"/>
-    <logger name="com.openhtmltopdf" level="OFF" additivity="false"/>
+    <logger name="org.apache.pdfbox.pdmodel.font.PDType1Font" level="ERROR"/>
+    <logger name="com.openhtmltopdf" level="WARN"/>
 
     <logger name="org.apache.kafka" level="warn" />
     <root level="INFO">

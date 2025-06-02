@@ -12,6 +12,7 @@ val jaxbApiVersion = "2.4.0-b180830.0359"
 val javaTimeAdapterVersion = "1.1.3"
 val pdfgencoreVersion = "1.1.46"
 val verapdfVersion = "1.26.1"
+val openHtmlToPdfVersion = "1.1.28"
 
 plugins {
 	kotlin("jvm") version "2.1.0"
@@ -58,6 +59,7 @@ dependencies {
 	implementation("org.verapdf:validation-model:$verapdfVersion")
 	implementation("com.github.jknack:handlebars:4.3.1")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
 
 	testImplementation("org.apache.tika:tika-core:3.1.0")
 	testImplementation("org.apache.tika:tika-parsers-standard-package:3.1.0")
