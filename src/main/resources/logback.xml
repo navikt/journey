@@ -22,7 +22,7 @@
         <appender-ref ref="secure_log" />
     </logger>
     <logger name="org.apache.pdfbox.pdmodel.font.PDType1Font" level="ERROR"/>
-    <logger name="com.openhtmltopdf.general" level="ERROR"/>
+    <logger name="com.openhtmltopdf" level="WARN"/>
 
     <logger name="org.apache.kafka" level="warn" />
     <root level="INFO">
