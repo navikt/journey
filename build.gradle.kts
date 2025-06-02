@@ -10,7 +10,7 @@ val syfoXmlCodegenVersion = "2.0.1"
 val jaxbRuntimeVersion = "2.4.0-b180830.0438"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val javaTimeAdapterVersion = "1.1.3"
-val pdfgencoreVersion = "1.1.51"
+val pdfgencoreVersion = "1.1.46"
 val verapdfVersion = "1.26.1"
 
 plugins {
