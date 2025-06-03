@@ -4,6 +4,9 @@
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider" />
         </encoder>
     </appender>
+    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
+        <appender-ref ref="stdout_json" />
+    </appender>
 
     <appender name="secure_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/secure-logs/secure.log</file>
@@ -26,6 +29,6 @@
 
     <logger name="org.apache.kafka" level="warn" />
     <root level="INFO">
-        <appender-ref ref="stdout_json"/>
+        <appender-ref ref="OTEL" />
     </root>
 </configuration>

@@ -60,6 +60,7 @@ dependencies {
 	implementation("com.github.jknack:handlebars:4.3.1")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
 	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
+	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.16.0-alpha")
 
 	testImplementation("org.apache.tika:tika-core:3.1.0")
 	testImplementation("org.apache.tika:tika-parsers-standard-package:3.1.0")
