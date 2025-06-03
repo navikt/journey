@@ -27,6 +27,9 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
+    logging:
+      destinations:
+        - id: loki
   resources:
     limits:
       memory: 2Gi
