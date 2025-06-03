@@ -33,16 +33,11 @@ class SykmeldingListener(
             return
         }
 
-        try {
-            val sykmeldingValue = cr.value()?.let { objectMapper.readValue(it, SykmeldingRecord::class.java) }
-            if (sykmeldingValue == null) {
-                logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
-                return
-            }
-            sykmeldingService.handleSykmelding(sykmeldingValue)
-        } catch (e: Exception) {
-            logger.error("Exception caught while handling sykmelding ${e.message}", e)
-            throw e
+        val sykmeldingValue = cr.value()?.let { objectMapper.readValue(it, SykmeldingRecord::class.java) }
+        if (sykmeldingValue == null) {
+            logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
+            return
         }
+        sykmeldingService.handleSykmelding(sykmeldingValue)
     }
 }

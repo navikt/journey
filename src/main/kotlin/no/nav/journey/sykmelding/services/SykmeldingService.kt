@@ -22,7 +22,6 @@ class SykmeldingService(
 ) {
     val log = applog()
     fun handleSykmelding(sykmelding: SykmeldingRecord){
-
         val metadataType = sykmelding.metadata.type
         if (metadataType != MetadataType.EMOTTAK){
             log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
