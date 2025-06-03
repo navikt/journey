@@ -3,10 +3,10 @@ package no.nav.journey.sykmelding.api
 import no.nav.journey.config.texas.TexasClient
 import no.nav.journey.sykmelding.models.journalpost.JournalpostRequest
 import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
+import no.nav.journey.utils.DokarkivException
 import no.nav.journey.utils.applog
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.stereotype.Component
@@ -43,26 +43,13 @@ class DokarkivClient(
             .headers(headers)
             .body(journalpostRequest)
 
-        try {
+        return try {
             val response = restTemplate.exchange(requestEntity, JournalpostResponse::class.java)
-            return response.body ?: throw RuntimeException("Tom respons fra dokarkiv")
-
+            response.body ?: throw DokarkivException("Tom respons fra dokarkiv")
         } catch (e: HttpClientErrorException) {
-            if (e.statusCode == HttpStatus.CONFLICT) {
-                log.error(
-                    "Dokarkiv svarte med feil: status=${e.statusCode}, body=${e.responseBodyAsString}, Nav-Callid=${journalpostRequest.eksternReferanseId}",
-                    e
-                )
-                return null
-            }
-            log.error(
-                "Dokarkiv svarte med feil: status=${e.statusCode}, body=${e.responseBodyAsString}, Nav-Callid=${journalpostRequest.eksternReferanseId}",
-                e
-            )
-            throw RuntimeException("Feil ved kall til dokarkiv", e)
+            throw DokarkivException("Feil fra dokarkiv: status=${e.statusCode}, body=${e.responseBodyAsString}", e)
         } catch (e: Exception) {
-            log.error("Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}", e)
-            throw RuntimeException("Ukjent feil ved kall til dokarkiv", e)
+            throw DokarkivException("Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}", e)
         }
     }
 }
