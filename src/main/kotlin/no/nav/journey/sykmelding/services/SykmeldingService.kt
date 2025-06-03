@@ -22,6 +22,7 @@ class SykmeldingService(
 ) {
     val log = applog()
     fun handleSykmelding(sykmelding: SykmeldingRecord){
+
         val metadataType = sykmelding.metadata.type
         if (metadataType != MetadataType.EMOTTAK){
             log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
@@ -49,7 +50,7 @@ class SykmeldingService(
                     sykmelding.sykmelding.id,
                 )
             } catch (exception: Exception) {
-                log.error("failed to send sykmelding to kafka result for sykmeldingId and topic: {} {}", sykmelding.sykmelding.id, journalOpprettetTopic)
+                log.error("failed to send sykmelding to kafka result for sykmeldingId: {}", sykmelding.sykmelding.id)
                 throw exception
             } 
         }

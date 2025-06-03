@@ -44,14 +44,23 @@ class JournalpostService(
     fun createJournalpost(
         sykmelding: SykmeldingRecord,
     ): String? {
-        val vedlegg = getVedlegg(sykmelding)
-        securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id} {}", vedlegg)
-        val pdf = pdfService.createPdf(sykmelding) ?: throw IllegalStateException("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
-        val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
-        log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
-        val response = dokarkivClient.createJournalpost(journalpostPayload)
-        log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response?.journalpostId}")
-        return response?.journalpostId
+        try {
+            val vedlegg = getVedlegg(sykmelding)
+            securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id} {}", vedlegg)
+            val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
+            securelog.info("pdf for sykmeldingId ${sykmelding.sykmelding.id}")
+            val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
+            securelog.info(
+                "Journalpost avsender: ${journalpostPayload.avsenderMottaker.toString()} SykmeldingId, ${sykmelding.sykmelding.id}"
+            )
+            log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
+            val response = dokarkivClient.createJournalpost(journalpostPayload)
+            log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response?.journalpostId}")
+            return response?.journalpostId
+        } catch (ex: Exception) {
+            log.error("Could not create journalpost for sykmelding ${sykmelding.sykmelding.id} ${ex.message}", ex)
+            throw ex
+        }
     }
 
     fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
