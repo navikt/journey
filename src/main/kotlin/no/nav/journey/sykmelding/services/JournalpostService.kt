@@ -3,7 +3,7 @@ package no.nav.journey.sykmelding.services
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.Aktivitet
 import no.nav.journey.sykmelding.models.Behandler
-import no.nav.journey.sykmelding.models.Papirsykmelding
+import no.nav.journey.sykmelding.models.DigitalSykmelding
 import no.nav.journey.sykmelding.models.Sykmelding
 import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.models.XmlSykmelding
@@ -15,9 +15,12 @@ import no.nav.journey.sykmelding.models.journalpost.GosysVedlegg
 import no.nav.journey.sykmelding.models.journalpost.JournalpostRequest
 import no.nav.journey.sykmelding.models.journalpost.Sak
 import no.nav.journey.sykmelding.models.journalpost.Vedlegg
+import no.nav.journey.sykmelding.models.metadata.Digital
+import no.nav.journey.sykmelding.models.metadata.EDIEmottak
 import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
-import no.nav.journey.sykmelding.models.metadata.MetadataType
+import no.nav.journey.sykmelding.models.metadata.Papir
 import no.nav.journey.sykmelding.models.metadata.PersonIdType
+import no.nav.journey.sykmelding.models.metadata.Utenlandsk
 import no.nav.journey.sykmelding.models.validation.RuleType
 import no.nav.journey.sykmelding.models.validation.TilbakedatertMerknad
 import no.nav.journey.sykmelding.models.validation.ValidationResult
@@ -44,6 +47,15 @@ class JournalpostService(
     fun createJournalpost(
         sykmelding: SykmeldingRecord,
     ): String? {
+        if (!skalOpprettePdf(sykmelding)) {
+            val metadata = sykmelding.metadata
+            val journalpostId = when (metadata) {
+                is Papir -> metadata.journalPostId
+                is Utenlandsk -> metadata.journalPostId
+                else -> null
+            }
+            return journalpostId
+        }
         val vedlegg = getVedlegg(sykmelding)
         securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id} {}", vedlegg)
         val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
@@ -54,9 +66,17 @@ class JournalpostService(
         return response?.journalpostId
     }
 
+    private fun skalOpprettePdf(sykmeldingRecord: SykmeldingRecord): Boolean {
+        return when (sykmeldingRecord.metadata) {
+            is EDIEmottak -> true
+            is Digital -> true
+            else -> false
+        }
+    }
+
     fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
         val metadata = sykmelding.metadata
-        if (metadata is EmottakEnkel) {
+        if (metadata is EmottakEnkel ) {
             if (!metadata.vedlegg.isNullOrEmpty()){
                 log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
                 val vedlegg = bucketService.getVedleggFromBucket(sykmelding.sykmelding.id)

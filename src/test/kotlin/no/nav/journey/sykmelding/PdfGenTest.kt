@@ -1,9 +1,7 @@
 package no.nav.journey.sykmelding
 
 import no.nav.journey.sykmelding.models.FlereArbeidsgivere
-import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.services.PdfService
-import no.nav.journey.testUtils.SykmeldingRecordBuilder
 import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.sykmeldingRecord
 import no.nav.pdfgen.core.Environment
