@@ -67,16 +67,16 @@ class JournalpostService(
     }
 
     private fun skalOpprettePdf(sykmeldingRecord: SykmeldingRecord): Boolean {
-        return when (sykmeldingRecord.metadata) {
-            is EDIEmottak -> true
-            is Digital -> true
+        return when (sykmeldingRecord.sykmelding) {
+            is XmlSykmelding -> true
+            is DigitalSykmelding -> true
             else -> false
         }
     }
 
     fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
         val metadata = sykmelding.metadata
-        if (metadata is EmottakEnkel ) {
+        if (metadata is EmottakEnkel) {
             if (!metadata.vedlegg.isNullOrEmpty()){
                 log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
                 val vedlegg = bucketService.getVedleggFromBucket(sykmelding.sykmelding.id)
@@ -95,7 +95,7 @@ class JournalpostService(
         return JournalpostRequest(
             avsenderMottaker = sykmelding.sykmelding.createAvsenderMottakerDelegert(),
             bruker = Bruker(sykmelding.sykmelding.pasient.fnr, "FNR"),
-            dokumenter = sykmelding.sykmelding.leggTilDokumenterDelegert(vedlegg, pdf, validationResult),
+            dokumenter = sykmelding.sykmelding.leggTilDokumenter(vedlegg, pdf, validationResult),
             eksternReferanseId = sykmelding.sykmelding.id,
             journalfoerendeEnhet = "9999",
             journalpostType = "INNGAAENDE",
@@ -104,26 +104,17 @@ class JournalpostService(
                 sakstype = "GENERELL_SAK",
             ),
             tema = "SYM",
-            tittel = sykmelding.sykmelding.createTittleJournalpostDelegert(validationResult)
+            tittel = sykmelding.sykmelding.createTittleJournalpost(validationResult)
         )
     }
 
-    fun Sykmelding.leggTilDokumenterDelegert(
+    fun Sykmelding.leggTilDokumenter(
         vedlegg: List<Vedlegg>?,
         pdf: ByteArray,
         validationResult: ValidationResult
-    ): List<Dokument>? = when (this) {
-        //TODO legg til digital
-        is XmlSykmelding -> this.leggTilDokumenter(vedlegg, pdf, validationResult)
-        else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
-    }
-
-    private fun XmlSykmelding.leggTilDokumenter(
-        vedlegg: List<Vedlegg>?,
-        pdf: ByteArray,
-        validationResult: ValidationResult
-    ): List<Dokument>? {
+    ): List<Dokument> {
         val dokumenter = mutableListOf<Dokument>()
+
         dokumenter.add(
             Dokument(
                 dokumentvarianter = listOf(
@@ -200,16 +191,7 @@ class JournalpostService(
             else -> throw RuntimeException("Vedlegget er av av ukjent mimeType ${vedlegg.contentType}")
         }
 
-
-    fun Sykmelding.createTittleJournalpostDelegert(
-        validationResult: ValidationResult
-    ): String = when (this) {
-        //TODO legg til digital
-        is XmlSykmelding -> this.createTittleJournalpost(validationResult)
-        else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
-    }
-
-    private fun XmlSykmelding.createTittleJournalpost(
+    private fun Sykmelding.createTittleJournalpost(
         validationResult: ValidationResult
     ): String {
         return if (validationResult.status == RuleType.INVALID) {
@@ -252,29 +234,30 @@ class JournalpostService(
         return dato.format(formatter)
     }
 
-    fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when(this) {
-        is XmlSykmelding -> this.createAvsenderMottaker()
+    fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when (this) {
+        is XmlSykmelding -> behandler.createAvsenderMottaker()
+        is DigitalSykmelding -> behandler.createAvsenderMottaker()
         else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
     }
 
-    private fun XmlSykmelding.createAvsenderMottaker(): AvsenderMottaker {
-        val hpr = this.behandler.ids.find { it.type == PersonIdType.HPR }?.id
+    fun Behandler.createAvsenderMottaker(): AvsenderMottaker {
+        val hpr = ids.find { it.type == PersonIdType.HPR }?.id
         if (hpr != null) {
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(hpr),
                 idType = "HPRNR",
-                navn = this.behandler.formatName()
+                navn = this.formatName()
             )
         }
 
-        val fnr = this.behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
+        val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         return fnr?.let {
             AvsenderMottaker(
                 id = it.id,
                 idType = it.type.name,
-                navn = this.behandler.formatName()
+                navn = this.formatName()
             )
-        } ?: throw IllegalArgumentException("Neither HPR nor valid FNR found for the given XmlSykmelding")
+        } ?: throw IllegalArgumentException("Neither HPR nor valid FNR found for behandler")
     }
 
     private fun hprnummerMedRiktigLengdeOgFormat(hprnummer: String): String {

@@ -26,7 +26,6 @@ class SykmeldingService(
             log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi validation status er: ${RuleType.PENDING}")
             return
         }
-
         val journalpostId = journalpostService.createJournalpost(sykmelding)
         if (journalpostId != null) {
             val kafkaMessage = JournalKafkaMessage(
