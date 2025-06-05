@@ -242,14 +242,15 @@ class JournalpostService(
 
     fun Behandler.createAvsenderMottaker(): AvsenderMottaker {
         val hpr = ids.find { it.type == PersonIdType.HPR }?.id
-        if (hpr != null) {
+
+        if (hpr != null && hpr.length >= 7 && hpr.length <= 9 ) {
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(hpr),
                 idType = "HPRNR",
                 navn = this.formatName()
             )
         }
-
+        log.warn("HRP is $hpr, using fnr instead for")
         val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         return fnr?.let {
             AvsenderMottaker(
