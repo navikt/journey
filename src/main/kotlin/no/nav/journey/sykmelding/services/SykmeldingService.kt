@@ -22,16 +22,10 @@ class SykmeldingService(
 ) {
     val log = applog()
     fun handleSykmelding(sykmelding: SykmeldingRecord){
-        val metadataType = sykmelding.metadata.type
-        if (metadataType != MetadataType.EMOTTAK){
-            log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi metadataType er: $metadataType")
-            return
-        }
         if (sykmelding.validation.status == RuleType.PENDING){
             log.info("Oppretter ikke ny pdf for sykmelding ${sykmelding.sykmelding.id} fordi validation status er: ${RuleType.PENDING}")
             return
         }
-
         val journalpostId = journalpostService.createJournalpost(sykmelding)
         if (journalpostId != null) {
             val kafkaMessage = JournalKafkaMessage(

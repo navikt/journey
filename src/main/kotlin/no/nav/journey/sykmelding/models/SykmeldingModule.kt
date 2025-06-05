@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.databind.node.ObjectNode
+import no.nav.journey.sykmelding.models.metadata.Digital
 import no.nav.journey.sykmelding.models.metadata.EDIEmottak
 import no.nav.journey.sykmelding.models.metadata.Egenmeldt
 import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
@@ -26,6 +27,7 @@ class SykmeldingModule : SimpleModule() {
         addDeserializer(IArbeid::class.java, IArbeidDeserializer())
         addDeserializer(Rule::class.java, RuleDeserializer())
         addDeserializer(MessageMetadata::class.java, MeldingsinformasjonDeserializer())
+        addDeserializer(SykmeldingMeta::class.java, SykmeldingMetaDeserializer())
     }
 }
 
@@ -40,15 +42,18 @@ abstract class CustomDeserializer<T : Any> : JsonDeserializer<T>() {
         return p.codec.treeToValue(node, clazz.java)
     }
 }
+
 class SykmeldingDeserializer : CustomDeserializer<Sykmelding>() {
     override fun getClass(type: String): KClass<out Sykmelding> {
         return when (SykmeldingType.valueOf(type)) {
             SykmeldingType.XML -> XmlSykmelding::class
             SykmeldingType.PAPIR -> Papirsykmelding::class
             SykmeldingType.UTENLANDSK -> UtenlandskSykmelding::class
+            SykmeldingType.DIGITAL -> DigitalSykmelding::class
         }
     }
 }
+
 class MeldingsinformasjonDeserializer : CustomDeserializer<MessageMetadata>() {
     override fun getClass(type: String): KClass<out MessageMetadata> {
         return when (MetadataType.valueOf(type)) {
@@ -57,6 +62,7 @@ class MeldingsinformasjonDeserializer : CustomDeserializer<MessageMetadata>() {
             MetadataType.UTENLANDSK_SYKMELDING -> Utenlandsk::class
             MetadataType.PAPIRSYKMELDING -> Papir::class
             MetadataType.EGENMELDT -> Egenmeldt::class
+            MetadataType.DIGITAL -> Digital::class
         }
     }
 }
@@ -100,6 +106,17 @@ class AktivitetDeserializer : CustomDeserializer<Aktivitet>() {
             Aktivitetstype.BEHANDLINGSDAGER -> Behandlingsdager::class
             Aktivitetstype.GRADERT -> Gradert::class
             Aktivitetstype.REISETILSKUDD -> Reisetilskudd::class
+        }
+    }
+}
+
+class SykmeldingMetaDeserializer : CustomDeserializer<SykmeldingMeta>() {
+    override fun getClass(type: String): KClass<out SykmeldingMeta> {
+        return when (SykmeldingType.valueOf(type)) {
+            SykmeldingType.XML -> SykmeldingMetadata::class
+            SykmeldingType.PAPIR -> SykmeldingMetadata::class
+            SykmeldingType.UTENLANDSK -> SykmeldingMetadata::class
+            SykmeldingType.DIGITAL -> DigitalSykmeldingMetadata::class
         }
     }
 }

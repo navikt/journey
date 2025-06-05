@@ -49,6 +49,11 @@ class DokarkivClient(
 
         } catch (e: HttpClientErrorException) {
             if (e.statusCode == HttpStatus.CONFLICT) {
+                try {
+                    return e.getResponseBodyAs(JournalpostResponse::class.java)
+                } catch (ex: Exception) {
+                    log.error("Feil ved parsing av response fra dokarkiv when status = CONFLICT", ex)
+                }
                 log.error(
                     "Dokarkiv svarte med feil: status=${e.statusCode}, body=${e.responseBodyAsString}, Nav-Callid=${journalpostRequest.eksternReferanseId}",
                     e

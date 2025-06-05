@@ -3,6 +3,7 @@ package no.nav.journey.sykmelding.models.metadata
 import java.time.OffsetDateTime
 
 enum class MetadataType {
+    DIGITAL,
     ENKEL,
     EMOTTAK,
     UTENLANDSK_SYKMELDING,
@@ -18,6 +19,12 @@ data class Egenmeldt(
     val msgInfo: MessageInfo,
 ) : MessageMetadata {
     override val type: MetadataType = MetadataType.EGENMELDT
+}
+
+data class Digital(
+    val orgnummer: String,
+) :MessageMetadata {
+    override val type: MetadataType = MetadataType.DIGITAL
 }
 
 data class Papir(

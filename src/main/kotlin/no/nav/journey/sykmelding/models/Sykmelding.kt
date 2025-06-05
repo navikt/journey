@@ -1,7 +1,5 @@
 package no.nav.journey.sykmelding.models
 
-import no.nav.journey.sykmelding.models.journalpost.Dokument
-import no.nav.journey.sykmelding.models.journalpost.Vedlegg
 import no.nav.journey.sykmelding.models.metadata.Adresse
 import no.nav.journey.sykmelding.models.metadata.HelsepersonellKategori
 import no.nav.journey.sykmelding.models.metadata.Kontaktinfo
@@ -39,6 +37,7 @@ data class Sykmelder(
 )
 
 enum class SykmeldingType {
+    DIGITAL,
     XML,
     PAPIR,
     UTENLANDSK
@@ -47,7 +46,7 @@ enum class SykmeldingType {
 sealed interface Sykmelding {
     val type: SykmeldingType
     val id: String
-    val metadata: SykmeldingMetadata
+    val metadata: SykmeldingMeta
     val pasient: Pasient
     val medisinskVurdering: MedisinskVurdering
     val aktivitet: List<Aktivitet>
@@ -59,21 +58,33 @@ data class UtenlandskSykmelding(
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktivitet: List<Aktivitet>,
     override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
+    override val aktivitet: List<Aktivitet>,
     val utenlandskInfo: UtenlandskInfo
 ) : Sykmelding {
     override val type = SykmeldingType.UTENLANDSK
 }
 
+data class DigitalSykmelding(
+    override val id: String,
+    override val metadata: DigitalSykmeldingMetadata,
+    override val pasient: Pasient,
+    override val medisinskVurdering: MedisinskVurdering,
+    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
+    override val aktivitet: List<Aktivitet>,
+    val behandler: Behandler,
+    val sykmelder: Sykmelder,
+): Sykmelding {
+    override val type = SykmeldingType.DIGITAL
+}
 
 data class XmlSykmelding(
     override val id: String,
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktivitet: List<Aktivitet>,
     override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
+    override val aktivitet: List<Aktivitet>,
     val arbeidsgiver: ArbeidsgiverInfo,
     val behandler: Behandler,
     val sykmelder: Sykmelder,
@@ -90,8 +101,8 @@ data class Papirsykmelding(
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktivitet: List<Aktivitet>,
     override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
+    override val aktivitet: List<Aktivitet>,
     val arbeidsgiver: ArbeidsgiverInfo,
     val behandler: Behandler,
     val sykmelder: Sykmelder,
@@ -106,14 +117,25 @@ data class Papirsykmelding(
 
 
 data class AvsenderSystem(val navn: String, val versjon: String)
+
+sealed interface SykmeldingMeta {
+    val mottattDato: OffsetDateTime
+    val genDate: OffsetDateTime
+}
+
 data class SykmeldingMetadata(
-    val mottattDato: OffsetDateTime,
-    val genDate: OffsetDateTime,
+    override val mottattDato: OffsetDateTime,
+    override val genDate: OffsetDateTime,
     val behandletTidspunkt: OffsetDateTime,
     val regelsettVersjon: String?,
     val avsenderSystem: AvsenderSystem,
     val strekkode: String?,
-)
+): SykmeldingMeta
+
+data class DigitalSykmeldingMetadata(
+    override val mottattDato: OffsetDateTime,
+    override val genDate: OffsetDateTime,
+): SykmeldingMeta
 
 data class BistandNav(
     val bistandUmiddelbart: Boolean,
@@ -136,3 +158,18 @@ data class Tilbakedatering(
     val begrunnelse: String?,
 )
 
+data class UtenlandskInfo(
+    val land: String,
+    val folkeRegistertAdresseErBrakkeEllerTilsvarende: Boolean,
+    val erAdresseUtland: Boolean?,
+)
+data class SporsmalSvar(
+    val sporsmal: String?,
+    val svar: String,
+    val restriksjoner: List<SvarRestriksjon>
+)
+enum class SvarRestriksjon {
+    SKJERMET_FOR_ARBEIDSGIVER,
+    SKJERMET_FOR_PASIENT,
+    SKJERMET_FOR_NAV,
+}

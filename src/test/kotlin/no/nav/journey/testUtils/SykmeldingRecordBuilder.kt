@@ -89,12 +89,13 @@ class SykmeldingRecordBuilder {
         receiver = dummyOrganisasjon(),
         emptyList()
     )
+    var sykmeldingId = UUID.randomUUID().toString()
 
     fun build(): SykmeldingRecord {
         return SykmeldingRecord(
             metadata = metadata,
             sykmelding = XmlSykmelding(
-                id = UUID.randomUUID().toString(),
+                id = sykmeldingId,
                 metadata = SykmeldingMetadata(
                     mottattDato = OffsetDateTime.now(),
                     genDate = OffsetDateTime.now(),

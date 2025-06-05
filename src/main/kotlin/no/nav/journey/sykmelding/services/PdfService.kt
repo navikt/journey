@@ -5,6 +5,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.sykmelding.models.Aktivitet
 import no.nav.journey.sykmelding.models.Aktivitetstype
+import no.nav.journey.sykmelding.models.DigitalSykmelding
 import no.nav.journey.sykmelding.models.Papirsykmelding
 import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.models.UtenlandskSykmelding
@@ -29,23 +30,19 @@ class PdfService {
     }
 
     fun buildPdfPayload(sykmeldingRecord: SykmeldingRecord): SykmeldingRecord {
-        val sorterteAktiviteter = sykmeldingRecord.sykmelding.aktivitet.sorter().groupBy { it.type }
-
-        val enrichedAndSortedSykmelding = when (sykmeldingRecord.sykmelding) {
-            is UtenlandskSykmelding -> sykmeldingRecord.sykmelding.copy(
-                aktiviteter = sorterteAktiviteter
-            )
-            is Papirsykmelding -> sykmeldingRecord.sykmelding.copy(
-                aktiviteter = sorterteAktiviteter
-            )
-            is XmlSykmelding -> sykmeldingRecord.sykmelding.copy(
-                aktiviteter = sorterteAktiviteter
-            )
+        return when (val sykmelding = sykmeldingRecord.sykmelding) {
+            is XmlSykmelding -> {
+                val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
+                val enrichedSykmelding = sykmelding.copy(aktiviteter = sorterteAktiviteter)
+                sykmeldingRecord.copy(sykmelding = enrichedSykmelding)
+            }
+            is DigitalSykmelding -> {
+                val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
+                val enrichedSykmelding = sykmelding.copy(aktiviteter = sorterteAktiviteter)
+                sykmeldingRecord.copy(sykmelding = enrichedSykmelding)
+            }
+            else -> throw IllegalArgumentException("Kan ikke bygge pdf payload for type ${sykmelding::class.simpleName}")
         }
-
-        return sykmeldingRecord.copy(
-            sykmelding = enrichedAndSortedSykmelding
-        )
     }
 
     private fun List<Aktivitet>.sorter(): List<Aktivitet> {
