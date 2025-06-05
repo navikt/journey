@@ -250,7 +250,7 @@ class JournalpostService(
                 navn = this.formatName()
             )
         }
-        log.warn("HRP is $hpr, using fnr instead for")
+        log.warn("HPR is null or invalid size, using fnr instead for")
         val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         return fnr?.let {
             AvsenderMottaker(
