@@ -37,13 +37,9 @@ class SykmeldingService(
                 journalpostOpprettetProducer.send(
                     ProducerRecord(journalOpprettetTopic, sykmelding.sykmelding.id, kafkaMessage),
                 ).get()
-                log.info(
-                    "Sykmelding sendt to kafka topic {} sykmelding id {}",
-                    journalOpprettetTopic,
-                    sykmelding.sykmelding.id,
-                )
+                log.info("Sykmelding sendt to kafka topic $journalOpprettetTopic sykmelding id ${sykmelding.sykmelding.id}, sykmelding type ${sykmelding.sykmelding.type}, journalpostId: $journalpostId",)
             } catch (exception: Exception) {
-                log.error("failed to send sykmelding to kafka result for sykmeldingId: {}", sykmelding.sykmelding.id)
+                log.error("failed to send sykmelding to kafka result for sykmeldingId: ${sykmelding.sykmelding.id}")
                 throw exception
             }
         } else {
