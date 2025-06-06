@@ -50,7 +50,6 @@ sealed interface Sykmelding {
     val pasient: Pasient
     val medisinskVurdering: MedisinskVurdering
     val aktivitet: List<Aktivitet>
-    val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>?
 }
 
 data class UtenlandskSykmelding(
@@ -58,7 +57,6 @@ data class UtenlandskSykmelding(
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
     override val aktivitet: List<Aktivitet>,
     val utenlandskInfo: UtenlandskInfo
 ) : Sykmelding {
@@ -70,7 +68,6 @@ data class DigitalSykmelding(
     override val metadata: DigitalSykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
     override val aktivitet: List<Aktivitet>,
     val behandler: Behandler,
     val sykmelder: Sykmelder,
@@ -83,7 +80,6 @@ data class XmlSykmelding(
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
     override val aktivitet: List<Aktivitet>,
     val arbeidsgiver: ArbeidsgiverInfo,
     val behandler: Behandler,
@@ -101,7 +97,6 @@ data class Papirsykmelding(
     override val metadata: SykmeldingMetadata,
     override val pasient: Pasient,
     override val medisinskVurdering: MedisinskVurdering,
-    override val aktiviteter: Map<Aktivitetstype, List<Aktivitet>>? = null,
     override val aktivitet: List<Aktivitet>,
     val arbeidsgiver: ArbeidsgiverInfo,
     val behandler: Behandler,

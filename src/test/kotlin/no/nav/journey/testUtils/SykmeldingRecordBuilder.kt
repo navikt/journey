@@ -90,94 +90,98 @@ class SykmeldingRecordBuilder {
         emptyList()
     )
     var sykmeldingId = UUID.randomUUID().toString()
+    var sykmeldingMetadata = SykmeldingMetadata(
+        mottattDato = OffsetDateTime.now(),
+        genDate = OffsetDateTime.now(),
+        behandletTidspunkt = OffsetDateTime.now(),
+        regelsettVersjon = "6",
+        avsenderSystem = AvsenderSystem("NAV", "1.0"),
+        strekkode = null
+    )
+    var behandler: Behandler = Behandler(
+        navn = Navn("Beate", "B.", "Behandler"),
+        adresse = Adresse(
+            AdresseType.ARBEIDSADRESSE,
+            "Skoleveien 4",
+            "5401",
+            "STORD",
+            "STORD",
+            "STORD",
+            "NORGE"
+        ),
+        ids = listOf(PersonId("12345678", PersonIdType.HPR)),
+        kontaktinfo = listOf(Kontaktinfo(KontaktinfoType.TLF, "1881"))
+    )
+    var sykmelder = Sykmelder(
+        ids = listOf(PersonId("9999", PersonIdType.HPR)),
+        helsepersonellKategori = HelsepersonellKategori.LEGE
+    )
+    var pasient = Pasient(
+        navn = Navn("Tester", null, "Testesen"),
+        navKontor = null,
+        navnFastlege = "Dr. Test",
+        fnr = fnr,
+        kontaktinfo = listOf(Kontaktinfo(KontaktinfoType.TLF, "12345678"))
+    )
+    var sykmelding: Sykmelding = XmlSykmelding(
+        id = sykmeldingId,
+        metadata = sykmeldingMetadata,
+        pasient = pasient,
+        medisinskVurdering = MedisinskVurdering(
+            hovedDiagnose = hovedDiagnose,
+            biDiagnoser = listOf(hovedDiagnose, DiagnoseInfo(DiagnoseSystem.ICD10, "A500", "Tidlig medfødt syfilis,\n" +
+                    "symptomgivende")),
+            svangerskap = true,
+            yrkesskade = Yrkesskade(1.januar(2023)),
+            skjermetForPasient = true,
+            syketilfelletStartDato = sykmeldtFom,
+            annenFraversArsak = AnnenFraverArsak(
+                "Stor smittefare", listOf(
+                    AnnenFravarArsakType.NODVENDIG_KONTROLLUNDENRSOKELSE,
+                    AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND
+                )
+            )
+        ),
+        aktivitet = aktivitet,
+        behandler = behandler,
+        arbeidsgiver = arbeidsgiver,
+        sykmelder = sykmelder,
+        prognose = prognose,
+        tiltak = tiltak,
+        bistandNav = BistandNav(true, "word"),
+        tilbakedatering = Tilbakedatering(
+            1.januar(2023),
+            begrunnelse = "word word word word word word word word word word word word word word word word word word\n" +
+                    "word word word word word word word word word word word word word word word word word word\n" +
+                    "word word word word word word word word word word word word word word word word word word\n" +
+                    "word word word word word word word word word word"
+        ),
+        utdypendeOpplysninger = mapOf(
+            "6.3" to mapOf(
+                "6.3.1" to SporsmalSvar(
+                    "Er pasienten veldig syk?",
+                    "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+                    listOf(
+                        SvarRestriksjon.SKJERMET_FOR_PASIENT
+                    )
+                )
+            ),
+            "6.4" to mapOf(
+                "6.4.1" to SporsmalSvar(
+                    "Helseopplysninger?",
+                    "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+                    listOf(
+                        SvarRestriksjon.SKJERMET_FOR_PASIENT
+                    )
+                )
+            )
 
+        )
+    )
     fun build(): SykmeldingRecord {
         return SykmeldingRecord(
             metadata = metadata,
-            sykmelding = XmlSykmelding(
-                id = sykmeldingId,
-                metadata = SykmeldingMetadata(
-                    mottattDato = OffsetDateTime.now(),
-                    genDate = OffsetDateTime.now(),
-                    behandletTidspunkt = OffsetDateTime.now(),
-                    regelsettVersjon = "6",
-                    avsenderSystem = AvsenderSystem("NAV", "1.0"),
-                    strekkode = null
-                ),
-                pasient = Pasient(
-                    navn = Navn("Tester", null, "Testesen"),
-                    navKontor = null,
-                    navnFastlege = "Dr. Test",
-                    fnr = fnr,
-                    kontaktinfo = listOf(Kontaktinfo(KontaktinfoType.TLF, "12345678"))
-                ),
-                medisinskVurdering = MedisinskVurdering(
-                    hovedDiagnose = hovedDiagnose,
-                    biDiagnoser = listOf(hovedDiagnose, DiagnoseInfo(DiagnoseSystem.ICD10, "A500", "Tidlig medfødt syfilis,\n" +
-                            "symptomgivende")),
-                    svangerskap = true,
-                    yrkesskade = Yrkesskade(1.januar(2023)),
-                    skjermetForPasient = true,
-                    syketilfelletStartDato = sykmeldtFom,
-                    annenFraversArsak = AnnenFraverArsak(
-                        "Stor smittefare", listOf(
-                            AnnenFravarArsakType.NODVENDIG_KONTROLLUNDENRSOKELSE,
-                            AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND
-                        )
-                    )
-                ),
-                aktivitet = aktivitet,
-                behandler = Behandler(
-                    navn = Navn("Beate", "B.", "Behandler"),
-                    adresse = Adresse(
-                        AdresseType.ARBEIDSADRESSE,
-                        "Skoleveien 4",
-                        "5401",
-                        "STORD",
-                        "STORD",
-                        "STORD",
-                        "NORGE"
-                    ),
-                    ids = listOf(PersonId("123456", PersonIdType.HPR)),
-                    kontaktinfo = listOf(Kontaktinfo(KontaktinfoType.TLF, "1881"))
-                ),
-                arbeidsgiver = arbeidsgiver,
-                sykmelder = Sykmelder(
-                    ids = listOf(PersonId("9999", PersonIdType.HPR)),
-                    helsepersonellKategori = HelsepersonellKategori.LEGE
-                ),
-                prognose = prognose,
-                tiltak = tiltak,
-                bistandNav = BistandNav(true, "word"),
-                tilbakedatering = Tilbakedatering(
-                    1.januar(2023),
-                    begrunnelse = "word word word word word word word word word word word word word word word word word word\n" +
-                            "word word word word word word word word word word word word word word word word word word\n" +
-                            "word word word word word word word word word word word word word word word word word word\n" +
-                            "word word word word word word word word word word"
-                ),
-                utdypendeOpplysninger = mapOf(
-                    "6.3" to mapOf(
-                        "6.3.1" to SporsmalSvar(
-                            "Er pasienten veldig syk?",
-                            "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
-                            listOf(
-                                SvarRestriksjon.SKJERMET_FOR_PASIENT
-                            )
-                        )
-                    ),
-                    "6.4" to mapOf(
-                        "6.4.1" to SporsmalSvar(
-                            "Helseopplysninger?",
-                            "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
-                            listOf(
-                                SvarRestriksjon.SKJERMET_FOR_PASIENT
-                            )
-                        )
-                    )
-
-                )
-            ),
+            sykmelding = sykmelding,
             validation = ValidationResult(
                 status = RuleType.INVALID,
                 timestamp = OffsetDateTime.now(),

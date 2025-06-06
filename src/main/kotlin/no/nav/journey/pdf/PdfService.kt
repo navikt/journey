@@ -1,4 +1,4 @@
-package no.nav.journey.sykmelding.services
+package no.nav.journey.pdf
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
@@ -6,9 +6,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.sykmelding.models.Aktivitet
 import no.nav.journey.sykmelding.models.Aktivitetstype
 import no.nav.journey.sykmelding.models.DigitalSykmelding
-import no.nav.journey.sykmelding.models.Papirsykmelding
 import no.nav.journey.sykmelding.models.SykmeldingRecord
-import no.nav.journey.sykmelding.models.UtenlandskSykmelding
 import no.nav.journey.sykmelding.models.XmlSykmelding
 import no.nav.pdfgen.core.pdf.createHtml
 import no.nav.pdfgen.core.pdf.createPDFA
@@ -29,17 +27,25 @@ class PdfService {
 
     }
 
-    fun buildPdfPayload(sykmeldingRecord: SykmeldingRecord): SykmeldingRecord {
+    fun buildPdfPayload(sykmeldingRecord: SykmeldingRecord): PdfPayload {
         return when (val sykmelding = sykmeldingRecord.sykmelding) {
             is XmlSykmelding -> {
                 val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
-                val enrichedSykmelding = sykmelding.copy(aktiviteter = sorterteAktiviteter)
-                sykmeldingRecord.copy(sykmelding = enrichedSykmelding)
+                PdfPayload(
+                    metadata = sykmeldingRecord.metadata,
+                    sykmelding = sykmelding,
+                    validation = sykmeldingRecord.validation,
+                    aktiviteter = sorterteAktiviteter
+                )
             }
             is DigitalSykmelding -> {
                 val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
-                val enrichedSykmelding = sykmelding.copy(aktiviteter = sorterteAktiviteter)
-                sykmeldingRecord.copy(sykmelding = enrichedSykmelding)
+                PdfPayload(
+                    metadata = sykmeldingRecord.metadata,
+                    sykmelding = sykmelding,
+                    validation = sykmeldingRecord.validation,
+                    aktiviteter = sorterteAktiviteter
+                )
             }
             else -> throw IllegalArgumentException("Kan ikke bygge pdf payload for type ${sykmelding::class.simpleName}")
         }

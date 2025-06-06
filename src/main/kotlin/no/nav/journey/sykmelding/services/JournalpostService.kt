@@ -1,5 +1,6 @@
 package no.nav.journey.sykmelding.services
 
+import no.nav.journey.pdf.PdfService
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.Aktivitet
 import no.nav.journey.sykmelding.models.Behandler
