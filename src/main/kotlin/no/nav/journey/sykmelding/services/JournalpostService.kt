@@ -53,7 +53,7 @@ class JournalpostService(
             val journalpostId = when (metadata) {
                 is Papir -> metadata.journalPostId
                 is Utenlandsk -> metadata.journalPostId
-                else -> null
+                else -> throw IllegalArgumentException("Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} ")
             }
             return journalpostId
         }

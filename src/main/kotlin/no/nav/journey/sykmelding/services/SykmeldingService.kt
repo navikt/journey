@@ -45,7 +45,9 @@ class SykmeldingService(
             } catch (exception: Exception) {
                 log.error("failed to send sykmelding to kafka result for sykmeldingId: {}", sykmelding.sykmelding.id)
                 throw exception
-            } 
+            }
+        } else {
+            log.warn("Kunne ikke opprette journalpost for sykmelding could not find journalpostID for ${sykmelding.sykmelding.type} sykmeldingID: ${sykmelding.sykmelding.id}")
         }
     }
 }
