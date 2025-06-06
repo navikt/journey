@@ -192,10 +192,8 @@
             <td><h4>1.3</h4></td>
             <td><h4>Telefon</h4></td>
             {{#each sykmelding.pasient.kontaktinfo}}
-                {{#eq this.type "TLF"}}
-                    <tr>
-                        <td>{{this.value}}</td>
-                    </tr>
+                {{#eq type "TLF"}}
+                    <td>{{value}}</td>
                 {{/eq}}
             {{/each}}
         </tr>
@@ -372,7 +370,7 @@
             <td colspan="3">{{iso_to_date sykmelding.medisinskVurdering.yrkesskade.yrkesskadeDato }}</td>
         </tr>
     {{/if}}
-    {{#if sykmelding.medisinskVurdering.skjermesForPasient }}
+    {{#if sykmelding.medisinskVurdering.skjermetForPasient }}
         <tr>
             <td><h4>3.7</h4></td>
             <td colspan="4"><h4>Pasienten må skjermes for medisinske opplysninger</h4></td>
@@ -888,13 +886,13 @@
         {{/eq}}
     {{/each}}
     {{#each sykmelding.behandler.kontaktinfo}}
-        {{#if (eq type "TLF")}}
+        {{#eq type "TLF"}}
             <tr>
                 <td><h4>12.5</h4></td>
                 <td><h4>Telefon</h4></td>
                 <td>{{value}}</td>
             </tr>
-        {{/if}}
+        {{/eq}}
     {{/each}}
     <tr>
         <td><h4>12.6</h4></td>
@@ -920,14 +918,14 @@
             <li> Versjon: {{ sykmelding.metadata.avsenderSystem.versjon }} </li>
         </td>
     </tr>
-    {{#each sykmelding.signerendeBehandler.ids}}
-        {{#if (eq type "HPR")}}
+    {{#each sykmelding.sykmelder.ids}}
+        {{#eq type "HPR"}}
             <tr>
                 <td><h4></h4></td>
                 <td><h4>Signerende behandler HPR-nummer</h4></td>
                 <td>{{id}}</td>
             </tr>
-        {{/if}}
+        {{/eq}}
     {{/each}}
     </tbody>
 </table>

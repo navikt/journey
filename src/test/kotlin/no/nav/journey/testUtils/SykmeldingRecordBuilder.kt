@@ -117,7 +117,7 @@ class SykmeldingRecordBuilder {
                             "symptomgivende")),
                     svangerskap = true,
                     yrkesskade = Yrkesskade(1.januar(2023)),
-                    skjermetForPasient = false,
+                    skjermetForPasient = true,
                     syketilfelletStartDato = sykmeldtFom,
                     annenFraversArsak = AnnenFraverArsak(
                         "Stor smittefare", listOf(

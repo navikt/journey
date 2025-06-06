@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.awt.Desktop
 import java.io.File
+import kotlin.test.Ignore
 
 class PdfGenTest {
     private val pdfService = PdfService()
@@ -28,6 +29,7 @@ class PdfGenTest {
     @Test
     fun `generate pdf for sykmelding flere arbeidsgivere`() {
         val recordMedFlereArbeidsgivere = sykmeldingRecord {
+
             arbeidsgiver = FlereArbeidsgivere("Coop", "Butikkmedarbeider", 80, null, null)
         }
         val pdfBytes = pdfService.createPdf(recordMedFlereArbeidsgivere)!!
@@ -42,7 +44,7 @@ class PdfGenTest {
     }
 
     @Test
-    @Disabled("generates pdf")
+    @Ignore
     fun `generate pdf for sykmelding med hoveddiagnose og bidiagnoser`() {
         val record = sykmeldingRecord {}
         val pdfBytes = pdfService.createPdf(record)!!
