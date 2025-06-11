@@ -29,7 +29,7 @@ class SykmeldingListener(
             ?.toString(Charsets.UTF_8)
 
         if (headerValue != "tsm") {
-            logger.info("Ignorerer melding fordi processing-target='$headerValue'")
+            logger.info("Ignorerer melding fordi processing-target='$headerValue' sykmeldingId='${cr.key()}'")
             return
         }
 
