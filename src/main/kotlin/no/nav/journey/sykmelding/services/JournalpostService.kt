@@ -248,18 +248,24 @@ class JournalpostService(
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(hpr),
                 idType = "HPRNR",
-                navn = this.formatName()
+                navn = formatName()
             )
         }
         log.warn("HPR is null or invalid size, using fnr instead for")
         val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
-        return fnr?.let {
-            AvsenderMottaker(
-                id = it.id,
-                idType = it.type.name,
-                navn = this.formatName()
-            )
-        } ?: throw IllegalArgumentException("Neither HPR nor valid FNR found for behandler")
+        if(fnr != null) {
+            return AvsenderMottaker(
+                    id = fnr.id,
+                    idType = fnr.type.name,
+                    navn = formatName()
+                )
+        }
+
+        log.warn("invalid behandler ids, using land = NORGE")
+        return AvsenderMottaker(
+            land = "Norge",
+            navn = formatName(),
+        )
     }
 
     private fun hprnummerMedRiktigLengdeOgFormat(hprnummer: String): String {

@@ -1,5 +1,7 @@
 package no.nav.journey.sykmelding.models.journalpost
 
+import com.fasterxml.jackson.annotation.JsonInclude
+
 data class JournalpostRequest(
     val avsenderMottaker: AvsenderMottaker?,
     val bruker: Bruker?,
@@ -13,9 +15,11 @@ data class JournalpostRequest(
     val tittel: String?,
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class AvsenderMottaker(
-    val id: String,
-    val idType: String,
+    val id: String? = null,
+    val idType: String? = null,
+    val land: String? = null,
     val navn: String,
 )
 
