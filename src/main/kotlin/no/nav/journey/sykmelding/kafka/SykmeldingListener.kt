@@ -1,5 +1,6 @@
 package no.nav.journey.sykmelding.kafka
 
+import com.fasterxml.jackson.module.kotlin.readValue
 import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.services.SykmeldingService
 import no.nav.journey.sykmelding.services.util.objectMapper
@@ -7,6 +8,7 @@ import no.nav.journey.utils.applog
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
+import java.nio.charset.Charset
 
 
 @Component
@@ -32,8 +34,11 @@ class SykmeldingListener(
             logger.info("Ignorerer melding fordi processing-target='$headerValue' sykmeldingId='${cr.key()}'")
             return
         }
+        val sykmeldingValue = cr.value()
+            ?.toString(Charset.defaultCharset())
+            ?.replace("\uFEFF", "")
+            ?.let { objectMapper.readValue<SykmeldingRecord>(it) }
 
-        val sykmeldingValue = cr.value()?.let { objectMapper.readValue(it, SykmeldingRecord::class.java) }
         if (sykmeldingValue == null) {
             logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
             return
