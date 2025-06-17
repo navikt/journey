@@ -105,7 +105,9 @@ class JournalpostService(
                 sakstype = "GENERELL_SAK",
             ),
             tema = "SYM",
-            tittel = sykmelding.sykmelding.createTittleJournalpost(validationResult)
+            tittel = sykmelding.sykmelding.createTittleJournalpost(validationResult).also {
+                log.info("Creating tittel: $it for sykmeldingId ${sykmelding.sykmelding.id}")
+            }
         )
     }
 
@@ -195,10 +197,10 @@ class JournalpostService(
     private fun Sykmelding.createTittleJournalpost(
         validationResult: ValidationResult
     ): String {
-        return if (validationResult.status == RuleType.INVALID) {
-            "Avvist sykmelding ${getFomTomTekst(this.aktivitet)}"
-        } else if (validationResult.ugyldigTilbakedatering()) {
+        return if (validationResult.ugyldigTilbakedatering()) {
             "Avslått sykmelding ${getFomTomTekst(this.aktivitet)}"
+        } else if (validationResult.status == RuleType.INVALID) {
+            "Avvist sykmelding ${getFomTomTekst(this.aktivitet)}"
         } else if (validationResult.delvisGodkjent()) {
             "Delvis godkjent sykmelding ${getFomTomTekst(this.aktivitet)}"
         } else {
