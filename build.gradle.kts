@@ -1,23 +1,23 @@
-val kafkaClientsVersion = "3.9.0"
-val logstashLogbackEncoderVersion = "8.0"
-val jacksonVersion= "2.17.2"
-val googleCloudStorageVersion = "2.50.0"
+val kafkaClientsVersion = "8.0.0-ce"
+val logstashLogbackEncoderVersion = "8.1"
+val jacksonVersion= "2.19.1"
+val googleCloudStorageVersion = "2.53.0"
 val prometheusVersion = "0.16.0"
 val mockitoKotlinVersion = "5.4.0"
-val testContainersVersion = "1.20.6"
-val mockkVersion = "1.13.17"
+val testContainersVersion = "1.21.1"
+val mockkVersion = "1.14.2"
 val syfoXmlCodegenVersion = "2.0.1"
-val jaxbRuntimeVersion = "2.4.0-b180830.0438"
+val jaxbRuntimeVersion = "4.0.5"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val javaTimeAdapterVersion = "1.1.3"
-val pdfgencoreVersion = "1.1.46"
-val verapdfVersion = "1.26.1"
+val pdfgencoreVersion = "1.1.52"
+val verapdfVersion = "1.28.1"
 val openHtmlToPdfVersion = "1.1.28"
 
 plugins {
-	kotlin("jvm") version "2.1.0"
-	kotlin("plugin.spring") version "1.9.25"
-	id("org.springframework.boot") version "3.4.3"
+	kotlin("jvm") version "2.1.21"
+	kotlin("plugin.spring") version "2.1.21"
+	id("org.springframework.boot") version "3.5.0"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -57,13 +57,13 @@ dependencies {
 	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
 	implementation("no.nav.pdfgen:pdfgen-core:$pdfgencoreVersion")
 	implementation("org.verapdf:validation-model:$verapdfVersion")
-	implementation("com.github.jknack:handlebars:4.3.1")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+	implementation("com.github.jknack:handlebars:4.4.0")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.1")
 	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
 	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.16.0-alpha")
 
-	testImplementation("org.apache.tika:tika-core:3.1.0")
-	testImplementation("org.apache.tika:tika-parsers-standard-package:3.1.0")
+	testImplementation("org.apache.tika:tika-core:3.2.0")
+	testImplementation("org.apache.tika:tika-parsers-standard-package:3.2.0")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 	testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
