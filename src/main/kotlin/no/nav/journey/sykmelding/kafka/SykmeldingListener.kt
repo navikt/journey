@@ -24,16 +24,8 @@ class SykmeldingListener(
         containerFactory = "containerFactory",
     )
     fun listen(cr: ConsumerRecord<String, ByteArray>) {
-        logger.info("sykmeldingRecord from kafka: key=${cr.key()}, offset=${cr.offset()}")
-        val headerValue = cr.headers()
-            .lastHeader("processing-target")
-            ?.value()
-            ?.toString(Charsets.UTF_8)
+        logger.info("sykmeldingRecord from kafka: key=${cr.key()}, offset=${cr.offset()}, partition: ${cr.partition()}")
 
-        if (headerValue != "tsm") {
-            logger.info("Ignorerer melding fordi processing-target='$headerValue' sykmeldingId='${cr.key()}'")
-            return
-        }
         val sykmeldingValue = cr.value()
             ?.toString(Charset.defaultCharset())
             ?.replace("\uFEFF", "")
