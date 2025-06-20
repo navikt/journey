@@ -13,6 +13,9 @@ val javaTimeAdapterVersion = "1.1.3"
 val pdfgencoreVersion = "1.1.46"
 val verapdfVersion = "1.26.1"
 val openHtmlToPdfVersion = "1.1.28"
+val handlebarsVersion = "4.4.0"
+val opentelemetryLogbackMdcVersion = "2.16.0-alpha"
+val tikaVersion = "3.2.0"
 
 plugins {
 	kotlin("jvm") version "2.1.0"
@@ -57,13 +60,12 @@ dependencies {
 	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
 	implementation("no.nav.pdfgen:pdfgen-core:$pdfgencoreVersion")
 	implementation("org.verapdf:validation-model:$verapdfVersion")
-	implementation("com.github.jknack:handlebars:4.3.1")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
+	implementation("com.github.jknack:handlebars:$handlebarsVersion")
 	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
-	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:2.16.0-alpha")
+	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:$opentelemetryLogbackMdcVersion")
 
-	testImplementation("org.apache.tika:tika-core:3.1.0")
-	testImplementation("org.apache.tika:tika-parsers-standard-package:3.1.0")
+	testImplementation("org.apache.tika:tika-core:$tikaVersion")
+	testImplementation("org.apache.tika:tika-parsers-standard-package:$tikaVersion")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
 	testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
