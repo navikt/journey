@@ -253,7 +253,7 @@ class JournalpostService(
                 navn = formatName()
             )
         }
-        log.warn("HPR is null or invalid size, using fnr instead for")
+        log.warn("HPR is null or invalid size, using fnr instead")
         val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         if(fnr != null) {
             return AvsenderMottaker(
