@@ -1,13 +1,9 @@
 package no.nav.journey.sykmelding.services
 
 import no.nav.journey.config.kafkaConfig.JournalKafkaMessage
-import no.nav.journey.sykmelding.models.SykmeldingRecord
-import no.nav.journey.sykmelding.models.XmlSykmelding
-import no.nav.journey.sykmelding.models.metadata.EDIEmottak
-import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
-import no.nav.journey.sykmelding.models.metadata.MetadataType
-import no.nav.journey.sykmelding.models.validation.RuleType
 import no.nav.journey.utils.applog
+import no.nav.tsm.sykmelding.input.core.model.RuleType
+import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.springframework.beans.factory.annotation.Value

@@ -1,8 +1,5 @@
 package no.nav.journey.config.kafkaConfig
 
-import no.nav.journey.sykmelding.kafka.util.SykmeldingDeserializer
-import no.nav.journey.sykmelding.models.SykmeldingRecord
-import no.nav.journey.sykmelding.services.JournalpostService
 import no.nav.journey.utils.JacksonKafkaSerializer
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG
@@ -11,8 +8,6 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig.ACKS_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.COMPRESSION_TYPE_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG
-import org.apache.kafka.clients.producer.ProducerConfig.RETRIES_CONFIG
-import org.apache.kafka.clients.producer.ProducerConfig.RETRY_BACKOFF_MS_CONFIG
 import org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG
 import org.apache.kafka.common.config.SslConfigs
 import org.apache.kafka.common.serialization.ByteArrayDeserializer

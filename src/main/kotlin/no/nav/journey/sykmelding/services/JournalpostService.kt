@@ -2,12 +2,6 @@ package no.nav.journey.sykmelding.services
 
 import no.nav.journey.pdf.PdfService
 import no.nav.journey.sykmelding.api.DokarkivClient
-import no.nav.journey.sykmelding.models.Aktivitet
-import no.nav.journey.sykmelding.models.Behandler
-import no.nav.journey.sykmelding.models.DigitalSykmelding
-import no.nav.journey.sykmelding.models.Sykmelding
-import no.nav.journey.sykmelding.models.SykmeldingRecord
-import no.nav.journey.sykmelding.models.XmlSykmelding
 import no.nav.journey.sykmelding.models.journalpost.AvsenderMottaker
 import no.nav.journey.sykmelding.models.journalpost.Bruker
 import no.nav.journey.sykmelding.models.journalpost.Dokument
@@ -16,20 +10,24 @@ import no.nav.journey.sykmelding.models.journalpost.GosysVedlegg
 import no.nav.journey.sykmelding.models.journalpost.JournalpostRequest
 import no.nav.journey.sykmelding.models.journalpost.Sak
 import no.nav.journey.sykmelding.models.journalpost.Vedlegg
-import no.nav.journey.sykmelding.models.metadata.Digital
-import no.nav.journey.sykmelding.models.metadata.EDIEmottak
-import no.nav.journey.sykmelding.models.metadata.EmottakEnkel
-import no.nav.journey.sykmelding.models.metadata.Papir
-import no.nav.journey.sykmelding.models.metadata.PersonIdType
-import no.nav.journey.sykmelding.models.metadata.Utenlandsk
-import no.nav.journey.sykmelding.models.validation.RuleType
-import no.nav.journey.sykmelding.models.validation.TilbakedatertMerknad
-import no.nav.journey.sykmelding.models.validation.ValidationResult
-import no.nav.journey.sykmelding.services.util.objectMapper
 import no.nav.journey.sykmelding.services.util.validatePersonAndDNumber
 import no.nav.journey.utils.applog
 import no.nav.journey.utils.securelog
 import no.nav.pdfgen.core.pdf.createPDFA
+import no.nav.tsm.sykmelding.input.core.model.Aktivitet
+import no.nav.tsm.sykmelding.input.core.model.Behandler
+import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
+import no.nav.tsm.sykmelding.input.core.model.RuleType
+import no.nav.tsm.sykmelding.input.core.model.Sykmelding
+import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
+import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
+import no.nav.tsm.sykmelding.input.core.model.ValidationResult
+import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
+import no.nav.tsm.sykmelding.input.core.model.metadata.EmottakEnkel
+import no.nav.tsm.sykmelding.input.core.model.metadata.Papir
+import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
+import no.nav.tsm.sykmelding.input.core.model.metadata.Utenlandsk
+import no.nav.tsm.sykmelding.input.core.model.sykmeldingObjectMapper
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -131,7 +129,7 @@ class JournalpostService(
                         filnavn = "Sykmelding json",
                         filtype = "JSON",
                         variantformat = "ORIGINAL",
-                        fysiskDokument = objectMapper.writeValueAsBytes(this),
+                        fysiskDokument = sykmeldingObjectMapper.writeValueAsBytes(this),
                     )
                 ),
                 tittel = this.createTittleJournalpost(validationResult),

@@ -1,14 +1,13 @@
 package no.nav.journey.sykmelding
 
-import no.nav.journey.sykmelding.models.FlereArbeidsgivere
 import no.nav.journey.pdf.PdfService
-import no.nav.journey.sykmelding.models.XmlSykmelding
 import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.sykmeldingRecord
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
+import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
+import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.awt.Desktop

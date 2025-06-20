@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import no.nav.journey.sykmelding.models.SykmeldingModule
 import no.nav.journey.utils.applog
+import no.nav.tsm.sykmelding.input.core.model.SykmeldingModule
 import org.apache.kafka.common.serialization.Deserializer
 import kotlin.reflect.KClass
 
