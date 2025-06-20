@@ -16,6 +16,7 @@ val openHtmlToPdfVersion = "1.1.28"
 val handlebarsVersion = "4.4.0"
 val opentelemetryLogbackMdcVersion = "2.16.0-alpha"
 val tikaVersion = "3.2.0"
+val sykmelidngInputVersion = "6"
 
 plugins {
 	kotlin("jvm") version "2.1.0"
@@ -63,6 +64,7 @@ dependencies {
 	implementation("com.github.jknack:handlebars:$handlebarsVersion")
 	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
 	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:$opentelemetryLogbackMdcVersion")
+	implementation("no.nav.tsm.sykmelding", "input", sykmelidngInputVersion)
 
 	testImplementation("org.apache.tika:tika-core:$tikaVersion")
 	testImplementation("org.apache.tika:tika-parsers-standard-package:$tikaVersion")

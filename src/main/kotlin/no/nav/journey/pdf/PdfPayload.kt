@@ -1,10 +1,11 @@
 package no.nav.journey.pdf
 
-import no.nav.journey.sykmelding.models.Aktivitet
-import no.nav.journey.sykmelding.models.Aktivitetstype
-import no.nav.journey.sykmelding.models.Sykmelding
-import no.nav.journey.sykmelding.models.metadata.MessageMetadata
-import no.nav.journey.sykmelding.models.validation.ValidationResult
+import no.nav.tsm.sykmelding.input.core.model.Aktivitet
+import no.nav.tsm.sykmelding.input.core.model.Aktivitetstype
+import no.nav.tsm.sykmelding.input.core.model.Sykmelding
+import no.nav.tsm.sykmelding.input.core.model.ValidationResult
+import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
+
 
 data class PdfPayload(
     val metadata: MessageMetadata,

@@ -6,19 +6,18 @@ import io.mockk.confirmVerified
 import io.mockk.mockk
 import no.nav.journey.pdf.PdfService
 import no.nav.journey.sykmelding.api.DokarkivClient
-import no.nav.journey.sykmelding.models.Papirsykmelding
-import no.nav.journey.sykmelding.models.UtenlandskInfo
-import no.nav.journey.sykmelding.models.UtenlandskSykmelding
 import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
-import no.nav.journey.sykmelding.models.metadata.MessageInfo
-import no.nav.journey.sykmelding.models.metadata.Papir
-import no.nav.journey.sykmelding.models.metadata.Utenlandsk
 import no.nav.journey.testUtils.dummyOrganisasjon
 import no.nav.journey.testUtils.sykmeldingRecord
+import no.nav.tsm.sykmelding.input.core.model.Papirsykmelding
+import no.nav.tsm.sykmelding.input.core.model.UtenlandskInfo
+import no.nav.tsm.sykmelding.input.core.model.UtenlandskSykmelding
+import no.nav.tsm.sykmelding.input.core.model.metadata.MessageInfo
+import no.nav.tsm.sykmelding.input.core.model.metadata.Papir
+import no.nav.tsm.sykmelding.input.core.model.metadata.Utenlandsk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.springframework.context.support.beans
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import java.util.UUID
@@ -45,7 +44,13 @@ class JournalpostServiceTest {
         val pdfBytes = "pdf-content".toByteArray()
 
         coEvery { pdfService.createPdf(sykmeldingRecord) } returns pdfBytes
-        coEvery { dokarkivClient.createJournalpost(any()) } returns JournalpostResponse(emptyList(), "123", true, null, null )
+        coEvery { dokarkivClient.createJournalpost(any()) } returns JournalpostResponse(
+            emptyList(),
+            "123",
+            true,
+            null,
+            null
+        )
 
         val result = journalpostService.createJournalpost(sykmeldingRecord)
 
@@ -59,7 +64,7 @@ class JournalpostServiceTest {
     fun `create journalpost papirsykmelding`() {
         val sykmeldingRecord = sykmeldingRecord {
             sykmeldingId = "123"
-            metadata =  Papir(
+            metadata = Papir(
                 msgInfo = MessageInfo(
                     type,
                     genDate = OffsetDateTime.now(ZoneOffset.UTC),

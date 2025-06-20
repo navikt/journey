@@ -3,13 +3,13 @@ package no.nav.journey.pdf
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.nav.journey.sykmelding.models.Aktivitet
-import no.nav.journey.sykmelding.models.Aktivitetstype
-import no.nav.journey.sykmelding.models.DigitalSykmelding
-import no.nav.journey.sykmelding.models.SykmeldingRecord
-import no.nav.journey.sykmelding.models.XmlSykmelding
 import no.nav.pdfgen.core.pdf.createHtml
 import no.nav.pdfgen.core.pdf.createPDFA
+import no.nav.tsm.sykmelding.input.core.model.Aktivitet
+import no.nav.tsm.sykmelding.input.core.model.Aktivitetstype
+import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
+import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
+import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
 import org.springframework.stereotype.Service
 
 @Service
