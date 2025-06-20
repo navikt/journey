@@ -1,10 +1,10 @@
 package no.nav.journey.sykmelding.kafka
 
 import com.fasterxml.jackson.module.kotlin.readValue
-import no.nav.journey.sykmelding.models.SykmeldingRecord
 import no.nav.journey.sykmelding.services.SykmeldingService
-import no.nav.journey.sykmelding.services.util.objectMapper
 import no.nav.journey.utils.applog
+import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
+import no.nav.tsm.sykmelding.input.core.model.sykmeldingObjectMapper
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
@@ -29,7 +29,7 @@ class SykmeldingListener(
         val sykmeldingValue = cr.value()
             ?.toString(Charset.defaultCharset())
             ?.replace("\uFEFF", "")
-            ?.let { objectMapper.readValue<SykmeldingRecord>(it) }
+            ?.let { sykmeldingObjectMapper.readValue<SykmeldingRecord>(it) }
 
         if (sykmeldingValue == null) {
             logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
