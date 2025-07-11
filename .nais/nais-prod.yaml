@@ -33,10 +33,10 @@ spec:
         - id: elastic
   resources:
     limits:
-      memory: 1Gi
+      memory: 2Gi
     requests:
-      cpu: 250m
-      memory: 512Mi
+      cpu: 280m
+      memory: 830Mi
   secureLogs:
     enabled: true
   kafka:
@@ -55,6 +55,3 @@ spec:
       value: https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
     - name: DOKARKIV_SCOPE
       value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
-
-
-
