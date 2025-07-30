@@ -46,6 +46,9 @@ spec:
       enabled: true
   accessPolicy:
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: dokarkiv.prod-fss-pub.nais.io
   envFrom:

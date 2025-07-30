@@ -48,6 +48,9 @@ spec:
     - secret: sykmelding-bucket
   accessPolicy:
     outbound:
+      rules:
+        - application: logging
+          namespace: nais-system
       external:
         - host: dokarkiv.dev-fss-pub.nais.io
   env:

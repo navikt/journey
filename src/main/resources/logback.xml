@@ -4,9 +4,6 @@
             <provider class="net.logstash.logback.composite.loggingevent.ArgumentsJsonProvider" />
         </encoder>
     </appender>
-    <appender name="OTEL" class="io.opentelemetry.instrumentation.logback.mdc.v1_0.OpenTelemetryAppender">
-        <appender-ref ref="stdout_json" />
-    </appender>
 
     <appender name="secure_log" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>/secure-logs/secure.log</file>
@@ -21,14 +18,23 @@
         <encoder class="net.logstash.logback.encoder.LogstashEncoder" />
     </appender>
 
+    <appender name="team-logs" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <destination>team-logs.nais-system:5170</destination>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <customFields>{"google_cloud_project":"${GOOGLE_CLOUD_PROJECT}","nais_namespace_name":"${NAIS_NAMESPACE}","nais_pod_name":"${NAIS_POD_NAME}","nais_container_name":"${NAIS_APP_NAME}"}</customFields>
+            <includeContext>false</includeContext>
+        </encoder>
+    </appender>
+
     <logger name="securelog" level="INFO" additivity="false">
         <appender-ref ref="secure_log" />
+        <appender-ref ref="team-logs"/>
     </logger>
     <logger name="org.apache.pdfbox.pdmodel.font.PDType1Font" level="ERROR"/>
     <logger name="com.openhtmltopdf" level="WARN"/>
 
     <logger name="org.apache.kafka" level="warn" />
     <root level="INFO">
-        <appender-ref ref="OTEL" />
+        <appender-ref ref="stdout_json" />
     </root>
 </configuration>
