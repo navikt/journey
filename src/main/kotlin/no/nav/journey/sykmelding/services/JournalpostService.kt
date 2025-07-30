@@ -12,7 +12,7 @@ import no.nav.journey.sykmelding.models.journalpost.Sak
 import no.nav.journey.sykmelding.models.journalpost.Vedlegg
 import no.nav.journey.sykmelding.services.util.validatePersonAndDNumber
 import no.nav.journey.utils.applog
-import no.nav.journey.utils.securelog
+import no.nav.journey.utils.teamLogger
 import no.nav.pdfgen.core.objectMapper
 import no.nav.pdfgen.core.pdf.createPDFA
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
@@ -42,7 +42,7 @@ class JournalpostService(
     val pdfService: PdfService,
 ) {
     val log = applog()
-    val securelog = securelog()
+    val teamlog = teamLogger()
 
     fun createJournalpost(
         sykmelding: SykmeldingRecord,
@@ -58,7 +58,7 @@ class JournalpostService(
         }
         val vedlegg = getVedlegg(sykmelding)
         if(!vedlegg.isNullOrEmpty()) {
-            securelog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: ${objectMapper.writeValueAsString(vedlegg)}")
+            teamlog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: ${objectMapper.writeValueAsString(vedlegg)}")
         }
         val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
         val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)

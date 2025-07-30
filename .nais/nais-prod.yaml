@@ -37,8 +37,6 @@ spec:
     requests:
       cpu: 280m
       memory: 830Mi
-  secureLogs:
-    enabled: true
   kafka:
     pool: nav-prod
   azure:
