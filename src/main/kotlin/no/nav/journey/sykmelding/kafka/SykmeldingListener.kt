@@ -19,12 +19,11 @@ class SykmeldingListener(
     val logger = applog()
 
     @KafkaListener(
-        topics = ["\${spring.kafka.topics.sykmeldinger-output}"],
+        topics = ["\${spring.kafka.topics.sykmeldinger}"],
         groupId = "journey-consumer",
         containerFactory = "containerFactory",
     )
     fun listen(cr: ConsumerRecord<String, ByteArray>) {
-        logger.info("sykmeldingRecord from kafka: key=${cr.key()}, offset=${cr.offset()}, partition: ${cr.partition()}")
 
         val sykmeldingValue = cr.value()
             ?.toString(Charset.defaultCharset())

@@ -29,7 +29,7 @@ fun validatePersonDNumberMod11(personNumber: String): Boolean {
 }
 
 fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
-    val personNumberBornDay = personNumber.substring(0, 2)
+    val personNumberBornDay = personNumber.take(2)
     return validatePersonNumberRange(personNumberBornDay) ||
             validatePersonDNumberRange(personNumberBornDay)
 }

@@ -24,12 +24,11 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory
 @Configuration
 @EnableConfigurationProperties
 class KafkaConfig(
-    @Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
-    @Value("\${KAFKA_SECURITY_PROTOCOL:SSL}") private val kafkaSecurityProtocol: String,
-    @Value("\${KAFKA_TRUSTSTORE_PATH}") private val kafkaTruststorePath: String,
-    @Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
-    @Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
-    @Value("\${aiven-kafka.auto-offset-reset}") private val kafkaAutoOffsetReset: String,
+    @param:Value("\${KAFKA_BROKERS}") private val kafkaBrokers: String,
+    @param:Value("\${KAFKA_SECURITY_PROTOCOL:SSL}") private val kafkaSecurityProtocol: String,
+    @param:Value("\${KAFKA_TRUSTSTORE_PATH}") private val kafkaTruststorePath: String,
+    @param:Value("\${KAFKA_CREDSTORE_PASSWORD}") private val kafkaCredstorePassword: String,
+    @param:Value("\${KAFKA_KEYSTORE_PATH}") private val kafkaKeystorePath: String,
 ) {
 
     private val javaKeystore = "JKS"
@@ -42,7 +41,7 @@ class KafkaConfig(
     ): ConcurrentKafkaListenerContainerFactory<String, ByteArray?> {
         val consumerFactory = DefaultKafkaConsumerFactory(
             props.buildConsumerProperties(null).apply {
-                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+                put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "none")
                 put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1)
                 put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, true)
             }, StringDeserializer(), ByteArrayDeserializer()

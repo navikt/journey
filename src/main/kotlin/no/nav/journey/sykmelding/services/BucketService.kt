@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class BucketService(
-    @Value("\${tsm.bucket}") private val bucket: String,
+    @param:Value("\${tsm.bucket}") private val bucket: String,
     val storage: Storage,
     val metricRegister: MetricRegister,
     val xmlHandler: XmlHandler,
@@ -23,7 +23,7 @@ class BucketService(
     fun getVedleggFromBucket(sykmeldingId: String): List<Vedlegg>? {
         val fellesformat = downloadXml(sykmeldingId) ?: return null
         val vedlegg = xmlHandler.getVedlegg(fellesformat)
-        log.info("Antall vedlegg ${vedlegg?.size} for sykmeldingId ${sykmeldingId}")
+        log.info("Antall vedlegg ${vedlegg?.size} for sykmeldingId $sykmeldingId")
         return vedlegg
     }
 

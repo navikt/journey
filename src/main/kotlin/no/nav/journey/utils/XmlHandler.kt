@@ -27,7 +27,6 @@ inline fun <reified T> XMLEIFellesformat.get() = this.any.find { it is T } as T
 
 @Component
 class XmlHandler {
-    val log = applog()
     val fellesformatJaxBContext: JAXBContext =
         JAXBContext.newInstance(
             XMLEIFellesformat::class.java,

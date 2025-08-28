@@ -62,7 +62,6 @@ class JournalpostService(
         }
         val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
         val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
-        log.info("Creating journalpost for sykmelding ${sykmelding.sykmelding.id}")
         val response = dokarkivClient.createJournalpost(journalpostPayload)
         log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response?.journalpostId}")
         return response?.journalpostId
@@ -76,7 +75,7 @@ class JournalpostService(
         }
     }
 
-    fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
+    private fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
         val metadata = sykmelding.metadata
         if (metadata is EmottakEnkel) {
             if (!metadata.vedlegg.isNullOrEmpty()){
@@ -106,13 +105,11 @@ class JournalpostService(
                 sakstype = "GENERELL_SAK",
             ),
             tema = "SYM",
-            tittel = sykmelding.sykmelding.createTittleJournalpost(validationResult).also {
-                log.info("Creating tittel: $it for sykmeldingId ${sykmelding.sykmelding.id}")
-            }
+            tittel = sykmelding.sykmelding.createTittleJournalpost(validationResult)
         )
     }
 
-    fun Sykmelding.leggTilDokumenter(
+    private fun Sykmelding.leggTilDokumenter(
         vedlegg: List<Vedlegg>?,
         pdf: ByteArray,
         validationResult: ValidationResult
@@ -161,14 +158,14 @@ class JournalpostService(
         return dokumenter
     }
 
-    fun toGosysVedlegg(vedlegg: Vedlegg): GosysVedlegg {
+    private fun toGosysVedlegg(vedlegg: Vedlegg): GosysVedlegg {
         return GosysVedlegg(
             contentType = vedlegg.type,
             content = Base64.getMimeDecoder().decode(vedlegg.content.content),
             description = vedlegg.description,
         )
     }
-    fun vedleggToPDF(vedlegg: GosysVedlegg): GosysVedlegg {
+    private fun vedleggToPDF(vedlegg: GosysVedlegg): GosysVedlegg {
         if (findFiltype(vedlegg) == "PDFA") return vedlegg
         log.info("Converting vedlegg of type ${vedlegg.contentType} to PDFA")
 
@@ -186,7 +183,7 @@ class JournalpostService(
     }
 
 
-    fun findFiltype(vedlegg: GosysVedlegg): String =
+    private fun findFiltype(vedlegg: GosysVedlegg): String =
         when (vedlegg.contentType) {
             "application/pdf" -> "PDFA"
             "image/tiff" -> "TIFF"
@@ -209,10 +206,10 @@ class JournalpostService(
         }
     }
 
-    fun ValidationResult.ugyldigTilbakedatering(): Boolean {
+    private fun ValidationResult.ugyldigTilbakedatering(): Boolean {
         return rules.any { it.name == TilbakedatertMerknad.TILBAKEDATERING_UGYLDIG_TILBAKEDATERING.name }
     }
-    fun ValidationResult.delvisGodkjent(): Boolean {
+    private fun ValidationResult.delvisGodkjent(): Boolean {
         return rules.any { it.name == TilbakedatertMerknad.TILBAKEDATERING_DELVIS_GODKJENT.name }
     }
 
@@ -230,21 +227,21 @@ class JournalpostService(
                 }"
 
 
-    fun List<Aktivitet>.sortedSykmeldingPeriodeFOMDate(): List<Aktivitet> = sortedBy { it.fom }
+    private fun List<Aktivitet>.sortedSykmeldingPeriodeFOMDate(): List<Aktivitet> = sortedBy { it.fom }
 
-    fun List<Aktivitet>.sortedSykmeldingPeriodeTOMDate(): List<Aktivitet> = sortedBy { it.tom }
-    fun formaterDato(dato: LocalDate): String {
+    private fun List<Aktivitet>.sortedSykmeldingPeriodeTOMDate(): List<Aktivitet> = sortedBy { it.tom }
+    private fun formaterDato(dato: LocalDate): String {
         val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
         return dato.format(formatter)
     }
 
-    fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when (this) {
+    private fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when (this) {
         is XmlSykmelding -> behandler.createAvsenderMottaker()
         is DigitalSykmelding -> behandler.createAvsenderMottaker()
         else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
     }
 
-    fun Behandler.createAvsenderMottaker(): AvsenderMottaker {
+    private fun Behandler.createAvsenderMottaker(): AvsenderMottaker {
         val hpr = ids.find { it.type == PersonIdType.HPR }?.id
 
         if (hpr != null && hpr.length >= 7 && hpr.length <= 9 ) {
@@ -254,7 +251,6 @@ class JournalpostService(
                 navn = formatName()
             )
         }
-        log.warn("HPR is null or invalid size, using fnr instead")
         val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         if(fnr != null) {
             return AvsenderMottaker(
@@ -279,7 +275,7 @@ class JournalpostService(
         return hprnummerKunTall
     }
 
-    fun Behandler.formatName(): String =
+    private fun Behandler.formatName(): String =
         if (navn.mellomnavn == null) {
             "${navn.etternavn} ${navn.fornavn}"
         } else {

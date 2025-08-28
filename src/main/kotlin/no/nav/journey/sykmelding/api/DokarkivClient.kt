@@ -16,8 +16,8 @@ import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class DokarkivClient(
-    @Value("\${dokarkiv.url}") private val url: String,
-    @Value("\${dokarkiv.scope}") private val scope: String,
+    @param:Value("\${dokarkiv.url}") private val url: String,
+    @param:Value("\${dokarkiv.scope}") private val scope: String,
     private val restTemplate: RestTemplate,
     private val texasClient: TexasClient,
 ) {

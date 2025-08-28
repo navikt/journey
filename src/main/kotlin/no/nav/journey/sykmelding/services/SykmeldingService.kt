@@ -12,7 +12,7 @@ import java.util.UUID
 
 @Service
 class SykmeldingService(
-    @Value("\${teamsykmelding.topic.journalOpprettet}") private val journalOpprettetTopic: String,
+    @param:Value("\${teamsykmelding.topic.journalOpprettet}") private val journalOpprettetTopic: String,
     val journalpostService: JournalpostService,
     private val journalpostOpprettetProducer: KafkaProducer<String, JournalKafkaMessage>,
 ) {
@@ -33,7 +33,7 @@ class SykmeldingService(
                 journalpostOpprettetProducer.send(
                     ProducerRecord(journalOpprettetTopic, sykmelding.sykmelding.id, kafkaMessage),
                 ).get()
-                log.info("Sykmelding sendt to kafka topic $journalOpprettetTopic sykmelding id ${sykmelding.sykmelding.id}, sykmelding type ${sykmelding.sykmelding.type}, journalpostId: $journalpostId",)
+                log.info("Sykmelding sendt to kafka topic $journalOpprettetTopic sykmelding id ${sykmelding.sykmelding.id}, sykmelding type ${sykmelding.sykmelding.type}, journalpostId: $journalpostId")
             } catch (exception: Exception) {
                 log.error("failed to send sykmelding to kafka result for sykmeldingId: ${sykmelding.sykmelding.id}")
                 throw exception

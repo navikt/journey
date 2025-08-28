@@ -8,7 +8,6 @@ const val METRICS_NS = "tsm"
 
 @Component
 class MetricRegister(private val registry: MeterRegistry) {
-    val reg = registry
 
     fun storageDownloadCounter(label: String): Counter {
         return Counter.builder("${METRICS_NS}_sykmelding_bucket_download")

@@ -23,8 +23,7 @@ data class TexasRequest(
 
 @Component
 class TexasClient(private val restTemplate: RestTemplate,
-                  @Value("\${nais.cluster}") private val cluster: String,
-                  @Value("\${nais.texas.endpoint}") private val endpoint: String) {
+                  @param:Value("\${nais.texas.endpoint}") private val endpoint: String) {
     val log = applog()
     fun getTexasToken(scope: String): TexasResponse {
         val texasRequest = TexasRequest(
