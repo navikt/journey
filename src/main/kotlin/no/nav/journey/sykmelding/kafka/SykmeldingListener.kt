@@ -32,7 +32,7 @@ class SykmeldingListener(
             ?.let { sykmeldingObjectMapper.readValue<SykmeldingRecord>(it) }
 
         if (sykmeldingValue == null) {
-            logger.error("Mottok en melding uten verdi på topic ${cr.topic()}, offset ${cr.offset()}")
+            logger.info("Mottok en tombstone på topic ${cr.topic()}, offset ${cr.offset()}")
             return
         }
         sykmeldingService.handleSykmelding(sykmeldingValue)
