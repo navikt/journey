@@ -5,6 +5,7 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
 import no.nav.journey.pdf.PdfService
+import no.nav.journey.pdl.PdlClient
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
 import no.nav.journey.testUtils.dummyOrganisasjon
@@ -28,13 +29,15 @@ class JournalpostServiceTest {
     private lateinit var bucketService: BucketService
     private lateinit var dokarkivClient: DokarkivClient
     private lateinit var journalpostService: JournalpostService
+    private lateinit var pdlClient: PdlClient
 
     @BeforeEach
     fun setup() {
         pdfService = mockk()
         dokarkivClient = mockk()
         bucketService = mockk()
-        journalpostService = JournalpostService(dokarkivClient, bucketService, pdfService)
+        pdlClient = mockk()
+        journalpostService = JournalpostService(dokarkivClient, bucketService, pdfService, pdlClient)
     }
 
 

@@ -49,7 +49,11 @@ teamsykmelding:
   topic:
     journalOpprettet: "teamsykmelding.oppgave-journal-opprettet"
 
-tsm.bucket: ${TSM_SYKMELDING_BUCKET}
+tsm:
+  bucket: ${TSM_SYKMELDING_BUCKET}
+  pdl:
+    scope: ${TSM_PDL_CACHE_SCOPE}
+    url: http://tsm-pdl-cache
 dokarkiv.url: ${DOKARKIV_URL}
 dokarkiv.scope: ${DOKARKIV_SCOPE}
 

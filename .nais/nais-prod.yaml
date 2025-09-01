@@ -49,6 +49,7 @@ spec:
       rules:
         - application: logging
           namespace: nais-system
+        - application: tsm-pdl-cache
       external:
         - host: dokarkiv.prod-fss-pub.nais.io
   envFrom:
@@ -58,3 +59,5 @@ spec:
       value: https://dokarkiv.prod-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
     - name: DOKARKIV_SCOPE
       value: api://prod-fss.teamdokumenthandtering.dokarkiv/.default
+    - name: TSM_PDL_CACHE_SCOPE
+      value: api://prod-gcp.tsm.tsm-pdl-cache/.default

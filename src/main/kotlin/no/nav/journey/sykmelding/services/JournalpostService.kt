@@ -1,6 +1,7 @@
 package no.nav.journey.sykmelding.services
 
 import no.nav.journey.pdf.PdfService
+import no.nav.journey.pdl.PdlClient
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.journalpost.AvsenderMottaker
 import no.nav.journey.sykmelding.models.journalpost.Bruker
@@ -15,10 +16,13 @@ import no.nav.journey.utils.applog
 import no.nav.journey.utils.teamLogger
 import no.nav.pdfgen.core.objectMapper
 import no.nav.pdfgen.core.pdf.createPDFA
+import no.nav.tsm.mottak.pdl.Navn
+import no.nav.tsm.mottak.pdl.PersonNotFoundException
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.Behandler
 import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
 import no.nav.tsm.sykmelding.input.core.model.RuleType
+import no.nav.tsm.sykmelding.input.core.model.Sykmelder
 import no.nav.tsm.sykmelding.input.core.model.Sykmelding
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
@@ -40,6 +44,7 @@ class JournalpostService(
     val dokarkivClient: DokarkivClient,
     val bucketService: BucketService,
     val pdfService: PdfService,
+    val pdlClient: PdlClient,
 ) {
     val log = applog()
     val teamlog = teamLogger()
@@ -236,36 +241,53 @@ class JournalpostService(
     }
 
     private fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when (this) {
-        is XmlSykmelding -> behandler.createAvsenderMottaker()
-        is DigitalSykmelding -> behandler.createAvsenderMottaker()
+        is XmlSykmelding -> createAvsenderMottaker(sykmelder, behandler, id)
+        is DigitalSykmelding -> createAvsenderMottaker(sykmelder, behandler, id)
         else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
     }
 
-    private fun Behandler.createAvsenderMottaker(): AvsenderMottaker {
-        val hpr = ids.find { it.type == PersonIdType.HPR }?.id
+    private fun createAvsenderMottaker(sykmelder: Sykmelder, behandler: Behandler, sykmeldingId: String): AvsenderMottaker {
+
+        try {
+            val sykmelderName = pdlClient.getPerson(sykmelder.ids.first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }.id).navn
+            if (sykmelderName == null) {
+                throw PersonNotFoundException("Could not find name in pdl")
+            }
+            return AvsenderMottaker(
+                id = hprnummerMedRiktigLengdeOgFormat(sykmelder.ids.first { it.type == PersonIdType.HPR }.id),
+                idType = "HPRNR",
+                navn = sykmelderName.formatName()
+            )
+        } catch (e: Exception) {
+            log.error("Could not find person in pdl for sykmelder, trying with behandler. SykmeldingID $sykmeldingId", e)
+        }
+
+        val hpr = behandler.ids.find { it.type == PersonIdType.HPR }?.id
 
         if (hpr != null && hpr.length >= 7 && hpr.length <= 9 ) {
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(hpr),
                 idType = "HPRNR",
-                navn = formatName()
+                navn = behandler.formatName()
             )
         }
         log.warn("Could not find HPR for behandler, using fnr")
-        val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
+        val fnr = behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         if(fnr != null) {
             return AvsenderMottaker(
-                    id = fnr.id,
-                    idType = fnr.type.name,
-                    navn = formatName()
-                )
+                id = fnr.id,
+                idType = fnr.type.name,
+                navn = behandler.formatName()
+            )
         }
 
         log.warn("invalid behandler ids, using land = NORGE")
         return AvsenderMottaker(
             land = "Norge",
-            navn = formatName(),
+            navn = behandler.formatName(),
         )
+
+
     }
 
     private fun hprnummerMedRiktigLengdeOgFormat(hprnummer: String): String {
@@ -283,6 +305,12 @@ class JournalpostService(
             "${navn.etternavn} ${navn.fornavn} ${navn.mellomnavn}"
         }
 
+    private fun Navn.formatName(): String =
+        if (mellomnavn == null) {
+            "$etternavn $fornavn"
+        } else {
+            "$etternavn $fornavn $mellomnavn"
+        }
 
 }
 
