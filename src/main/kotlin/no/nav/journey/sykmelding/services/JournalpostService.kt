@@ -251,6 +251,7 @@ class JournalpostService(
                 navn = formatName()
             )
         }
+        log.warn("Could not find HPR for behandler, using fnr")
         val fnr = ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         if(fnr != null) {
             return AvsenderMottaker(
