@@ -59,3 +59,7 @@ spec:
       value: api://dev-fss.teamdokumenthandtering.dokarkiv-q1/.default
     - name: TSM_PDL_CACHE_SCOPE
       value: api://dev-gcp.tsm.tsm-pdl-cache/.default
+    - name: JOURNEY_CONSUMER_ATTEMPTS
+      value: "10"
+    - name: JOURNEY_CONSUMER_BACKOFF_MS
+      value: "10000"

@@ -4,6 +4,7 @@ import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.listener.DefaultErrorHandler
 import org.springframework.kafka.listener.MessageListenerContainer
 import org.springframework.stereotype.Component
@@ -11,15 +12,23 @@ import org.springframework.util.backoff.FixedBackOff
 import org.springframework.util.backoff.FixedBackOff.UNLIMITED_ATTEMPTS
 
 @Component
-class KafkaErrorHandler : DefaultErrorHandler(
+class KafkaErrorHandler(
+    @param:Value("\${journey.consumer.backoff.ms:$BACKOFF_INTERVAL}") private val backoff: Long,
+    @param:Value("\${journey.consumer.attempts:$UNLIMITED_ATTEMPTS}") private val attempts: Long) : DefaultErrorHandler(
     null,
-    FixedBackOff(BACKOFF_INTERVAL, UNLIMITED_ATTEMPTS)
+    FixedBackOff(backoff, attempts)
 ) {
+
     companion object {
         private const val BACKOFF_INTERVAL = 60_000L
+        private val log = LoggerFactory.getLogger(KafkaErrorHandler::class.java)
     }
 
-    private val log = LoggerFactory.getLogger(KafkaErrorHandler::class.java)
+    init {
+        log.info("KafkaErrorHandler: Backoff interval: $backoff ms, max attempts: $attempts")
+    }
+
+
 
     override fun handleOne(
         thrownException: Exception,
