@@ -6,7 +6,6 @@ import no.nav.journey.testUtils.sykmeldingRecord
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
 import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
-import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
@@ -30,7 +29,6 @@ class PdfGenTest {
     fun `generate pdf for sykmelding flere arbeidsgivere`() {
         val recordMedFlereArbeidsgivere = sykmeldingRecord {
             arbeidsgiver = FlereArbeidsgivere("Coop", "Butikkmedarbeider", 80, null, null)
-            sykmelding = (sykmelding as XmlSykmelding).copy(arbeidsgiver = arbeidsgiver)
         }
         val pdfBytes = pdfService.createPdf(recordMedFlereArbeidsgivere)!!
 

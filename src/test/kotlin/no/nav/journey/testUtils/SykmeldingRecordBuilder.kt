@@ -1,5 +1,6 @@
 package no.nav.journey.testUtils
 
+import com.fasterxml.jackson.databind.JsonNode
 import no.nav.journey.sykmelding.models.*
 import no.nav.journey.testUtils.TestUtils.Companion.januar
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
@@ -156,69 +157,77 @@ class SykmeldingRecordBuilder {
         fnr = fnr,
         kontaktinfo = listOf(Kontaktinfo(KontaktinfoType.TLF, "12345678"))
     )
-    var sykmelding: Sykmelding = XmlSykmelding(
-        id = sykmeldingId,
-        metadata = sykmeldingMetadata,
-        pasient = pasient,
-        medisinskVurdering = MedisinskVurdering(
-            hovedDiagnose = hovedDiagnose,
-            biDiagnoser = listOf(
-                hovedDiagnose, DiagnoseInfo(
-                    DiagnoseSystem.ICD10, "A500", "Tidlig medfødt syfilis,\n" +
-                            "symptomgivende"
-                )
-            ),
-            svangerskap = true,
-            yrkesskade = Yrkesskade(1.januar(2023)),
-            skjermetForPasient = true,
-            syketilfelletStartDato = sykmeldtFom,
-            annenFraversArsak = AnnenFraverArsak(
-                "Stor smittefare", listOf(
-                    AnnenFravarArsakType.NODVENDIG_KONTROLLUNDENRSOKELSE,
-                    AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND
-                )
+    var medisinskVurdering = MedisinskVurdering(
+        hovedDiagnose = hovedDiagnose,
+        biDiagnoser = listOf(
+            hovedDiagnose, DiagnoseInfo(
+                DiagnoseSystem.ICD10, "A500", "Tidlig medfødt syfilis,\n" +
+                        "symptomgivende"
             )
         ),
-        aktivitet = aktivitet,
-        behandler = behandler,
-        arbeidsgiver = arbeidsgiver,
-        sykmelder = sykmelder,
-        prognose = prognose,
-        tiltak = tiltak,
-        bistandNav = BistandNav(true, "word"),
-        tilbakedatering = Tilbakedatering(
-            1.januar(2023),
-            begrunnelse = "word word word word word word word word word word word word word word word word word word\n" +
-                    "word word word word word word word word word word word word word word word word word word\n" +
-                    "word word word word word word word word word word word word word word word word word word\n" +
-                    "word word word word word word word word word word"
-        ),
-        utdypendeOpplysninger = mapOf(
-            "6.3" to mapOf(
-                "6.3.1" to SporsmalSvar(
-                    "Er pasienten veldig syk?",
-                    "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
-                    listOf(
-                        SvarRestriksjon.SKJERMET_FOR_PASIENT
-                    )
-                )
-            ),
-            "6.4" to mapOf(
-                "6.4.1" to SporsmalSvar(
-                    "Helseopplysninger?",
-                    "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
-                    listOf(
-                        SvarRestriksjon.SKJERMET_FOR_PASIENT
-                    )
-                )
+        svangerskap = true,
+        yrkesskade = Yrkesskade(1.januar(2023)),
+        skjermetForPasient = true,
+        syketilfelletStartDato = sykmeldtFom,
+        annenFraversArsak = AnnenFraverArsak(
+            "Stor smittefare", listOf(
+                AnnenFravarArsakType.NODVENDIG_KONTROLLUNDENRSOKELSE,
+                AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND
             )
-
         )
+
     )
+    var sykmelding: Sykmelding? = null
+
+    private fun createSykmelding(): XmlSykmelding {
+
+        return XmlSykmelding(
+            id = sykmeldingId,
+            metadata = sykmeldingMetadata,
+            pasient = pasient,
+            medisinskVurdering = medisinskVurdering,
+            aktivitet = aktivitet,
+            behandler = behandler,
+            arbeidsgiver = arbeidsgiver,
+            sykmelder = sykmelder,
+            prognose = prognose,
+            tiltak = tiltak,
+            bistandNav = BistandNav(true, "word"),
+            tilbakedatering = Tilbakedatering(
+                1.januar(2023),
+                begrunnelse = "word word word word word word word word word word word word word word word word word word\n" +
+                        "word word word word word word word word word word word word word word word word word word\n" +
+                        "word word word word word word word word word word word word word word word word word word\n" +
+                        "word word word word word word word word word word"
+            ),
+            utdypendeOpplysninger = mapOf(
+                "6.3" to mapOf(
+                    "6.3.1" to SporsmalSvar(
+                        "Er pasienten veldig syk?",
+                        "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+                        listOf(
+                            SvarRestriksjon.SKJERMET_FOR_PASIENT
+                        )
+                    )
+                ),
+                "6.4" to mapOf(
+                    "6.4.1" to SporsmalSvar(
+                        "Helseopplysninger?",
+                        "word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word word",
+                        listOf(
+                            SvarRestriksjon.SKJERMET_FOR_PASIENT
+                        )
+                    )
+                )
+
+            )
+        )
+    }
+
     fun build(): SykmeldingRecord {
         return SykmeldingRecord(
             metadata = metadata,
-            sykmelding = sykmelding,
+            sykmelding = sykmelding ?: createSykmelding(),
             validation = ValidationResult(
                 status = RuleType.INVALID,
                 timestamp = OffsetDateTime.now(),

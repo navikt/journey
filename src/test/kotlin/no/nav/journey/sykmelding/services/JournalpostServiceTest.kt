@@ -79,10 +79,10 @@ class JournalpostServiceTest {
                 journalPostId = "123"
             )
             sykmelding = Papirsykmelding(
-                id = sykmelding.id,
-                pasient = sykmelding.pasient,
-                medisinskVurdering = sykmelding.medisinskVurdering,
-                aktivitet = sykmelding.aktivitet,
+                id = sykmeldingId,
+                pasient = pasient,
+                medisinskVurdering = medisinskVurdering,
+                aktivitet = aktivitet,
                 metadata = sykmeldingMetadata,
                 arbeidsgiver = arbeidsgiver,
                 tiltak = tiltak,
@@ -112,10 +112,10 @@ class JournalpostServiceTest {
                 journalPostId = "123"
             )
             sykmelding = UtenlandskSykmelding(
-                id = sykmelding.id,
-                pasient = sykmelding.pasient,
-                medisinskVurdering = sykmelding.medisinskVurdering,
-                aktivitet = sykmelding.aktivitet,
+                id = sykmeldingId,
+                pasient =pasient,
+                medisinskVurdering = medisinskVurdering,
+                aktivitet = aktivitet,
                 metadata = sykmeldingMetadata,
                 utenlandskInfo = UtenlandskInfo(
                     land = "UTLAND",

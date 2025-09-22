@@ -699,51 +699,48 @@
 {{/not_eq}}
 {{/if}}
 {{/eq}}
-{{#eq sykmelding.metadata.regelsettVersjon "3"}}
-{{else}}
-    {{#any sykmelding.arbeidsgiver.tiltakArbeidsplassen sykmelding.tiltak.tiltakNAV sykmelding.tiltak.andreTiltak}}
-        <table>
-            <thead>
+{{#any sykmelding.arbeidsgiver.tiltakArbeidsplassen sykmelding.tiltak.tiltakNav sykmelding.tiltak.andreTiltak}}
+    <table>
+        <thead>
+        <tr>
+            <td class="tr10"><h4>7</h4></td>
+            <td><h4>Hva skal til for  bedre arbeidsevnen?</h4></td>
+        </tr>
+        </thead>
+        <tbody>
+        {{#if sykmelding.arbeidsgiver.tiltakArbeidsplassen}}
             <tr>
-                <td class="tr10"><h4>7</h4></td>
-                <td><h4>Hva skal til for  bedre arbeidsevnen?</h4></td>
+                <td><h4>7.1</h4></td>
+                <td><h4>Tilrettelegging/hensyn som bør tas på arbeidsplassen. Beskriv</h4></td>
             </tr>
-            </thead>
-            <tbody>
-            {{#if sykmelding.arbeidsgiver.tiltakArbeidsplassen}}
-                <tr>
-                    <td><h4>7.1</h4></td>
-                    <td><h4>Tilrettelegging/hensyn som bør tas på arbeidsplassen. Beskriv</h4></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>{{ sykmelding.arbeidsgiver.tiltakArbeidsplassen }}</td>
-                </tr>
-            {{/if}}
-            {{#if sykmelding.tiltak.tiltakNav }}
-                <tr>
-                    <td><h4>7.2</h4></td>
-                    <td><h4>Tiltak i regi av NAV. Beskriv</h4></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>{{ sykmelding.tiltak.tiltakNav }}</td>
-                </tr>
-            {{/if}}
-            {{#if sykmelding.tiltak.andreTiltak }}
-                <tr>
-                    <td><h4>7.3</h4></td>
-                    <td><h4>Eventuelle andre innspill til NAV. Beskriv</h4></td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>{{ sykmelding.tiltak.andreTiltak }}</td>
-                </tr>
-            {{/if}}
-            </tbody>
-        </table>
-    {{/any}}
-{{/eq}}
+            <tr>
+                <td></td>
+                <td>{{ sykmelding.arbeidsgiver.tiltakArbeidsplassen }}</td>
+            </tr>
+        {{/if}}
+        {{#if sykmelding.tiltak.tiltakNav }}
+            <tr>
+                <td><h4>7.2</h4></td>
+                <td><h4>Tiltak i regi av NAV. Beskriv</h4></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>{{ sykmelding.tiltak.tiltakNav }}</td>
+            </tr>
+        {{/if}}
+        {{#if sykmelding.tiltak.andreTiltak }}
+            <tr>
+                <td><h4>7.3</h4></td>
+                <td><h4>Eventuelle andre innspill til NAV. Beskriv</h4></td>
+            </tr>
+            <tr>
+                <td></td>
+                <td>{{ sykmelding.tiltak.andreTiltak }}</td>
+            </tr>
+        {{/if}}
+        </tbody>
+    </table>
+{{/any}}
 {{#if sykmelding.bistandNav.beskrivBistand}}
     <table>
         <thead>
