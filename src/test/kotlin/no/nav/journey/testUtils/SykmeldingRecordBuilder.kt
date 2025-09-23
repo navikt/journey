@@ -1,7 +1,5 @@
 package no.nav.journey.testUtils
 
-import com.fasterxml.jackson.databind.JsonNode
-import no.nav.journey.sykmelding.models.*
 import no.nav.journey.testUtils.TestUtils.Companion.januar
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.AktivitetIkkeMulig
@@ -111,6 +109,7 @@ class SykmeldingRecordBuilder {
                 "word word word word word word word word word word word",
         ErIkkeIArbeid(true, 1.januar(2023), sykmeldtFom)
     )
+    var bistandNav = BistandNav(true, "Bistand nav")
     var type: Meldingstype = Meldingstype.SYKMELDING
     var metadata: MessageMetadata = EmottakEnkel(
         MessageInfo(
@@ -124,14 +123,10 @@ class SykmeldingRecordBuilder {
         emptyList()
     )
     var sykmeldingId = UUID.randomUUID().toString()
-    var sykmeldingMetadata = SykmeldingMetadata(
-        mottattDato = OffsetDateTime.now(),
-        genDate = OffsetDateTime.now(),
-        behandletTidspunkt = OffsetDateTime.now(),
-        regelsettVersjon = "6",
-        avsenderSystem = AvsenderSystem("NAV", "1.0"),
-        strekkode = null
-    )
+    var regelsettVersjon = "6"
+
+    var sykmeldingMetadata: SykmeldingMetadata? = null
+
     var behandler: Behandler = Behandler(
         navn = Navn("Beate", "B.", "Behandler"),
         adresse = Adresse(
@@ -179,11 +174,19 @@ class SykmeldingRecordBuilder {
     )
     var sykmelding: Sykmelding? = null
 
+    fun createSykmeldingMetadata(): SykmeldingMetadata = SykmeldingMetadata(
+        mottattDato = OffsetDateTime.now(),
+        genDate = OffsetDateTime.now(),
+        behandletTidspunkt = OffsetDateTime.now(),
+        regelsettVersjon = regelsettVersjon,
+        avsenderSystem = AvsenderSystem("NAV", "1.0"),
+        strekkode = null
+    )
     private fun createSykmelding(): XmlSykmelding {
 
         return XmlSykmelding(
             id = sykmeldingId,
-            metadata = sykmeldingMetadata,
+            metadata = sykmeldingMetadata ?: createSykmeldingMetadata(),
             pasient = pasient,
             medisinskVurdering = medisinskVurdering,
             aktivitet = aktivitet,
@@ -192,7 +195,7 @@ class SykmeldingRecordBuilder {
             sykmelder = sykmelder,
             prognose = prognose,
             tiltak = tiltak,
-            bistandNav = BistandNav(true, "word"),
+            bistandNav = bistandNav,
             tilbakedatering = Tilbakedatering(
                 1.januar(2023),
                 begrunnelse = "word word word word word word word word word word word word word word word word word word\n" +
@@ -265,6 +268,8 @@ class SykmeldingRecordBuilder {
     }
 
 }
+
+
 fun sykmeldingRecord(init: SykmeldingRecordBuilder.() -> Unit): SykmeldingRecord {
     return SykmeldingRecordBuilder().apply(init).build()
 }

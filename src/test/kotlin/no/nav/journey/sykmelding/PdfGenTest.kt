@@ -1,10 +1,13 @@
 package no.nav.journey.sykmelding
 
 import no.nav.journey.pdf.PdfService
+import no.nav.journey.testUtils.TestUtils.Companion.januar
 import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.sykmeldingRecord
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
+import no.nav.tsm.sykmelding.input.core.model.Behandlingsdager
+import no.nav.tsm.sykmelding.input.core.model.BistandNav
 import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -46,6 +49,9 @@ class PdfGenTest {
     fun `generate pdf for sykmelding med hoveddiagnose og bidiagnoser`() {
         val record = sykmeldingRecord {
             arbeidsgiver = FlereArbeidsgivere("Coop", "Butikkmedarbeider", 80, null, null)
+            aktivitet = listOf(Behandlingsdager(5, 1.januar(2023), 31.januar(2023)))
+            bistandNav = BistandNav(true, "Bistand nav")
+            regelsettVersjon = "3"
         }
         val pdfBytes = pdfService.createPdf(record)!!
 

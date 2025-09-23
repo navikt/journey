@@ -2,7 +2,6 @@ package no.nav.journey.sykmelding.services
 
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.confirmVerified
 import io.mockk.mockk
 import no.nav.journey.pdf.PdfService
 import no.nav.journey.pdl.PdlClient
@@ -83,7 +82,7 @@ class JournalpostServiceTest {
                 pasient = pasient,
                 medisinskVurdering = medisinskVurdering,
                 aktivitet = aktivitet,
-                metadata = sykmeldingMetadata,
+                metadata = createSykmeldingMetadata(),
                 arbeidsgiver = arbeidsgiver,
                 tiltak = tiltak,
                 behandler = behandler,
@@ -116,7 +115,7 @@ class JournalpostServiceTest {
                 pasient =pasient,
                 medisinskVurdering = medisinskVurdering,
                 aktivitet = aktivitet,
-                metadata = sykmeldingMetadata,
+                metadata = createSykmeldingMetadata(),
                 utenlandskInfo = UtenlandskInfo(
                     land = "UTLAND",
                     folkeRegistertAdresseErBrakkeEllerTilsvarende = false,
