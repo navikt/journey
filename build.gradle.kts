@@ -16,7 +16,7 @@ val openHtmlToPdfVersion = "1.1.28"
 val handlebarsVersion = "4.4.0"
 val opentelemetryLogbackMdcVersion = "2.16.0-alpha"
 val tikaVersion = "3.2.0"
-val sykmelidngInputVersion = "11"
+val sykmelidngInputVersion = "16"
 
 plugins {
 	kotlin("jvm") version "2.1.0"
