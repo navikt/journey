@@ -15,6 +15,8 @@ import no.nav.tsm.sykmelding.input.core.model.Behandlingsdager
 import no.nav.tsm.sykmelding.input.core.model.BistandNav
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
+import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
+import no.nav.tsm.sykmelding.input.core.model.DigitalSykmeldingMetadata
 import no.nav.tsm.sykmelding.input.core.model.ErIkkeIArbeid
 import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
 import no.nav.tsm.sykmelding.input.core.model.Gradert
@@ -29,6 +31,7 @@ import no.nav.tsm.sykmelding.input.core.model.Reason
 import no.nav.tsm.sykmelding.input.core.model.Reisetilskudd
 import no.nav.tsm.sykmelding.input.core.model.RuleType
 import no.nav.tsm.sykmelding.input.core.model.SporsmalSvar
+import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
 import no.nav.tsm.sykmelding.input.core.model.SvarRestriksjon
 import no.nav.tsm.sykmelding.input.core.model.Sykmelder
 import no.nav.tsm.sykmelding.input.core.model.Sykmelding
@@ -37,6 +40,7 @@ import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.sykmelding.input.core.model.Tilbakedatering
 import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
 import no.nav.tsm.sykmelding.input.core.model.Tiltak
+import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
 import no.nav.tsm.sykmelding.input.core.model.ValidationResult
 import no.nav.tsm.sykmelding.input.core.model.ValidationType
 import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
@@ -182,6 +186,50 @@ class SykmeldingRecordBuilder {
         avsenderSystem = AvsenderSystem("NAV", "1.0"),
         strekkode = null
     )
+
+    fun createDigitalSykmeldingMetadata(): DigitalSykmeldingMetadata {
+        return DigitalSykmeldingMetadata(
+            mottattDato = OffsetDateTime.now(),
+            genDate = OffsetDateTime.now(),
+            avsenderSystem = AvsenderSystem("syk-inn (FHIR)", "1.0"),
+        )
+    }
+
+    fun createDigitalSykmelding(): DigitalSykmelding {
+        return DigitalSykmelding(
+            id = sykmeldingId,
+            metadata = createDigitalSykmeldingMetadata(),
+            pasient = pasient,
+            medisinskVurdering = medisinskVurdering,
+            aktivitet = aktivitet,
+            behandler = behandler,
+            arbeidsgiver = arbeidsgiver,
+            sykmelder = sykmelder,
+            bistandNav = bistandNav,
+            tilbakedatering = Tilbakedatering(
+                1.januar(2023),
+                begrunnelse = "word word word word word word word word word word word word word word word word word word\n" +
+                        "word word word word word word word word word word word word word word word word word word\n" +
+                        "word word word word word word word word word word word word word word word word word word\n" +
+                        "word word word word word word word word word word"
+            ),
+            utdypendeSporsmal = listOf(
+                UtdypendeSporsmal(
+                    type = Sporsmalstype.MEDISINSK_OPPSUMMERING,
+                    svar = "svar 6.3.1"
+                ),
+                UtdypendeSporsmal(
+                    type = Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID,
+                    svar = "svar 6.3.2"
+                ),
+                UtdypendeSporsmal(
+                    type = Sporsmalstype.HENSYN_PA_ARBEIDSPLASSEN,
+                    svar = "svar 6.3.3"
+                ),
+            )
+        )
+    }
+
     private fun createSykmelding(): XmlSykmelding {
 
         return XmlSykmelding(

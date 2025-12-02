@@ -28,6 +28,7 @@ import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
 import no.nav.tsm.sykmelding.input.core.model.ValidationResult
 import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
+import no.nav.tsm.sykmelding.input.core.model.metadata.EDIEmottak
 import no.nav.tsm.sykmelding.input.core.model.metadata.EmottakEnkel
 import no.nav.tsm.sykmelding.input.core.model.metadata.Papir
 import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
@@ -61,10 +62,13 @@ class JournalpostService(
             }
             return journalpostId
         }
+
+
         val vedlegg = getVedlegg(sykmelding)
-        if(!vedlegg.isNullOrEmpty()) {
-            teamlog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: ${objectMapper.writeValueAsString(vedlegg)}")
+        vedlegg?.forEach {
+            teamlog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: type: ${it.type}, content-type: ${it.content.contentType}, description: ${it.description}")
         }
+
         val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
         val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
         val response = dokarkivClient.createJournalpost(journalpostPayload)
@@ -82,12 +86,14 @@ class JournalpostService(
 
     private fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
         val metadata = sykmelding.metadata
-        if (metadata is EmottakEnkel) {
-            if (!metadata.vedlegg.isNullOrEmpty()){
+        val vedlegg: List<String>? = when(metadata) {
+            is EDIEmottak -> metadata.vedlegg
+            is EmottakEnkel -> metadata.vedlegg
+            else -> null
+        }
+        if (!vedlegg.isNullOrEmpty()) {
                 log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
-                val vedlegg = bucketService.getVedleggFromBucket(sykmelding.sykmelding.id)
-                return vedlegg
-            }
+                return bucketService.getVedleggFromBucket(sykmelding.sykmelding.id)
         }
         return null
     }

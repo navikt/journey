@@ -660,8 +660,8 @@
 {{#eq metadata.type "EGENMELDT"}}
 
 {{else}}
-{{#if sykmelding.utdypendeOpplysninger }}
-{{#not_eq sykmelding.utdypendeOpplysninger "{}"}}
+{{#if utdypendeOpplysninger }}
+{{#not_eq utdypendeOpplysninger "{}"}}
     <table>
         <thead>
         <tr>
@@ -669,7 +669,7 @@
             <td><h4>Utdypende opplysninger</h4></td>
         </tr>
         </thead>
-        {{#each sykmelding.utdypendeOpplysninger}}
+        {{#each utdypendeOpplysninger}}
             <tr>
                 <td><h4>{{@key}}</h4></td>
                 <td>
