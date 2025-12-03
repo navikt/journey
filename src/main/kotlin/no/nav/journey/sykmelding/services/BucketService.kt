@@ -28,7 +28,7 @@ class BucketService(
     }
 
     fun downloadXml(sykmeldingId: String): XMLEIFellesformat? {
-        val blob = storage.get(bucket, sykmeldingId)
+        val blob = storage.get(bucket, "$sykmeldingId/sykmelding.xml")
         return if (blob != null && blob.exists()) {
             val compressedData = blob.getContent()
             val decompressed = ungzip(compressedData)

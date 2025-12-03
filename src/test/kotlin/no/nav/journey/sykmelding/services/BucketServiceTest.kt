@@ -29,7 +29,7 @@ class BucketServiceTest {
         val compressed = gzip(xml)
 
         val blob = mockk<Blob>()
-        every { storage.get("test-bucket", sykmeldingId) } returns blob
+        every { storage.get("test-bucket", "$sykmeldingId/sykmelding.xml") } returns blob
         every { blob.exists() } returns true
         every { blob.getContent() } returns compressed
 
@@ -44,7 +44,7 @@ class BucketServiceTest {
     @Test
     fun `should return null when blob does not exist`() {
         val sykmeldingId = "not-found"
-        every { storage.get("test-bucket", sykmeldingId) } returns null
+        every { storage.get("test-bucket", "$sykmeldingId/sykmelding.xml") } returns null
 
         val counter = mockk<io.micrometer.core.instrument.Counter>()
         every { metrics.storageDownloadCounter("not_found") } returns counter
@@ -61,7 +61,7 @@ class BucketServiceTest {
         val compressed = gzip(xml)
 
         val blob = mockk<Blob>()
-        every { storage.get("test-bucket", sykmeldingId) } returns blob
+        every { storage.get("test-bucket", "$sykmeldingId/sykmelding.xml") } returns blob
         every { blob.exists() } returns true
         every { blob.getContent() } returns compressed
 
