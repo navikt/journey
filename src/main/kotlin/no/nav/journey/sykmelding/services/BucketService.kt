@@ -6,7 +6,6 @@ import no.nav.journey.sykmelding.models.journalpost.Vedlegg
 import no.nav.journey.utils.MetricRegister
 import no.nav.journey.utils.XmlHandler
 import no.nav.journey.utils.applog
-import no.nav.journey.utils.ungzip
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -30,11 +29,10 @@ class BucketService(
     fun downloadXml(sykmeldingId: String): XMLEIFellesformat? {
         val blob = storage.get(bucket, "$sykmeldingId/sykmelding.xml")
         return if (blob != null && blob.exists()) {
-            val compressedData = blob.getContent()
-            val decompressed = ungzip(compressedData)
+            val content = blob.getContent()
             metricRegister.storageDownloadCounter("download").increment()
-            log.info("Downloaded ${compressedData.size} vedlegg from sykmeldingId $sykmeldingId")
-            return xmlHandler.unmarshal(decompressed)
+            log.info("Downloaded ${content.size} vedlegg from sykmeldingId $sykmeldingId")
+            return xmlHandler.unmarshal(content.toString(Charsets.UTF_8))
         } else {
             metricRegister.storageDownloadCounter("not_found").increment()
             log.info("blob from bucket not found sykmmeldingId $sykmeldingId")

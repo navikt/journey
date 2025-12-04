@@ -10,6 +10,7 @@ import no.nav.journey.testUtils.gzip
 import no.nav.journey.testUtils.loadResourceAsString
 import no.nav.journey.utils.MetricRegister
 import no.nav.journey.utils.XmlHandler
+import no.nav.journey.utils.ungzip
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -31,7 +32,7 @@ class BucketServiceTest {
         val blob = mockk<Blob>()
         every { storage.get("test-bucket", "$sykmeldingId/sykmelding.xml") } returns blob
         every { blob.exists() } returns true
-        every { blob.getContent() } returns compressed
+        every { blob.getContent() }  returns ungzip(compressed)
 
         val counter = mockk<io.micrometer.core.instrument.Counter>()
         every { counter.increment() } just runs
@@ -63,7 +64,7 @@ class BucketServiceTest {
         val blob = mockk<Blob>()
         every { storage.get("test-bucket", "$sykmeldingId/sykmelding.xml") } returns blob
         every { blob.exists() } returns true
-        every { blob.getContent() } returns compressed
+        every { blob.getContent() } returns ungzip(compressed)
 
         val counter = mockk<io.micrometer.core.instrument.Counter>()
         every { counter.increment() } just runs
