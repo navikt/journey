@@ -10,18 +10,18 @@ val syfoXmlCodegenVersion = "2.0.1"
 val jaxbRuntimeVersion = "2.4.0-b180830.0438"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val javaTimeAdapterVersion = "1.1.3"
-val pdfgencoreVersion = "1.1.65"
+val pdfgencoreVersion = "1.1.67"
 val verapdfVersion = "1.28.2"
-val openHtmlToPdfVersion = "1.1.31"
+val openHtmlToPdfVersion = "1.1.34"
 val handlebarsVersion = "4.5.0"
-val opentelemetryLogbackMdcVersion = "2.21.0-alpha"
+val opentelemetryLogbackMdcVersion = "2.22.0-alpha"
 val tikaVersion = "3.2.3"
 val sykmelidngInputVersion = "21"
 
 plugins {
 	kotlin("jvm") version "2.2.21"
 	kotlin("plugin.spring") version "2.2.21"
-	id("org.springframework.boot") version "3.5.7"
+	id("org.springframework.boot") version "4.0.0"
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
