@@ -6,9 +6,15 @@ import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.sykmeldingRecord
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
+import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
+import no.nav.tsm.sykmelding.input.core.model.AnnenFraverArsak
 import no.nav.tsm.sykmelding.input.core.model.Behandlingsdager
 import no.nav.tsm.sykmelding.input.core.model.BistandNav
+import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
+import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
 import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
+import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
+import no.nav.tsm.sykmelding.input.core.model.Yrkesskade
 import no.nav.tsm.sykmelding.input.core.model.metadata.Digital
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -64,7 +70,34 @@ class PdfGenTest {
         assert(tekst.contains("svar 6.3.3"))
 
     }
+    @Test
+    fun `generate pdf for ICPC-2B`() {
+        val record = sykmeldingRecord {
+            medisinskVurdering = MedisinskVurdering(
+                hovedDiagnose = DiagnoseInfo( DiagnoseSystem.ICPC2B, "R74.0001", "diagnosebeskrivelse"),
+                biDiagnoser = listOf(
+                    hovedDiagnose, DiagnoseInfo(
+                        DiagnoseSystem.ICPC2B, "R74.0002", "annen diagnosebeskrivelse"
+                    )
+                ),
+                svangerskap = true,
+                yrkesskade = null,
+                skjermetForPasient = true,
+                syketilfelletStartDato = sykmeldtFom,
+                annenFraversArsak = null
+            )
+            arbeidsgiver = FlereArbeidsgivere("Coop", "Butikkmedarbeider", 80, null, null)
+        }
+        val pdfBytes = pdfService.createPdf(record)!!
 
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+        assert(tekst.contains("ICPC-2B")) { "Mangler 'diagnosesystem'" }
+        assert(tekst.contains("R74.0002")) { "Mangler 'diagnosekode'" }
+        assert(tekst.contains("R74.0001")) { "Mangler 'diagnosekode'" }
+
+    }
     @Test
     @Ignore
     fun `generate pdf for sykmelding med hoveddiagnose og bidiagnoser`() {

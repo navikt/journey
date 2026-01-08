@@ -292,6 +292,7 @@
                 <h4>3.1.1 Kodesystem</h4>
                 <p>
                     {{#eq sykmelding.medisinskVurdering.hovedDiagnose.system "ICPC2" }}ICPC-2{{/eq}}
+                    {{#eq sykmelding.medisinskVurdering.hovedDiagnose.system "ICPC2B" }}ICPC-2B{{/eq}}
                     {{#eq sykmelding.medisinskVurdering.hovedDiagnose.system "ICD10" }}ICD-10{{/eq}}
                 </p>
             </td>
@@ -314,6 +315,9 @@
                 {{#each sykmelding.medisinskVurdering.biDiagnoser }}
                     {{#eq system "ICPC2" }}
                     <p>  ICPC-2 </p>
+                    {{/eq}}
+                    {{#eq system "ICPC2B" }}
+                    <p>  ICPC-2B </p>
                     {{/eq}}
                     {{#eq system "ICD10" }}
                     <p> ICD-10 </p>
