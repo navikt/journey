@@ -339,6 +339,16 @@
             </td>
         </tr>
     {{/if}}
+    {{#if sykmelding.medisinskVurdering.annenFravarsgrunn}}
+            <tr>
+                <td><h4>3.3</h4></td>
+                <td><h4>Annen fraværsgrunn</h4></td>
+                <td colspan="2">
+                    <h4>3.3.1 Lovfestet fraværsgrunn</h4>
+                    <p>{{sykmelding.medisinskVurdering.annenFravarsgrunn}}</p>
+                </td>
+            </tr>
+        {{/if}}
     {{#if sykmelding.medisinskVurdering.annenFraversArsak}}
         <tr>
             <td><h4>3.3</h4></td>

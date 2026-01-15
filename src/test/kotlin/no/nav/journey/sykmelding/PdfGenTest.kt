@@ -13,6 +13,7 @@ import no.nav.tsm.sykmelding.input.core.model.BistandNav
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
 import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
+import no.nav.tsm.sykmelding.input.core.model.LegacyMedisinskVurdering
 import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
 import no.nav.tsm.sykmelding.input.core.model.Yrkesskade
 import no.nav.tsm.sykmelding.input.core.model.metadata.Digital
@@ -73,7 +74,7 @@ class PdfGenTest {
     @Test
     fun `generate pdf for ICPC-2B`() {
         val record = sykmeldingRecord {
-            medisinskVurdering = MedisinskVurdering(
+            medisinskVurdering = LegacyMedisinskVurdering(
                 hovedDiagnose = DiagnoseInfo( DiagnoseSystem.ICPC2B, "R74.0001", "diagnosebeskrivelse"),
                 biDiagnoser = listOf(
                     hovedDiagnose, DiagnoseInfo(
@@ -101,10 +102,11 @@ class PdfGenTest {
     @Test
     @Ignore
     fun `generate pdf for sykmelding med hoveddiagnose og bidiagnoser`() {
-        val record = sykmeldingRecord {
-            arbeidsgiver = FlereArbeidsgivere("Coop", "Butikkmedarbeider", 80, null, null)
+        val sykmeldingRecord = sykmeldingRecord {
+            sykmelding = createDigitalSykmelding()
+            metadata = Digital("123456789")
         }
-        val pdfBytes = pdfService.createPdf(record)!!
+        val pdfBytes = pdfService.createPdf(sykmeldingRecord)!!
 
         val fil = File("build/test.pdf")
         fil.writeBytes(pdfBytes)

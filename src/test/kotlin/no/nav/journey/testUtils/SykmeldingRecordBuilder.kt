@@ -1,64 +1,9 @@
 package no.nav.journey.testUtils
 
 import no.nav.journey.testUtils.TestUtils.Companion.januar
-import no.nav.tsm.sykmelding.input.core.model.Aktivitet
-import no.nav.tsm.sykmelding.input.core.model.AktivitetIkkeMulig
-import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
-import no.nav.tsm.sykmelding.input.core.model.AnnenFraverArsak
-import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
-import no.nav.tsm.sykmelding.input.core.model.ArbeidsrelatertArsak
-import no.nav.tsm.sykmelding.input.core.model.ArbeidsrelatertArsakType
-import no.nav.tsm.sykmelding.input.core.model.AvsenderSystem
-import no.nav.tsm.sykmelding.input.core.model.Avventende
-import no.nav.tsm.sykmelding.input.core.model.Behandler
-import no.nav.tsm.sykmelding.input.core.model.Behandlingsdager
-import no.nav.tsm.sykmelding.input.core.model.BistandNav
-import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
-import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
-import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
-import no.nav.tsm.sykmelding.input.core.model.DigitalSykmeldingMetadata
-import no.nav.tsm.sykmelding.input.core.model.ErIkkeIArbeid
-import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
-import no.nav.tsm.sykmelding.input.core.model.Gradert
-import no.nav.tsm.sykmelding.input.core.model.InvalidRule
-import no.nav.tsm.sykmelding.input.core.model.MedisinskArsak
-import no.nav.tsm.sykmelding.input.core.model.MedisinskArsakType
-import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
+import no.nav.tsm.sykmelding.input.core.model.*
 import no.nav.tsm.sykmelding.input.core.model.Pasient
-import no.nav.tsm.sykmelding.input.core.model.PendingRule
-import no.nav.tsm.sykmelding.input.core.model.Prognose
-import no.nav.tsm.sykmelding.input.core.model.Reason
-import no.nav.tsm.sykmelding.input.core.model.Reisetilskudd
-import no.nav.tsm.sykmelding.input.core.model.RuleType
-import no.nav.tsm.sykmelding.input.core.model.SporsmalSvar
-import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
-import no.nav.tsm.sykmelding.input.core.model.SvarRestriksjon
-import no.nav.tsm.sykmelding.input.core.model.Sykmelder
-import no.nav.tsm.sykmelding.input.core.model.Sykmelding
-import no.nav.tsm.sykmelding.input.core.model.SykmeldingMetadata
-import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
-import no.nav.tsm.sykmelding.input.core.model.Tilbakedatering
-import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
-import no.nav.tsm.sykmelding.input.core.model.Tiltak
-import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
-import no.nav.tsm.sykmelding.input.core.model.ValidationResult
-import no.nav.tsm.sykmelding.input.core.model.ValidationType
-import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
-import no.nav.tsm.sykmelding.input.core.model.Yrkesskade
-import no.nav.tsm.sykmelding.input.core.model.metadata.Adresse
-import no.nav.tsm.sykmelding.input.core.model.metadata.AdresseType
-import no.nav.tsm.sykmelding.input.core.model.metadata.EmottakEnkel
-import no.nav.tsm.sykmelding.input.core.model.metadata.HelsepersonellKategori
-import no.nav.tsm.sykmelding.input.core.model.metadata.Kontaktinfo
-import no.nav.tsm.sykmelding.input.core.model.metadata.KontaktinfoType
-import no.nav.tsm.sykmelding.input.core.model.metadata.Meldingstype
-import no.nav.tsm.sykmelding.input.core.model.metadata.MessageInfo
-import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
-import no.nav.tsm.sykmelding.input.core.model.metadata.Navn
-import no.nav.tsm.sykmelding.input.core.model.metadata.Organisasjon
-import no.nav.tsm.sykmelding.input.core.model.metadata.OrganisasjonsType
-import no.nav.tsm.sykmelding.input.core.model.metadata.PersonId
-import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
+import no.nav.tsm.sykmelding.input.core.model.metadata.*
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -156,7 +101,7 @@ class SykmeldingRecordBuilder {
         fnr = fnr,
         kontaktinfo = listOf(Kontaktinfo(KontaktinfoType.TLF, "12345678"))
     )
-    var medisinskVurdering = MedisinskVurdering(
+    var medisinskVurdering = LegacyMedisinskVurdering(
         hovedDiagnose = hovedDiagnose,
         biDiagnoser = listOf(
             hovedDiagnose, DiagnoseInfo(
@@ -175,6 +120,19 @@ class SykmeldingRecordBuilder {
             )
         )
 
+    )
+    val digitalMedisinskVurdering = DigitalMedisinskVurdering(
+        hovedDiagnose = hovedDiagnose,
+        biDiagnoser = listOf(
+            hovedDiagnose, DiagnoseInfo(
+                DiagnoseSystem.ICD10, "A500", "Tidlig medfødt syfilis,\n" +
+                        "symptomgivende"
+            )
+        ),
+        svangerskap = true,
+        yrkesskade = Yrkesskade(1.januar(2023)),
+        skjermetForPasient = true,
+        annenFravarsgrunn = AnnenFravarsgrunn.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND
     )
     var sykmelding: Sykmelding? = null
 
@@ -200,7 +158,7 @@ class SykmeldingRecordBuilder {
             id = sykmeldingId,
             metadata = createDigitalSykmeldingMetadata(),
             pasient = pasient,
-            medisinskVurdering = medisinskVurdering,
+            medisinskVurdering = digitalMedisinskVurdering,
             aktivitet = aktivitet,
             behandler = behandler,
             arbeidsgiver = arbeidsgiver,
