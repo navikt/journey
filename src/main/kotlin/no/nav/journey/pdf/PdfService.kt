@@ -36,7 +36,7 @@ class PdfService {
         val uke7 = sporsmal.asSequence().map { spm ->
             val (key, sporsmal) = spmUke7Mapping[spm.type] ?: throw IllegalArgumentException("Ugyldig sporsmalstype ${spm.type}")
             key to SporsmalSvar(
-                sporsmal = sporsmal,
+                sporsmal = spm.sporsmal ?: sporsmal,
                 restriksjoner = listOf(SvarRestriksjon.SKJERMET_FOR_ARBEIDSGIVER),
                 svar = spm.svar
             )

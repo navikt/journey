@@ -15,6 +15,8 @@ import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
 import no.nav.tsm.sykmelding.input.core.model.FlereArbeidsgivere
 import no.nav.tsm.sykmelding.input.core.model.LegacyMedisinskVurdering
 import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
+import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
+import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
 import no.nav.tsm.sykmelding.input.core.model.Yrkesskade
 import no.nav.tsm.sykmelding.input.core.model.metadata.Digital
 import org.junit.jupiter.api.BeforeAll
@@ -66,6 +68,29 @@ class PdfGenTest {
         assert(tekst.contains("Gi en kort medisinsk oppsummering av tilstanden")) { "Mangler 'MEDISINSK_OPPSUMMERING'" }
         assert(tekst.contains("Hvilke utfordringer har pasienten med å utføre gradert arbeid?")) { "Mangler 'UTFORDRINGER_MED_GRADERT_ARBEID'" }
         assert(tekst.contains("Hvilke hensyn må være på plass for at pasienten kan prøves i det nåværende arbeidet?")) { "Mangler 'HENSYN_PA_ARBEIDSPLASSEN'" }
+        assert(tekst.contains("svar 6.3.1"))
+        assert(tekst.contains("svar 6.3.2"))
+        assert(tekst.contains("svar 6.3.3"))
+
+    }
+    @Test
+    fun `generate pdf for digital sykmelding with utdypende sporsmal med tekst`() {
+        val sykmeldingRecord = sykmeldingRecord {
+            sykmelding = createDigitalSykmelding().copy(utdypendeSporsmal = listOf(
+                UtdypendeSporsmal(svar = "svar 6.3.1", Sporsmalstype.MEDISINSK_OPPSUMMERING, true, "sporsmal 6.3.1"),
+                UtdypendeSporsmal(svar = "svar 6.3.2", Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID, true, "sporsmal 6.3.2"),
+                UtdypendeSporsmal(svar = "svar 6.3.3" , Sporsmalstype.HENSYN_PA_ARBEIDSPLASSEN, true, "sporsmal 6.3.3"),
+            ))
+            metadata = Digital("123456789")
+        }
+        val pdfBytes = pdfService.createPdf(sykmeldingRecord)!!
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+        assert(tekst.contains("sporsmal 6.3.1")) { "Mangler 'MEDISINSK_OPPSUMMERING'" }
+        assert(tekst.contains("sporsmal 6.3.2")) { "Mangler 'UTFORDRINGER_MED_GRADERT_ARBEID'" }
+        assert(tekst.contains("sporsmal 6.3.3")) { "Mangler 'HENSYN_PA_ARBEIDSPLASSEN'" }
         assert(tekst.contains("svar 6.3.1"))
         assert(tekst.contains("svar 6.3.2"))
         assert(tekst.contains("svar 6.3.3"))
