@@ -174,15 +174,18 @@ class SykmeldingRecordBuilder {
             utdypendeSporsmal = listOf(
                 UtdypendeSporsmal(
                     type = Sporsmalstype.MEDISINSK_OPPSUMMERING,
-                    svar = "svar 6.3.1"
+                    svar = "svar 6.3.1",
+                    sporsmal = null
                 ),
                 UtdypendeSporsmal(
                     type = Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID,
-                    svar = "svar 6.3.2"
+                    svar = "svar 6.3.2",
+                    sporsmal = null
                 ),
                 UtdypendeSporsmal(
                     type = Sporsmalstype.HENSYN_PA_ARBEIDSPLASSEN,
-                    svar = "svar 6.3.3"
+                    svar = "svar 6.3.3",
+                    sporsmal = null
                 ),
             )
         )
