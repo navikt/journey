@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.awt.Desktop
 import java.io.File
+import kotlin.collections.listOf
 import kotlin.test.Ignore
 
 class PdfGenTest {
@@ -66,11 +67,12 @@ class PdfGenTest {
         fil.writeBytes(pdfBytes)
         val tekst = extractTextFromPdf(fil)
         assert(tekst.contains("Gi en kort medisinsk oppsummering av tilstanden")) { "Mangler 'MEDISINSK_OPPSUMMERING'" }
-        assert(tekst.contains("Hvilke utfordringer har pasienten med å utføre gradert arbeid?")) { "Mangler 'UTFORDRINGER_MED_GRADERT_ARBEID'" }
-        assert(tekst.contains("Hvilke hensyn må være på plass for at pasienten kan prøves i det nåværende arbeidet?")) { "Mangler 'HENSYN_PA_ARBEIDSPLASSEN'" }
+        assert(tekst.contains("Beskriv kort hvilke helsemessige begrensninger som gjør det vanskelig å jobbe gradert")) { "Mangler 'UTFORDRINGER_MED_GRADERT_ARBEID'" }
+        assert(tekst.contains("hensyn på arbeidsplassen?")) { "Mangler 'HENSYN_PA_ARBEIDSPLASSEN'" }
         assert(tekst.contains("svar 6.3.1"))
         assert(tekst.contains("svar 6.3.2"))
         assert(tekst.contains("svar 6.3.3"))
+
 
     }
     @Test
@@ -128,7 +130,17 @@ class PdfGenTest {
     @Ignore
     fun `generate pdf for sykmelding med hoveddiagnose og bidiagnoser`() {
         val sykmeldingRecord = sykmeldingRecord {
-            sykmelding = createDigitalSykmelding()
+            sykmelding = createDigitalSykmelding().copy(
+                utdypendeSporsmal = listOf(
+                    UtdypendeSporsmal("Answer1", Sporsmalstype.MEDISINSK_OPPSUMMERING, sporsmal = "sporsmal 1"),
+            UtdypendeSporsmal("Answer2", Sporsmalstype.UTFORDRINGER_MED_ARBEID, sporsmal = "sporsmal 2"),
+            UtdypendeSporsmal("Answer3", Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID, sporsmal = "sporsmal 3"),
+            UtdypendeSporsmal("Answer4", Sporsmalstype.HENSYN_PA_ARBEIDSPLASSEN, sporsmal = "sporsmal 4"),
+            UtdypendeSporsmal("Answer5", Sporsmalstype.BEHANDLING_OG_FREMTIDIG_ARBEID, sporsmal = "sporsmal 5"),
+            UtdypendeSporsmal("Answer6", Sporsmalstype.UAVKLARTE_FORHOLD, sporsmal = "sporsmal 6"),
+            UtdypendeSporsmal("Answer7", Sporsmalstype.FORVENTET_HELSETILSTAND_UTVIKLING, sporsmal = "sporsmal 7"),
+            UtdypendeSporsmal("Answer8", Sporsmalstype.MEDISINSKE_HENSYN, sporsmal = "sporsmal 8"),
+            ))
             metadata = Digital("123456789")
         }
         val pdfBytes = pdfService.createPdf(sykmeldingRecord)!!

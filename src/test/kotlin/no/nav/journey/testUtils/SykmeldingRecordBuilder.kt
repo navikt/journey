@@ -185,7 +185,7 @@ class SykmeldingRecordBuilder {
                 UtdypendeSporsmal(
                     type = Sporsmalstype.HENSYN_PA_ARBEIDSPLASSEN,
                     svar = "svar 6.3.3",
-                    sporsmal = null
+                    sporsmal = "hensyn på arbeidsplassen?"
                 ),
             )
         )
