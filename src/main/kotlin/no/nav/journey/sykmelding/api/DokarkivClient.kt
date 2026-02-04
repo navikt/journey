@@ -4,6 +4,7 @@ import no.nav.journey.config.texas.TexasClient
 import no.nav.journey.sykmelding.models.journalpost.JournalpostRequest
 import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
 import no.nav.journey.utils.applog
+import no.nav.tsm.mottak.pdl.PersonNotFoundException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -60,6 +61,12 @@ class DokarkivClient(
                 )
                 return null
             }
+
+            if (e.statusCode == HttpStatus.NOT_FOUND) {
+                log.error("Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}")
+                throw PersonNotFoundException(message = "Person not found in Dokarkiv")
+            }
+
             log.error(
                 "Dokarkiv svarte med feil: status=${e.statusCode}, body=${e.responseBodyAsString}, Nav-Callid=${journalpostRequest.eksternReferanseId}",
                 e

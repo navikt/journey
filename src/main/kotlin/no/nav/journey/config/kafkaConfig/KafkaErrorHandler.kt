@@ -1,5 +1,6 @@
 package no.nav.journey.config.kafkaConfig
 
+import no.nav.tsm.mottak.pdl.PersonNotFoundException
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.ConsumerRecords
@@ -14,7 +15,8 @@ import org.springframework.util.backoff.FixedBackOff.UNLIMITED_ATTEMPTS
 @Component
 class KafkaErrorHandler(
     @param:Value("\${journey.consumer.backoff.ms:$BACKOFF_INTERVAL}") private val backoff: Long,
-    @param:Value("\${journey.consumer.attempts:$UNLIMITED_ATTEMPTS}") private val attempts: Long) : DefaultErrorHandler(
+    @param:Value("\${journey.consumer.attempts:$UNLIMITED_ATTEMPTS}") private val attempts: Long,
+    @param:Value("\${nais.cluster}") private val cluster: String) : DefaultErrorHandler(
     null,
     FixedBackOff(backoff, attempts)
 ) {
@@ -26,6 +28,10 @@ class KafkaErrorHandler(
 
     init {
         log.info("KafkaErrorHandler: Backoff interval: $backoff ms, max attempts: $attempts")
+        if(cluster == "dev-gcp") {
+            log.info("KafkaErrorHandler: Dev-gcp: Adding PersonNotFoundException to not retryable exceptions")
+            addNotRetryableExceptions(PersonNotFoundException::class.java)
+        }
     }
 
 
