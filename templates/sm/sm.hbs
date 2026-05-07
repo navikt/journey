@@ -132,7 +132,7 @@
     <td align="left">Genereringsdato: {{ iso_to_nor_date sykmelding.metadata.genDate }} </td>
     </tr>
     <tr>
-        <td>Mottatt dato NAV: {{ iso_to_nor_date sykmelding.metadata.mottattDato }}</td>
+        <td>Mottatt dato NAV: {{ iso_to_nor_datetime_seconds sykmelding.metadata.mottattDato }}</td>
         <td>Behandlet dato: {{ iso_to_nor_date sykmelding.metadata.behandletTidspunkt }}</td>
     </tr>
     </thead>
