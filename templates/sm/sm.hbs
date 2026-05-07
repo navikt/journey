@@ -129,7 +129,7 @@
               {{/eq}}
             {{/each}}
             {{#eq metadata.type "PAPIRSYKMELDING"}}Papirsykmelding {{/eq}} {{#eq metadata.type "EGENMELDT"}}EGENMELDING FOR SELVSTENDIG NÆRINGSDRIVENDE ELLER FRILANSER {{/eq}} {{#eq validation.status "INVALID" }}AVVIST {{/eq}}</td>
-    <td align="left">Genereringsdato: {{ iso_to_nor_date sykmelding.metadata.genDate }} </td>
+    <td align="left">Genereringsdato: {{ iso_to_nor_datetime_seconds sykmelding.metadata.genDate }} </td>
     </tr>
     <tr>
         <td>Mottatt dato NAV: {{ iso_to_nor_datetime_seconds sykmelding.metadata.mottattDato }}</td>
