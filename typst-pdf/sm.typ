@@ -1,5 +1,5 @@
 #let payload_path = sys.inputs.at("data-path")
-#let payload_json = read(payload_path)
+#let payload_text = read(payload_path)
 #let data = json(payload_path)
 
 #set page(margin: 1cm)
@@ -17,4 +17,4 @@ ICPC-2B
   *Avvist sykmelding*
 }
 
-#text(payload_json)
+#text(payload_text)

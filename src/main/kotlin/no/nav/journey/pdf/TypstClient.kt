@@ -3,6 +3,7 @@ package no.nav.journey.pdf
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.utils.applog
 import java.nio.file.Files
+import java.util.concurrent.CompletableFuture
 
 class TypstClient(
     private val typstBinaryPath: String = "/app/typst-pdf/typst",
@@ -35,12 +36,11 @@ class TypstClient(
                 .redirectError(ProcessBuilder.Redirect.PIPE)
                 .start()
 
-            var stderr = ""
-            val stderrThread = Thread { stderr = process.errorStream.bufferedReader().readText() }
-            stderrThread.start()
-            val pdfBytes = process.inputStream.readBytes()
-            stderrThread.join()
+            val stdoutFuture = CompletableFuture.supplyAsync { process.inputStream.readBytes() }
+            val stderrFuture = CompletableFuture.supplyAsync { process.errorStream.bufferedReader().readText() }
             val exitCode = process.waitFor()
+            val pdfBytes = stdoutFuture.get()
+            val stderr = stderrFuture.get()
 
             if (exitCode != 0) {
                 log.error("Typst compilation failed with exit code $exitCode: $stderr")
