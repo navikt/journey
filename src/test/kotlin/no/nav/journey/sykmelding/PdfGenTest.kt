@@ -4,8 +4,6 @@ import no.nav.journey.pdf.PdfService
 import no.nav.journey.testUtils.TestUtils.Companion.januar
 import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.sykmeldingRecord
-import no.nav.pdfgen.core.Environment
-import no.nav.pdfgen.core.PDFGenCore
 import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
 import no.nav.tsm.sykmelding.input.core.model.AnnenFraverArsak
 import no.nav.tsm.sykmelding.input.core.model.Behandlingsdager
@@ -19,9 +17,7 @@ import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
 import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
 import no.nav.tsm.sykmelding.input.core.model.Yrkesskade
 import no.nav.tsm.sykmelding.input.core.model.metadata.Digital
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.awt.Desktop
 import java.io.File
 import kotlin.collections.listOf
@@ -29,16 +25,6 @@ import kotlin.test.Ignore
 
 class PdfGenTest {
     private val pdfService = PdfService()
-
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun setup(): Unit {
-            VeraGreenfieldFoundryProvider.initialise()
-            val coreEnvironment = Environment()
-            PDFGenCore.init(coreEnvironment)
-        }
-    }
     @Test
     fun `generate pdf for sykmelding flere arbeidsgivere`() {
         val recordMedFlereArbeidsgivere = sykmeldingRecord {

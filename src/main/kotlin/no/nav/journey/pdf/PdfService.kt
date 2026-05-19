@@ -1,10 +1,5 @@
 package no.nav.journey.pdf
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import no.nav.pdfgen.core.pdf.createHtml
-import no.nav.pdfgen.core.pdf.createPDFA
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.Aktivitetstype
 import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
@@ -20,6 +15,7 @@ import kotlin.String
 
 @Service
 class PdfService {
+    private val typstClient = TypstClient()
     private val uke7Prefix = "6.3"
     private val uke17Prefix = "6.4"
     private val uke39Prefix = "6.5"
@@ -75,20 +71,9 @@ class PdfService {
         return grouped
     }
 
-
-    private val objectMapper = jacksonObjectMapper()
-        .registerModule(JavaTimeModule())
-        .registerModule(JavaTimeModule())
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-
     fun createPdf(sykmeldingRecord: SykmeldingRecord): ByteArray? {
         val pdfPayload = buildPdfPayload(sykmeldingRecord)
-
-        val pdf = createHtml("sm", "sm", objectMapper.valueToTree(pdfPayload))?.let { document ->
-            createPDFA(document)
-        }
-        return pdf
-
+        return typstClient.createPdf(pdfPayload)
     }
 
     fun buildPdfPayload(sykmeldingRecord: SykmeldingRecord): PdfPayload {

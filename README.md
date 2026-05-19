@@ -8,6 +8,7 @@ This app reads from the tsm.tsm-sykmelding topic and creates a journalpost in Do
 * Spring boot
 * Gradle
 * Junit
+* Typst
 
 #### Requirements
 
@@ -22,6 +23,14 @@ To build locally and run the integration tests you can simply run
 ```
 or  on windows
 `gradlew.bat bootJar`
+
+### Local development for PDF template
+Download and install typst: https://typst.app/open-source/#download
+
+To render the template locally with JSON input, run:
+```bash
+typst watch --pdf-standard=a-2a --font-path=fonts --input=data-path="$(pwd)/typst-pdf/test-data/sm.json" typst-pdf/sm.typ sm-local.pdf
+```
 
 ### Contact
 

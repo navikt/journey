@@ -1,0 +1,10 @@
+{
+  "validation": {
+    "status": "OK"
+  },
+  "sykmelding": {
+    "arbeidsgiver": {
+      "navn": "Eksempel AS"
+    }
+  }
+}

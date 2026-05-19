@@ -13,7 +13,6 @@ val javaTimeAdapterVersion = "1.1.3"
 val pdfgencoreVersion = "1.1.65"
 val verapdfVersion = "1.28.2"
 val openHtmlToPdfVersion = "1.1.31"
-val handlebarsVersion = "4.5.0"
 val opentelemetryLogbackMdcVersion = "2.21.0-alpha"
 val tikaVersion = "3.2.3"
 val sykmelidngInputVersion = "24"
@@ -61,7 +60,6 @@ dependencies {
 	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
 	implementation("no.nav.pdfgen:pdfgen-core:$pdfgencoreVersion")
 	implementation("org.verapdf:validation-model:$verapdfVersion")
-	implementation("com.github.jknack:handlebars:$handlebarsVersion")
 	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
 	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:$opentelemetryLogbackMdcVersion")
 	implementation("no.nav.tsm.sykmelding", "input", sykmelidngInputVersion)
