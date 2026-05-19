@@ -6,6 +6,7 @@
 #let hoveddiagnose = medisinsk.at("hovedDiagnose", default: none)
 #let bidiagnoser = medisinsk.at("biDiagnoser", default: ())
 #let utdypende = data.at("utdypendeOpplysninger", default: (:))
+#let workplace_considerations_suffix = ".3"
 
 #set page(margin: 1cm)
 #set text(font: ("Source Sans Pro", "Noto Color Emoji", "DejaVu Sans"), lang: "nb", size: 10pt)
@@ -14,7 +15,8 @@
 
 == Arbeidsgiver
 #let arbeidsgiver_type = str(arbeidsgiver.at("type", default: ""))
-#if arbeidsgiver_type == "FLERE_ARBEIDSGIVERE" or arbeidsgiver.at("stillingsprosent", default: none) != none [
+#let is_flere_arbeidsgivere = arbeidsgiver_type == "FLERE_ARBEIDSGIVERE" or arbeidsgiver_type == "FlereArbeidsgivere"
+#if is_flere_arbeidsgivere [
   Flere arbeidsgivere
 ]
 #arbeidsgiver.at("navn", default: "")
@@ -27,7 +29,7 @@
 #for (_, gruppe) in utdypende.pairs() [
   #for (key, svar) in gruppe.pairs() [
     #linebreak()
-    #if str(key).ends-with(".3") [hvilke hensyn på arbeidsplassen?]
+    #if str(key).ends-with(workplace_considerations_suffix) [hvilke hensyn på arbeidsplassen?]
     #linebreak()
     #svar.at("sporsmal", default: "")
     #linebreak()

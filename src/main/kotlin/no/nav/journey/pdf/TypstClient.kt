@@ -3,13 +3,17 @@ package no.nav.journey.pdf
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.utils.applog
 import java.nio.file.Files
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class TypstClient(
     private val typstBinaryPath: String = "/app/typst-pdf/typst",
     private val templatePath: String = "/app/typst-pdf/sm.typ",
     private val fontPath: String = "/app/fonts",
 ) {
+    private val maxErrorLogLength = 1000
+    private val executorShutdownTimeoutSeconds = 5L
     private val log = applog()
     private val objectMapper = jacksonObjectMapper()
 
@@ -36,24 +40,26 @@ class TypstClient(
                 .redirectError(ProcessBuilder.Redirect.PIPE)
                 .start()
 
-            val pdfBytesRef = AtomicReference(byteArrayOf())
-            val stderrRef = AtomicReference("")
-            val stdoutThread = Thread { pdfBytesRef.set(process.inputStream.readBytes()) }
-            val stderrThread = Thread { stderrRef.set(process.errorStream.bufferedReader().readText()) }
-            stdoutThread.start()
-            stderrThread.start()
-            val exitCode = process.waitFor()
-            stdoutThread.join()
-            stderrThread.join()
-            val pdfBytes = pdfBytesRef.get()
-            val stderr = stderrRef.get()
+            val executor = Executors.newFixedThreadPool(2)
+            val stdoutFuture: CompletableFuture<ByteArray>
+            val stderrFuture: CompletableFuture<String>
+            try {
+                stdoutFuture = CompletableFuture.supplyAsync({ process.inputStream.readBytes() }, executor)
+                stderrFuture = CompletableFuture.supplyAsync({ process.errorStream.bufferedReader().readText() }, executor)
+                val exitCode = process.waitFor()
+                val pdfBytes = stdoutFuture.get()
+                val stderr = stderrFuture.get()
 
-            if (exitCode != 0) {
-                log.error("Typst compilation failed with exit code $exitCode: $stderr")
-                throw RuntimeException("Typst compilation failed: $stderr")
+                if (exitCode != 0) {
+                    log.error("Typst compilation failed with exit code $exitCode. Error excerpt: ${stderr.take(maxErrorLogLength)}")
+                    throw RuntimeException("Typst compilation failed with exit code $exitCode")
+                }
+
+                pdfBytes
+            } finally {
+                executor.shutdown()
+                executor.awaitTermination(executorShutdownTimeoutSeconds, TimeUnit.SECONDS)
             }
-
-            pdfBytes
         } finally {
             Files.deleteIfExists(dataFile)
         }
