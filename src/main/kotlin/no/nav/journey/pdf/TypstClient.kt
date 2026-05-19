@@ -3,7 +3,7 @@ package no.nav.journey.pdf
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.utils.applog
 import java.nio.file.Files
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.atomic.AtomicReference
 
 class TypstClient(
     private val typstBinaryPath: String = "/app/typst-pdf/typst",
@@ -14,7 +14,7 @@ class TypstClient(
     private val objectMapper = jacksonObjectMapper()
 
     fun createPdf(payload: PdfPayload): ByteArray {
-        val dataFile = Files.createTempFile("journey-", ".json")
+        val dataFile = Files.createTempFile("typst-data-", ".json")
         return try {
             Files.writeString(dataFile, objectMapper.writeValueAsString(payload))
 
@@ -36,11 +36,17 @@ class TypstClient(
                 .redirectError(ProcessBuilder.Redirect.PIPE)
                 .start()
 
-            val stdoutFuture = CompletableFuture.supplyAsync { process.inputStream.readBytes() }
-            val stderrFuture = CompletableFuture.supplyAsync { process.errorStream.bufferedReader().readText() }
+            val pdfBytesRef = AtomicReference(byteArrayOf())
+            val stderrRef = AtomicReference("")
+            val stdoutThread = Thread { pdfBytesRef.set(process.inputStream.readBytes()) }
+            val stderrThread = Thread { stderrRef.set(process.errorStream.bufferedReader().readText()) }
+            stdoutThread.start()
+            stderrThread.start()
             val exitCode = process.waitFor()
-            val pdfBytes = stdoutFuture.get()
-            val stderr = stderrFuture.get()
+            stdoutThread.join()
+            stderrThread.join()
+            val pdfBytes = pdfBytesRef.get()
+            val stderr = stderrRef.get()
 
             if (exitCode != 0) {
                 log.error("Typst compilation failed with exit code $exitCode: $stderr")

@@ -71,7 +71,7 @@ class PdfService {
         return grouped
     }
 
-    fun createPdf(sykmeldingRecord: SykmeldingRecord): ByteArray? {
+    fun createPdf(sykmeldingRecord: SykmeldingRecord): ByteArray {
         val pdfPayload = buildPdfPayload(sykmeldingRecord)
         return typstClient.createPdf(pdfPayload)
     }
