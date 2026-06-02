@@ -265,7 +265,7 @@ class JournalpostService(
                 navn = sykmelderName.formatName()
             )
         } catch (e: Exception) {
-            log.error("Could not find person in pdl for sykmelder, trying with behandler. SykmeldingID $sykmeldingId", e)
+            log.warn("Could not find person in pdl for sykmelder, trying with behandler. SykmeldingID $sykmeldingId", e)
         }
 
         val hpr = behandler.ids.find { it.type == PersonIdType.HPR }?.id
