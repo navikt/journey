@@ -3,17 +3,14 @@ kind: "Application"
 metadata:
   name: journey
   namespace: tsm
-  annotations:
-    texas.nais.io/enabled: "true"
+  labels:
+    team: tsm
 
 spec:
-  image: {{ image }}
   replicas:
     min: 2
     max: 3
-    scalingStrategy:
-      cpu:
-        thresholdPercentage: 90
+    cpuThresholdPercentage: 90
   port: 8080
   liveness:
     path: /internal/health
@@ -29,9 +26,6 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-    logging:
-      destinations:
-        - id: loki
   resources:
     limits:
       memory: 2Gi

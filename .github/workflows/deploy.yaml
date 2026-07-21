@@ -1,17 +1,80 @@
 on:
   push:
-    branches:
-      - '**'
+    branches-ignore:
+      - 'dependabot/**'
+
 permissions:
   actions: read
-  contents: write
+  contents: read
   security-events: write
   packages: write
   id-token: write
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: navikt/tsm-workflows/actions/gradle/test@main
+
   build:
-    uses: navikt/teamsykmelding-github-actions-workflows/.github/workflows/gradle-21.yaml@main
+    runs-on: ubuntu-latest
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev')
+    steps:
+      - uses: actions/checkout@v7
+      - uses: navikt/tsm-workflows/actions/gradle/build@main
+        id: build
+        with:
+          app: journey
+          team: tsm
+          salsa: false
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      image: ${{ steps.build.outputs.image }}
+
+  sbom:
+    name: Upload SBOM for build
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: navikt/tsm-workflows/actions/attest-sign@main
+        with:
+          image_ref: ${{ needs.build.outputs.image }}
+          team: tsm
+
+  deploy-dev:
+    if: github.ref_name == 'main' || startsWith(github.ref_name, 'dev')
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: "dev-gcp"
+          RESOURCE: ".nais/nais-dev.yaml"
+          WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
+
+  deploy-prod:
+    if: github.ref_name == 'main'
+    needs: [build, test, deploy-dev]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: nais/deploy/actions/deploy@v2
+        env:
+          CLUSTER: "prod-gcp"
+          RESOURCE: ".nais/nais-prod.yaml"
+          WORKLOAD_IMAGE: ${{ needs.build.outputs.image }}
+          VAR: sourceVersionURL=https://github.com/${{ github.repository }}/tree/${{ github.sha }}
+
+  security:
+    name: Security
     secrets: inherit
+    permissions:
+      contents: read
+      id-token: write
+      security-events: write
+    needs: build
+    uses: navikt/tsm-workflows/.github/workflows/security.yaml@main
     with:
-      app: 'journey'
+      image: ${{ needs.build.outputs.image }}

@@ -3,11 +3,10 @@ kind: "Application"
 metadata:
   name: journey
   namespace: tsm
-  annotations:
-    texas.nais.io/enabled: "true"
+  labels:
+    team: tsm
 
 spec:
-  image: {{ image }}
   replicas:
     min: 1
     max: 1
@@ -27,9 +26,6 @@ spec:
     autoInstrumentation:
       enabled: true
       runtime: java
-    logging:
-      destinations:
-        - id: loki
   resources:
     limits:
       memory: 2Gi
@@ -41,8 +37,6 @@ spec:
   azure:
     application:
       enabled: true
-  envFrom:
-    - secret: sykmelding-bucket
   accessPolicy:
     outbound:
       rules:
@@ -51,6 +45,8 @@ spec:
         - application: tsm-pdl-cache
       external:
         - host: dokarkiv-q2.dev-fss-pub.nais.io
+  envFrom:
+    - secret: sykmelding-bucket
   env:
     - name: DOKARKIV_URL
       value: https://dokarkiv-q2.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost
@@ -58,7 +54,3 @@ spec:
       value: api://dev-fss.teamdokumenthandtering.dokarkiv/.default
     - name: TSM_PDL_CACHE_SCOPE
       value: api://dev-gcp.tsm.tsm-pdl-cache/.default
-    - name: JOURNEY_CONSUMER_ATTEMPTS
-      value: "10"
-    - name: JOURNEY_CONSUMER_BACKOFF_MS
-      value: "10000"
