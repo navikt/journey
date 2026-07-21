@@ -7,20 +7,12 @@ import no.nav.journey.pdf.PdfService
 import no.nav.journey.pdl.PdlClient
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
-import no.nav.journey.testUtils.dummyOrganisasjon
-import no.nav.journey.testUtils.sykmeldingRecord
-import no.nav.tsm.sykmelding.input.core.model.Papirsykmelding
-import no.nav.tsm.sykmelding.input.core.model.UtenlandskInfo
-import no.nav.tsm.sykmelding.input.core.model.UtenlandskSykmelding
-import no.nav.tsm.sykmelding.input.core.model.metadata.MessageInfo
-import no.nav.tsm.sykmelding.input.core.model.metadata.Papir
-import no.nav.tsm.sykmelding.input.core.model.metadata.Utenlandsk
+import no.nav.journey.testUtils.papir
+import no.nav.journey.testUtils.utenlandsk
+import no.nav.journey.testUtils.xml
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import java.util.UUID
 
 class JournalpostServiceTest {
 
@@ -42,7 +34,7 @@ class JournalpostServiceTest {
 
     @Test
     fun `happy case - create journalpost`() {
-        val sykmeldingRecord = sykmeldingRecord { sykmeldingId = "123" }
+        val sykmeldingRecord = xml.record
         val pdfBytes = "pdf-content".toByteArray()
 
         coEvery { pdfService.createPdf(sykmeldingRecord) } returns pdfBytes
@@ -64,35 +56,7 @@ class JournalpostServiceTest {
 
     @Test
     fun `create journalpost papirsykmelding`() {
-        val sykmeldingRecord = sykmeldingRecord {
-            sykmeldingId = "123"
-            metadata = Papir(
-                msgInfo = MessageInfo(
-                    type,
-                    genDate = OffsetDateTime.now(ZoneOffset.UTC),
-                    msgId = UUID.randomUUID().toString(),
-                    migVersjon = "v1"
-                ),
-                sender = dummyOrganisasjon(),
-                receiver = dummyOrganisasjon(),
-                journalPostId = "123"
-            )
-            sykmelding = Papirsykmelding(
-                id = sykmeldingId,
-                pasient = pasient,
-                medisinskVurdering = medisinskVurdering,
-                aktivitet = aktivitet,
-                metadata = createSykmeldingMetadata(),
-                arbeidsgiver = arbeidsgiver,
-                tiltak = tiltak,
-                behandler = behandler,
-                sykmelder = sykmelder,
-                prognose = null,
-                bistandNav = null,
-                tilbakedatering = null,
-                utdypendeOpplysninger = null
-            )
-        }
+        val sykmeldingRecord = papir.record
 
         val result = journalpostService.createJournalpost(sykmeldingRecord)
 
@@ -104,25 +68,7 @@ class JournalpostServiceTest {
 
     @Test
     fun `create journalpost utenlandsk`() {
-        val sykmeldingRecord = sykmeldingRecord {
-            sykmeldingId = "123"
-            metadata = Utenlandsk(
-                land = "UTLAND",
-                journalPostId = "123"
-            )
-            sykmelding = UtenlandskSykmelding(
-                id = sykmeldingId,
-                pasient =pasient,
-                medisinskVurdering = medisinskVurdering,
-                aktivitet = aktivitet,
-                metadata = createSykmeldingMetadata(),
-                utenlandskInfo = UtenlandskInfo(
-                    land = "UTLAND",
-                    folkeRegistertAdresseErBrakkeEllerTilsvarende = false,
-                    erAdresseUtland = false
-                )
-            )
-        }
+        val sykmeldingRecord = utenlandsk.record
 
         val result = journalpostService.createJournalpost(sykmeldingRecord)
 

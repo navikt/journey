@@ -7,13 +7,12 @@ import no.nav.pdfgen.core.pdf.createHtml
 import no.nav.pdfgen.core.pdf.createPDFA
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.Aktivitetstype
-import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
 import no.nav.tsm.sykmelding.input.core.model.SporsmalSvar
 import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
 import no.nav.tsm.sykmelding.input.core.model.SvarRestriksjon
+import no.nav.tsm.sykmelding.input.core.model.Sykmelding
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
-import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
 import org.springframework.stereotype.Service
 import kotlin.Pair
 import kotlin.String
@@ -93,7 +92,7 @@ class PdfService {
 
     fun buildPdfPayload(sykmeldingRecord: SykmeldingRecord): PdfPayload {
         return when (val sykmelding = sykmeldingRecord.sykmelding) {
-            is XmlSykmelding -> {
+            is Sykmelding.Xml -> {
                 val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
                 PdfPayload(
                     metadata = sykmeldingRecord.metadata,
@@ -103,7 +102,7 @@ class PdfService {
                     utdypendeOpplysninger = sykmelding.utdypendeOpplysninger
                 )
             }
-            is DigitalSykmelding -> {
+            is Sykmelding.Digital -> {
                 val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
                 PdfPayload(
                     metadata = sykmeldingRecord.metadata,
