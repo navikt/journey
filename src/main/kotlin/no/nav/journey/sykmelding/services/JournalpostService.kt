@@ -20,19 +20,14 @@ import no.nav.tsm.mottak.pdl.Navn
 import no.nav.tsm.mottak.pdl.PersonNotFoundException
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.Behandler
-import no.nav.tsm.sykmelding.input.core.model.DigitalSykmelding
 import no.nav.tsm.sykmelding.input.core.model.RuleType
 import no.nav.tsm.sykmelding.input.core.model.Sykmelder
 import no.nav.tsm.sykmelding.input.core.model.Sykmelding
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
 import no.nav.tsm.sykmelding.input.core.model.ValidationResult
-import no.nav.tsm.sykmelding.input.core.model.XmlSykmelding
-import no.nav.tsm.sykmelding.input.core.model.metadata.EDIEmottak
-import no.nav.tsm.sykmelding.input.core.model.metadata.EmottakEnkel
-import no.nav.tsm.sykmelding.input.core.model.metadata.Papir
+import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
 import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
-import no.nav.tsm.sykmelding.input.core.model.metadata.Utenlandsk
 import no.nav.tsm.sykmelding.input.core.model.sykmeldingObjectMapper
 import org.springframework.stereotype.Service
 import java.io.ByteArrayOutputStream
@@ -56,8 +51,8 @@ class JournalpostService(
         if (!skalOpprettePdf(sykmelding)) {
             val metadata = sykmelding.metadata
             val journalpostId = when (metadata) {
-                is Papir -> metadata.journalPostId
-                is Utenlandsk -> metadata.journalPostId
+                is MessageMetadata.Papir -> metadata.journalPostId
+                is MessageMetadata.Utenlandsk -> metadata.journalPostId
                 else -> throw IllegalArgumentException("Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} ")
             }
             return journalpostId
@@ -78,8 +73,8 @@ class JournalpostService(
 
     private fun skalOpprettePdf(sykmeldingRecord: SykmeldingRecord): Boolean {
         return when (sykmeldingRecord.sykmelding) {
-            is XmlSykmelding -> true
-            is DigitalSykmelding -> true
+            is Sykmelding.Xml -> true
+            is Sykmelding.Digital -> true
             else -> false
         }
     }
@@ -87,8 +82,7 @@ class JournalpostService(
     private fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
         val metadata = sykmelding.metadata
         val vedlegg: List<String>? = when(metadata) {
-            is EDIEmottak -> metadata.vedlegg
-            is EmottakEnkel -> metadata.vedlegg
+            is MessageMetadata.Xml.Emottak -> metadata.vedlegg
             else -> null
         }
         if (!vedlegg.isNullOrEmpty()) {
@@ -247,8 +241,8 @@ class JournalpostService(
     }
 
     private fun Sykmelding.createAvsenderMottakerDelegert(): AvsenderMottaker = when (this) {
-        is XmlSykmelding -> createAvsenderMottaker(sykmelder, behandler, id)
-        is DigitalSykmelding -> createAvsenderMottaker(sykmelder, behandler, id)
+        is Sykmelding.Xml -> createAvsenderMottaker(sykmelder, behandler, id)
+        is Sykmelding.Digital -> createAvsenderMottaker(sykmelder, behandler, id)
         else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
     }
 
