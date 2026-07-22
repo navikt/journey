@@ -1,6 +1,6 @@
 package no.nav.journey.sykmelding.services
 
-import no.nav.journey.pdf.PdfService
+import no.nav.journey.pdf.PdfServiceOld
 import no.nav.journey.pdl.PdlClient
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.journalpost.AvsenderMottaker
@@ -14,7 +14,6 @@ import no.nav.journey.sykmelding.models.journalpost.Vedlegg
 import no.nav.journey.sykmelding.services.util.validatePersonAndDNumber
 import no.nav.journey.utils.applog
 import no.nav.journey.utils.teamLogger
-import no.nav.pdfgen.core.objectMapper
 import no.nav.pdfgen.core.pdf.createPDFA
 import no.nav.tsm.mottak.pdl.Navn
 import no.nav.tsm.mottak.pdl.PersonNotFoundException
@@ -39,7 +38,7 @@ import java.util.Base64
 class JournalpostService(
     val dokarkivClient: DokarkivClient,
     val bucketService: BucketService,
-    val pdfService: PdfService,
+    val pdfService: PdfServiceOld,
     val pdlClient: PdlClient,
 ) {
     val log = applog()

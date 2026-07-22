@@ -3,7 +3,7 @@ package no.nav.journey.sykmelding.services
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import no.nav.journey.pdf.PdfService
+import no.nav.journey.pdf.PdfServiceOld
 import no.nav.journey.pdl.PdlClient
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.journalpost.JournalpostResponse
@@ -16,7 +16,7 @@ import org.junit.jupiter.api.Test
 
 class JournalpostServiceTest {
 
-    private lateinit var pdfService: PdfService
+    private lateinit var pdfService: PdfServiceOld
     private lateinit var bucketService: BucketService
     private lateinit var dokarkivClient: DokarkivClient
     private lateinit var journalpostService: JournalpostService
