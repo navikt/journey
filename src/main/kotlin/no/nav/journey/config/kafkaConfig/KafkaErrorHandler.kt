@@ -78,7 +78,7 @@ class KafkaErrorHandler(
     private fun logDetailedError(thrownException: Exception, record: ConsumerRecord<*, *>) {
         log.error(
             """
-            KafkaErrorHandler: Feil i prosesseringen av record
+            KafkaErrorHandler: Feil i prosesseringen av record 
             Topic: ${record.topic()}
             Partition: ${record.partition()}
             Offset: ${record.offset()}

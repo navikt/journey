@@ -10,11 +10,8 @@ val syfoXmlCodegenVersion = "2.0.1"
 val jaxbRuntimeVersion = "2.4.0-b180830.0438"
 val jaxbApiVersion = "2.4.0-b180830.0359"
 val javaTimeAdapterVersion = "1.1.3"
-val pdfgencoreVersion = "1.1.65"
-val verapdfVersion = "1.28.2"
-val openHtmlToPdfVersion = "1.1.31"
-val handlebarsVersion = "4.5.0"
 val opentelemetryLogbackMdcVersion = "2.21.0-alpha"
+val pdfboxVersion = "3.0.8"
 val tikaVersion = "3.2.3"
 val sykmelidngInputVersion = "27"
 
@@ -59,10 +56,8 @@ dependencies {
 	implementation("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
 	implementation("com.migesok", "jaxb-java-time-adapters", javaTimeAdapterVersion)
 	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
-	implementation("no.nav.pdfgen:pdfgen-core:$pdfgencoreVersion")
-	implementation("org.verapdf:validation-model:$verapdfVersion")
-	implementation("com.github.jknack:handlebars:$handlebarsVersion")
-	implementation("io.github.openhtmltopdf:openhtmltopdf-slf4j:${openHtmlToPdfVersion}")
+	implementation("org.apache.pdfbox:pdfbox:$pdfboxVersion")
+	implementation("org.apache.pdfbox:xmpbox:$pdfboxVersion")
 	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:$opentelemetryLogbackMdcVersion")
 	implementation("no.nav.tsm.sykmelding", "input", sykmelidngInputVersion)
 
