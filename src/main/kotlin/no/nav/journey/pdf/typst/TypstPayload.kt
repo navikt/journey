@@ -1,8 +1,10 @@
 package no.nav.journey.pdf.typst
 
+import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
 import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
+import no.nav.tsm.sykmelding.input.core.model.MedisinskArsakType
 import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
 import no.nav.tsm.sykmelding.input.core.model.Pasient
 import no.nav.tsm.sykmelding.input.core.model.RuleType
@@ -24,6 +26,7 @@ data class TypstPayload(
     val pasientopplysninger: Pasientopplysninger,
     val arbeidsgiver: Arbeidsgiver,
     val diagnose: Diagnose,
+    val aktivitet: List<AktivitetGruppe>,
 )
 
 /** Ferdigformatert pasientinfo til headeren. */
@@ -94,6 +97,32 @@ data class DiagnoseRad(
     val system: String,
     val kode: String,
     val tekst: String?,
+)
+
+/** Seksjon 4 – mulighet for arbeid. Aktiviteter gruppert per type (4.1–4.5). */
+data class AktivitetGruppe(
+    val type: String,
+    val rader: List<AktivitetRad>,
+)
+
+/** Én periode. Kun feltene som er relevante for typen er utfylt. */
+data class AktivitetRad(
+    val fom: String,
+    val tom: String,
+    // GRADERT
+    val grad: Int? = null,
+    val reisetilskudd: Boolean? = null,
+    // AVVENTENDE
+    val innspillTilArbeidsgiver: String? = null,
+    // BEHANDLINGSDAGER
+    val antallBehandlingsdager: Int? = null,
+    // AKTIVITET_IKKE_MULIG
+    val medisinskArsak: AktivitetArsak? = null,
+)
+
+data class AktivitetArsak(
+    val arsaker: List<String>,
+    val beskrivelse: String?,
 )
 
 private val DATETIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
@@ -195,6 +224,58 @@ private fun mapAnnenFravarsgrunn(medisinskVurdering: MedisinskVurdering): AnnenF
             }
     }
 
+private fun MedisinskArsakType.label(): String = when (this) {
+    MedisinskArsakType.TILSTAND_HINDRER_AKTIVITET -> "Tilstanden hindrer aktivitet"
+    MedisinskArsakType.AKTIVITET_FORVERRER_TILSTAND -> "Aktivitet forverrer tilstanden"
+    MedisinskArsakType.AKTIVITET_FORHINDRER_BEDRING -> "Aktivitet forhindrer bedring"
+    MedisinskArsakType.ANNET -> "Annet"
+}
+
+private fun Aktivitet.toRad(): AktivitetRad = when (this) {
+    is Aktivitet.Avventende -> AktivitetRad(
+        fom = fom.toDate(),
+        tom = tom.toDate(),
+        innspillTilArbeidsgiver = innspillTilArbeidsgiver,
+    )
+
+    is Aktivitet.Gradert -> AktivitetRad(
+        fom = fom.toDate(),
+        tom = tom.toDate(),
+        grad = grad,
+        reisetilskudd = reisetilskudd,
+    )
+
+    is Aktivitet.IkkeMulig -> AktivitetRad(
+        fom = fom.toDate(),
+        tom = tom.toDate(),
+        medisinskArsak = medisinskArsak?.let {
+            AktivitetArsak(arsaker = it.arsak.map(MedisinskArsakType::label), beskrivelse = it.beskrivelse)
+        },
+    )
+
+    is Aktivitet.Behandlingsdager -> AktivitetRad(
+        fom = fom.toDate(),
+        tom = tom.toDate(),
+        antallBehandlingsdager = antallBehandlingsdager,
+    )
+
+    is Aktivitet.Reisetilskudd -> AktivitetRad(
+        fom = fom.toDate(),
+        tom = tom.toDate(),
+    )
+}
+
+// Fast rekkefølge 4.1–4.5 i utskriften.
+private val AKTIVITET_REKKEFOLGE = listOf(
+    "AVVENTENDE", "GRADERT", "AKTIVITET_IKKE_MULIG", "BEHANDLINGSDAGER", "REISETILSKUDD",
+)
+
+fun mapAktivitet(aktiviteter: List<Aktivitet>): List<AktivitetGruppe> =
+    aktiviteter
+        .groupBy { it.type.name }
+        .map { (type, rader) -> AktivitetGruppe(type = type, rader = rader.map { it.toRad() }) }
+        .sortedBy { AKTIVITET_REKKEFOLGE.indexOf(it.type) }
+
 
 fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
     return when (val sykmelding = sykmeldingRecord.sykmelding) {
@@ -212,6 +293,7 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 pasientopplysninger = mapPasientopplysninger(sykmelding.pasient, sykmelding.metadata.regelsettVersjon),
                 arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
                 diagnose = mapDiagnose(sykmelding.medisinskVurdering),
+                aktivitet = mapAktivitet(sykmelding.aktivitet),
             )
         }
 
@@ -230,6 +312,7 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 pasientopplysninger = mapPasientopplysninger(sykmelding.pasient, regelsettVersjon = null),
                 arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
                 diagnose = mapDiagnose(sykmelding.medisinskVurdering),
+                aktivitet = mapAktivitet(sykmelding.aktivitet),
             )
         }
 

@@ -46,7 +46,8 @@
 ]
 
 #set page(
-    margin: (top: 4cm, rest: 1cm),
+    margin: (top: 3.2cm, rest: 1cm),
+    header-ascent: 0.5cm,
     header: dokumentHeader,
     footer: documentFooter,
 )
@@ -165,4 +166,82 @@
             ([*3.7*], table.cell(colspan: 4)[#sym.ballot.check *Pasienten må skjermes for medisinske opplysninger*])
         } else { () },
     )
+}
+
+// Ja/Nei-etikett for bool.
+#let jaNei(b) = if b [Ja] else [Nei]
+
+// En hel aktivitetsgruppe (4.x) som ikke brytes over sidegrense.
+#let gruppe(..celler) = block(breakable: false, width: 100%, table(
+    columns: (10%, 18%, 18%, 18%, 1fr, 1fr),
+    stroke: white,
+    ..celler,
+))
+
+// Seksjon 4 – Mulighet for arbeid
+#{
+    // Bygger én ubrytbar blokk per aktivitetsgruppe.
+    let gruppeBlokk(g) = {
+        if g.type == "AVVENTENDE" {
+            gruppe(
+                [*4.1*], table.cell(colspan: 5)[*Pasienten kan benytte avventende sykmelding*],
+                [], [*4.1.1 f.o.m.*], [*4.1.2 t.o.m.*], table.cell(colspan: 3)[*4.1.3 Innspill til arbeidsgiver*],
+                ..g.rader.map(r => (
+                    [], [#r.fom], [#r.tom], table.cell(colspan: 3)[#{ r.innspillTilArbeidsgiver }],
+                )).flatten(),
+            )
+        } else if g.type == "GRADERT" {
+            gruppe(
+                [*4.2*], table.cell(colspan: 5)[*Pasienten kan være delvis i arbeid (sykmeldingsgrad)*],
+                [], [*4.2.1 f.o.m.*], [*4.2.2 t.o.m.*], [*4.2.3 Grad*], table.cell(colspan: 2)[*4.2.4 Reisetilskudd*],
+                ..g.rader.map(r => (
+                    [], [#r.fom], [#r.tom], [#r.grad%], table.cell(colspan: 2)[#jaNei(r.reisetilskudd)],
+                )).flatten(),
+            )
+        } else if g.type == "AKTIVITET_IKKE_MULIG" {
+            gruppe(
+                [*4.3*], table.cell(colspan: 5)[*Pasienten kan ikke være i arbeid (100 % sykmeldt)*],
+                [], [*4.3.1 f.o.m.*], table.cell(colspan: 4)[*4.3.2 t.o.m.*],
+                ..g.rader.map(r => {
+                    (
+                        [], [#r.fom], table.cell(colspan: 4)[#r.tom],
+                    ) + if r.medisinskArsak != none {
+                        (
+                            [*4.3.3*], table.cell(colspan: 5)[*Medisinske årsaker hindrer arbeidsrelatert aktivitet*],
+                        ) + if r.medisinskArsak.arsaker.len() > 0 {
+                            ([*4.3.3.1*], table.cell(colspan: 5)[#list(..r.medisinskArsak.arsaker.map(a => [#a]))])
+                        } else { () } + if r.medisinskArsak.beskrivelse != none {
+                            ([*4.3.3.2*], table.cell(colspan: 5)[#{ r.medisinskArsak.beskrivelse }])
+                        } else { () }
+                    } else { () }
+                }).flatten(),
+            )
+        } else if g.type == "BEHANDLINGSDAGER" {
+            gruppe(
+                [*4.4*], table.cell(colspan: 5)[*Pasienten kan ikke være i arbeid på behandlingsdager*],
+                [], [*4.4.1 f.o.m.*], [*4.4.2 t.o.m.*], table.cell(colspan: 3)[*4.4.3 Antall dager*],
+                ..g.rader.map(r => (
+                    [], [#r.fom], [#r.tom], table.cell(colspan: 3)[#r.antallBehandlingsdager],
+                )).flatten(),
+            )
+        } else if g.type == "REISETILSKUDD" {
+            gruppe(
+                [*4.5*], table.cell(colspan: 5)[*Pasienten kan være i fullt arbeid ved bruk av reisetilskudd*],
+                [], [*4.5.1 f.o.m.*], table.cell(colspan: 4)[*4.5.2 t.o.m.*],
+                ..g.rader.map(r => (
+                    [], [#r.fom], table.cell(colspan: 4)[#r.tom],
+                )).flatten(),
+            )
+        }
+    }
+
+    block(width: 100%, stroke: black, inset: 1pt, {
+        table(
+            columns: (1fr,),
+            stroke: white,
+            fill: (_, y) => if y == 0 { blue.lighten(60%) },
+            table.header([*4 – Mulighet for arbeid*]),
+        )
+        data.aktivitet.map(gruppeBlokk).join()
+    })
 }
