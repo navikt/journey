@@ -3,16 +3,27 @@ package no.nav.journey.pdf.typst
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
 import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
+import no.nav.tsm.sykmelding.input.core.model.AvsenderSystem
+import no.nav.tsm.sykmelding.input.core.model.Behandler
+import no.nav.tsm.sykmelding.input.core.model.BistandNav
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
+import no.nav.tsm.sykmelding.input.core.model.IArbeid
 import no.nav.tsm.sykmelding.input.core.model.MedisinskArsakType
 import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
 import no.nav.tsm.sykmelding.input.core.model.Pasient
+import no.nav.tsm.sykmelding.input.core.model.Rule
 import no.nav.tsm.sykmelding.input.core.model.RuleType
+import no.nav.tsm.sykmelding.input.core.model.SporsmalSvar
+import no.nav.tsm.sykmelding.input.core.model.Sykmelder
 import no.nav.tsm.sykmelding.input.core.model.Sykmelding
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
+import no.nav.tsm.sykmelding.input.core.model.Tiltak
+import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
 import no.nav.tsm.sykmelding.input.core.model.ValidationResult
 import no.nav.tsm.sykmelding.input.core.model.metadata.KontaktinfoType
+import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
 import no.nav.tsm.sykmelding.input.core.model.metadata.MetadataType
+import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
@@ -27,6 +38,15 @@ data class TypstPayload(
     val arbeidsgiver: Arbeidsgiver,
     val diagnose: Diagnose,
     val aktivitet: List<AktivitetGruppe>,
+    val arbeidsevne: Arbeidsevne,
+    val meldingTilNav: MeldingTilNav?,
+    val meldingTilArbeidsgiver: MeldingTilArbeidsgiver?,
+    val tilbakedatering: Tilbakedatering?,
+    val prognose: Prognose?,
+    val utdypende: List<UtdypendeGruppe>,
+    val bekreftelse: Bekreftelse,
+    val avvisning: List<AvvisningRad>,
+    val avslatt: Boolean,
 )
 
 /** Ferdigformatert pasientinfo til headeren. */
@@ -123,6 +143,86 @@ data class AktivitetRad(
 data class AktivitetArsak(
     val arsaker: List<String>,
     val beskrivelse: String?,
+)
+
+/** Seksjon 7 – hva skal til for å bedre arbeidsevnen. */
+data class Arbeidsevne(
+    val tiltakArbeidsplassen: String?, // 7.1
+    val tiltakNav: String?,            // 7.2
+    val andreTiltak: String?,          // 7.3
+) {
+    val harInnhold: Boolean
+        get() = tiltakArbeidsplassen != null || tiltakNav != null || andreTiltak != null
+}
+
+/** Seksjon 8 – melding til NAV. */
+data class MeldingTilNav(
+    val bistandUmiddelbart: Boolean,
+    val beskrivBistand: String?,
+    val regelsettV3: Boolean,
+)
+
+/** Seksjon 9 – melding til arbeidsgiver. */
+data class MeldingTilArbeidsgiver(
+    val tekst: String,
+    val regelsettV3: Boolean,
+)
+
+/** Seksjon 11 – tilbakedatering. */
+data class Tilbakedatering(
+    val kontaktDato: String?,
+    val begrunnelse: String?,
+)
+
+/** Seksjon 12 – bekreftelse. */
+data class Bekreftelse(
+    val egenmeldt: Boolean,        // styrer 12.1-etikett
+    val bekreftelsesdato: String,  // 12.1
+    val sykmeldersNavn: String,    // 12.2
+    val hprNummer: String?,        // 12.4
+    val telefon: String?,          // 12.5
+    val adresse: String?,          // 12.6
+    val organisasjonsnavn: String?,
+    val avsenderSystemNavn: String,
+    val avsenderSystemVersjon: String,
+    val signerendeHprNummer: String?,
+)
+
+/** Seksjon 13 – begrunnelse for avvisning (én rad per INVALID-regel). */
+data class AvvisningRad(
+    val sykmeldt: String,
+    val sykmelder: String,
+)
+
+/** Seksjon 5 – friskmelding/prognose. */
+data class Prognose(
+    val arbeidsforEtterPeriode: Boolean, // 5.1
+    val hensynArbeidsplassen: String?,   // 5.1.1
+    val arbeid: PrognoseArbeid?,         // 5.2/5.3 (kun ikke-v3)
+)
+
+data class PrognoseArbeid(
+    val type: String, // ER_I_ARBEID / ER_IKKE_I_ARBEID
+    // ER_I_ARBEID
+    val egetArbeidPaSikt: Boolean? = null,
+    val annetArbeidPaSikt: Boolean? = null,
+    val arbeidFOM: String? = null,
+    // ER_IKKE_I_ARBEID
+    val arbeidsforPaSikt: Boolean? = null,
+    val arbeidsforFOM: String? = null,
+    // felles
+    val vurderingsdato: String? = null,
+)
+
+/** Seksjon 6 – utdypende opplysninger, normalisert på tvers av Legacy/Digital. */
+data class UtdypendeGruppe(
+    val tittel: String,
+    val sporsmal: List<UtdypendeSporsmalRad>,
+)
+
+data class UtdypendeSporsmalRad(
+    val sporsmal: String?,
+    val svar: String,
 )
 
 private val DATETIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
@@ -276,6 +376,148 @@ fun mapAktivitet(aktiviteter: List<Aktivitet>): List<AktivitetGruppe> =
         .map { (type, rader) -> AktivitetGruppe(type = type, rader = rader.map { it.toRad() }) }
         .sortedBy { AKTIVITET_REKKEFOLGE.indexOf(it.type) }
 
+private val ArbeidsgiverInfo.tiltakArbeidsplassen: String?
+    get() = (this as? ArbeidsgiverInfo.En)?.tiltakArbeidsplassen
+        ?: (this as? ArbeidsgiverInfo.Flere)?.tiltakArbeidsplassen
+
+private val ArbeidsgiverInfo.meldingTilArbeidsgiver: String?
+    get() = (this as? ArbeidsgiverInfo.En)?.meldingTilArbeidsgiver
+        ?: (this as? ArbeidsgiverInfo.Flere)?.meldingTilArbeidsgiver
+
+fun mapArbeidsevne(arbeidsgiver: ArbeidsgiverInfo, tiltak: Tiltak?): Arbeidsevne =
+    Arbeidsevne(
+        tiltakArbeidsplassen = arbeidsgiver.tiltakArbeidsplassen,
+        tiltakNav = tiltak?.tiltakNav,
+        andreTiltak = tiltak?.andreTiltak,
+    )
+
+fun mapMeldingTilNav(bistandNav: BistandNav?, regelsettVersjon: String?): MeldingTilNav? =
+    bistandNav?.takeIf { it.beskrivBistand != null }?.let {
+        MeldingTilNav(
+            bistandUmiddelbart = it.bistandUmiddelbart,
+            beskrivBistand = it.beskrivBistand,
+            regelsettV3 = regelsettVersjon == "3",
+        )
+    }
+
+fun mapMeldingTilArbeidsgiver(arbeidsgiver: ArbeidsgiverInfo, regelsettVersjon: String?): MeldingTilArbeidsgiver? =
+    arbeidsgiver.meldingTilArbeidsgiver?.let {
+        MeldingTilArbeidsgiver(tekst = it, regelsettV3 = regelsettVersjon == "3")
+    }
+
+fun mapTilbakedatering(
+    tilbakedatering: no.nav.tsm.sykmelding.input.core.model.Tilbakedatering?,
+    metadataType: MetadataType,
+): Tilbakedatering? {
+    if (metadataType == MetadataType.EGENMELDT) return null
+    val kontaktDato = tilbakedatering?.kontaktDato
+    val begrunnelse = tilbakedatering?.begrunnelse
+    if (kontaktDato == null && begrunnelse == null) return null
+    return Tilbakedatering(
+        kontaktDato = kontaktDato?.toDate(),
+        begrunnelse = begrunnelse,
+    )
+}
+
+private fun List<no.nav.tsm.sykmelding.input.core.model.metadata.PersonId>.hpr(): String? =
+    firstOrNull { it.type == PersonIdType.HPR }?.id
+
+private fun fulltNavn(fornavn: String, mellomnavn: String?, etternavn: String): String =
+    listOfNotNull(fornavn, mellomnavn, etternavn).joinToString(" ")
+
+private fun MessageMetadata.senderNavn(): String? = when (this) {
+    is MessageMetadata.Papir -> sender.navn
+    is MessageMetadata.Xml.Emottak -> sender.navn
+    else -> null
+}
+
+fun mapBekreftelse(
+    behandler: Behandler,
+    sykmelder: Sykmelder,
+    avsenderSystem: AvsenderSystem,
+    bekreftelsesdato: String,
+    organisasjonsnavn: String?,
+    metadataType: MetadataType,
+): Bekreftelse =
+    Bekreftelse(
+        egenmeldt = metadataType == MetadataType.EGENMELDT,
+        bekreftelsesdato = bekreftelsesdato,
+        sykmeldersNavn = fulltNavn(behandler.navn.fornavn, behandler.navn.mellomnavn, behandler.navn.etternavn),
+        hprNummer = behandler.ids.hpr(),
+        telefon = behandler.kontaktinfo.firstOrNull { it.type == KontaktinfoType.TLF }?.value,
+        adresse = behandler.adresse?.let {
+            val gate = it.gateadresse?.let { g -> "$g," }
+            listOfNotNull(gate, it.postnummer, it.kommune).joinToString(" ").ifBlank { null }
+        },
+        organisasjonsnavn = organisasjonsnavn,
+        avsenderSystemNavn = avsenderSystem.navn,
+        avsenderSystemVersjon = avsenderSystem.versjon,
+        signerendeHprNummer = sykmelder.ids.hpr(),
+    )
+
+fun mapAvvisning(validation: ValidationResult): List<AvvisningRad> {
+    if (validation.status != RuleType.INVALID) return emptyList()
+    return validation.rules
+        .filterIsInstance<Rule.Invalid>()
+        .map { AvvisningRad(sykmeldt = it.reason.sykmeldt, sykmelder = it.reason.sykmelder) }
+}
+
+fun mapPrognose(prognose: no.nav.tsm.sykmelding.input.core.model.Prognose?, regelsettVersjon: String?): Prognose? {
+    if (prognose == null) return null
+    // Arbeid-blokken (5.2/5.3) vises ikke for regelsett v3.
+    val arbeid = prognose.arbeid?.takeIf { regelsettVersjon != "3" }?.let { a ->
+        when (a) {
+            is IArbeid.ErIArbeid -> PrognoseArbeid(
+                type = a.type.name,
+                egetArbeidPaSikt = a.egetArbeidPaSikt,
+                annetArbeidPaSikt = a.annetArbeidPaSikt,
+                arbeidFOM = a.arbeidFOM?.toDate(),
+                vurderingsdato = a.vurderingsdato?.toDate(),
+            )
+
+            is IArbeid.ErIkkeIArbeid -> PrognoseArbeid(
+                type = a.type.name,
+                arbeidsforPaSikt = a.arbeidsforPaSikt,
+                arbeidsforFOM = a.arbeidsforFOM?.toDate(),
+                vurderingsdato = a.vurderingsdato?.toDate(),
+            )
+        }
+    }
+    return Prognose(
+        arbeidsforEtterPeriode = prognose.arbeidsforEtterPeriode,
+        hensynArbeidsplassen = prognose.hensynArbeidsplassen,
+        arbeid = arbeid,
+    )
+}
+
+private fun utdypendeTittel(nokkel: String): String = when (nokkel) {
+    "6.1" -> "Utdypende opplysninger ved 4, 12 og 28 uker ved visse diagnoser"
+    "6.2" -> "Utdypende opplysninger ved 8, 17 og 39 uker"
+    "6.3" -> "Opplysninger ved vurdering av aktivitetskravet"
+    "6.4" -> "Helseopplysninger ved 17 uker"
+    "6.5" -> "Utdypende opplysninger ved 39 uker"
+    "6.6" -> "Helseopplysninger dersom pasienten søker om AAP"
+    else -> nokkel
+}
+
+/** Legacy: nested map keyed by "6.x". */
+fun mapUtdypendeLegacy(utdypende: Map<String, Map<String, SporsmalSvar>>?): List<UtdypendeGruppe> =
+    utdypende.orEmpty().map { (nokkel, sporsmal) ->
+        UtdypendeGruppe(
+            tittel = utdypendeTittel(nokkel),
+            sporsmal = sporsmal.values.map { UtdypendeSporsmalRad(sporsmal = it.sporsmal, svar = it.svar) },
+        )
+    }
+
+/** Digital: flat list, én gruppe per spørsmål. */
+fun mapUtdypendeDigital(utdypende: List<UtdypendeSporsmal>?): List<UtdypendeGruppe> =
+    utdypende.orEmpty().map {
+        UtdypendeGruppe(
+            tittel = "Utdypende opplysninger",
+            sporsmal = listOf(UtdypendeSporsmalRad(sporsmal = it.sporsmal, svar = it.svar)),
+        )
+    }
+
 
 fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
     return when (val sykmelding = sykmeldingRecord.sykmelding) {
@@ -294,6 +536,23 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
                 diagnose = mapDiagnose(sykmelding.medisinskVurdering),
                 aktivitet = mapAktivitet(sykmelding.aktivitet),
+                arbeidsevne = mapArbeidsevne(sykmelding.arbeidsgiver, sykmelding.tiltak),
+                meldingTilNav = mapMeldingTilNav(sykmelding.bistandNav, sykmelding.metadata.regelsettVersjon),
+                meldingTilArbeidsgiver = mapMeldingTilArbeidsgiver(sykmelding.arbeidsgiver, sykmelding.metadata.regelsettVersjon),
+                tilbakedatering = mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
+                prognose = mapPrognose(sykmelding.prognose, sykmelding.metadata.regelsettVersjon),
+                utdypende = if (sykmeldingRecord.metadata.type == MetadataType.EGENMELDT) emptyList()
+                else mapUtdypendeLegacy(sykmelding.utdypendeOpplysninger),
+                bekreftelse = mapBekreftelse(
+                    behandler = sykmelding.behandler,
+                    sykmelder = sykmelding.sykmelder,
+                    avsenderSystem = sykmelding.metadata.avsenderSystem,
+                    bekreftelsesdato = sykmelding.metadata.behandletTidspunkt.toDate(),
+                    organisasjonsnavn = sykmeldingRecord.metadata.senderNavn(),
+                    metadataType = sykmeldingRecord.metadata.type,
+                ),
+                avvisning = mapAvvisning(sykmeldingRecord.validation),
+                avslatt = mapHeaderStatus(sykmeldingRecord.validation).avslatt,
             )
         }
 
@@ -313,6 +572,24 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
                 diagnose = mapDiagnose(sykmelding.medisinskVurdering),
                 aktivitet = mapAktivitet(sykmelding.aktivitet),
+                arbeidsevne = mapArbeidsevne(sykmelding.arbeidsgiver, tiltak = null),
+                meldingTilNav = mapMeldingTilNav(sykmelding.bistandNav, regelsettVersjon = null),
+                meldingTilArbeidsgiver = mapMeldingTilArbeidsgiver(sykmelding.arbeidsgiver, regelsettVersjon = null),
+                tilbakedatering = mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
+                prognose = null, // Digital har ingen prognose
+                utdypende = if (sykmeldingRecord.metadata.type == MetadataType.EGENMELDT) emptyList()
+                else mapUtdypendeDigital(sykmelding.utdypendeSporsmal),
+                bekreftelse = mapBekreftelse(
+                    behandler = sykmelding.behandler,
+                    sykmelder = sykmelding.sykmelder,
+                    avsenderSystem = sykmelding.metadata.avsenderSystem,
+                    // Digital har ingen behandletTidspunkt – faller tilbake til mottattDato.
+                    bekreftelsesdato = sykmelding.metadata.mottattDato.toDate(),
+                    organisasjonsnavn = sykmeldingRecord.metadata.senderNavn(),
+                    metadataType = sykmeldingRecord.metadata.type,
+                ),
+                avvisning = mapAvvisning(sykmeldingRecord.validation),
+                avslatt = mapHeaderStatus(sykmeldingRecord.validation).avslatt,
             )
         }
 
