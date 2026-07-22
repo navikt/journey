@@ -245,3 +245,189 @@
         data.aktivitet.map(gruppeBlokk).join()
     })
 }
+
+// Etikett-rad + verdi-rad (to kolonner: nr | innhold).
+#let merknadRad(nr, label, verdi) = (
+    [*#nr*], [*#label*],
+    [], [#{ verdi }],
+)
+
+// Seksjon 5 – Friskmelding/Prognose
+#{
+    let p = data.prognose
+    if p != none {
+        let a = p.arbeid
+        seksjonstabell(
+            (10%, 60%, 1fr),
+            table.header([*5*], [*Friskmelding/Prognose*], []),
+            [*5.1*], [*Pasienten er 100 prosent arbeidsfør etter denne perioden*], [#jaNei(p.arbeidsforEtterPeriode)],
+            ..if p.hensynArbeidsplassen != none {
+                merknadRad("5.1.1", "Beskriv eventuelle hensyn som må tas på arbeidsplassen", p.hensynArbeidsplassen)
+            } else { () },
+            ..if a != none and a.type == "ER_I_ARBEID" {
+                (
+                    [*5.2*], table.cell(colspan: 2)[*Pasient med arbeidsgiver: Utdypende opplysninger ved 7 uker*],
+                    [*5.2.1*], [*Jeg antar at pasienten på sikt kan komme tilbake til samme arbeidsgiver*], [#jaNei(a.egetArbeidPaSikt)],
+                ) + (if a.arbeidFOM != none {
+                    ([], [Anslå når du tror dette kan skje], [#a.arbeidFOM])
+                } else { () }) + (
+                    [*5.2.2*], [*Jeg antar at pasienten på sikt kan komme i arbeid hos annen arbeidsgiver*], [#jaNei(a.annetArbeidPaSikt)],
+                ) + (if a.vurderingsdato != none {
+                    ([*5.2.3*], [*Hvis usikker: Når antar du å kunne gi tilbakemelding på dette?*], [#a.vurderingsdato])
+                } else { () })
+            } else if a != none and a.type == "ER_IKKE_I_ARBEID" {
+                (
+                    [*5.3*], table.cell(colspan: 2)[*Pasient uten arbeidsgiver: Utdypende opplysninger ved 7 uker*],
+                    [*5.3.1*], [*Jeg antar at pasienten på sikt kan komme tilbake i arbeid*], [#jaNei(a.arbeidsforPaSikt)],
+                ) + (if a.arbeidsforFOM != none {
+                    ([], [Anslå når du tror dette kan skje], [#a.arbeidsforFOM])
+                } else { () }) + (if a.vurderingsdato != none {
+                    ([*5.3.2*], [*Hvis usikker: Når antar du å kunne gi tilbakemelding på dette?*], [#a.vurderingsdato])
+                } else { () })
+            } else { () },
+        )
+    }
+}
+
+// Seksjon 6 – Utdypende opplysninger
+#{
+    let grupper = data.utdypende
+    if grupper.len() > 0 {
+        seksjonstabell(
+            (10%, 1fr),
+            table.header([*6*], [*Utdypende opplysninger*]),
+            ..grupper.map(g => {
+                ([], [*#g.tittel*]) + g.sporsmal.map(s => (
+                    [], [#if s.sporsmal != none [*#s.sporsmal* \ ] #s.svar],
+                )).flatten()
+            }).flatten(),
+        )
+    }
+}
+
+// Seksjon 7 – Hva skal til for å bedre arbeidsevnen?
+#{
+    let a = data.arbeidsevne
+    if a.harInnhold {
+        seksjonstabell(
+            (10%, 1fr),
+            table.header([*7*], [*Hva skal til for å bedre arbeidsevnen?*]),
+            ..if a.tiltakArbeidsplassen != none {
+                merknadRad("7.1", "Tilrettelegging/hensyn som bør tas på arbeidsplassen. Beskriv", a.tiltakArbeidsplassen)
+            } else { () },
+            ..if a.tiltakNav != none {
+                merknadRad("7.2", "Tiltak i regi av NAV. Beskriv", a.tiltakNav)
+            } else { () },
+            ..if a.andreTiltak != none {
+                merknadRad("7.3", "Eventuelle andre innspill til NAV. Beskriv", a.andreTiltak)
+            } else { () },
+        )
+    }
+}
+
+// Seksjon 8 – Melding til NAV
+#{
+    let m = data.meldingTilNav
+    if m != none {
+        seksjonstabell(
+            (10%, 1fr),
+            table.header([*8*], [*Melding til NAV*]),
+            ..if m.regelsettV3 {
+                merknadRad("8.1", "Ønskes bistand fra NAV", m.beskrivBistand)
+            } else {
+                (if m.bistandUmiddelbart {
+                    merknadRad("8.1", "Ønsker du bistand fra NAV nå", [Ja])
+                } else { () }) + merknadRad("8.2", "Begrunnelse", m.beskrivBistand)
+            },
+        )
+    }
+}
+
+// Seksjon 9 – Melding til arbeidsgiver
+#{
+    let m = data.meldingTilArbeidsgiver
+    if m != none {
+        seksjonstabell(
+            (10%, 1fr),
+            table.header([*9*], [*Melding til arbeidsgiver*]),
+            ..merknadRad(
+                "9.1",
+                if m.regelsettV3 { "Innspill til arbeidsgiver" } else { "Andre innspill til arbeidsgiver" },
+                m.tekst,
+            ),
+        )
+    }
+}
+
+// Seksjon 11 – Tilbakedatering
+#{
+    let t = data.tilbakedatering
+    if t != none {
+        seksjonstabell(
+            (10%, 1fr),
+            table.header([*11*], [*Tilbakedatering*]),
+            ..if t.kontaktDato != none {
+                ([*11.1*], [*Dato for dokumenterbar kontakt med pasienten* \ #t.kontaktDato])
+            } else { () },
+            ..if t.begrunnelse != none {
+                merknadRad("11.2", "Begrunn årsaken til tilbakedateringen", t.begrunnelse)
+            } else { () },
+        )
+    }
+}
+
+// Seksjon 12 – Bekreftelse
+#{
+    let b = data.bekreftelse
+    seksjonstabell(
+        (10%, 40%, 1fr),
+        table.header([*12*], [*Bekreftelse*], []),
+        [*12.1*],
+        if b.egenmeldt [*Dato for når egenmeldingen ble registrert hos NAV*] else [*Pasienten er kjent eller har vist legitimasjon*],
+        [#b.bekreftelsesdato],
+        [*12.2*], [*Sykmelders navn*], [#b.sykmeldersNavn],
+        ..if b.hprNummer != none {
+            ([*12.4*], [*HPR-nummer*], [#b.hprNummer])
+        } else { () },
+        ..if b.telefon != none {
+            ([*12.5*], [*Telefon*], [#b.telefon])
+        } else { () },
+        ..if b.adresse != none {
+            ([*12.6*], [*Adresse*], [#b.adresse])
+        } else { () },
+        ..if b.organisasjonsnavn != none {
+            ([], [*Organisasjonsnavn*], [#b.organisasjonsnavn])
+        } else { () },
+        [], [*Avsendersystem*],
+        [Navn: #b.avsenderSystemNavn \ Versjon: #b.avsenderSystemVersjon],
+        ..if b.signerendeHprNummer != none {
+            ([], [*Signerende behandler HPR-nummer*], [#b.signerendeHprNummer])
+        } else { () },
+    )
+}
+
+// Seksjon 13 – Begrunnelse for avvisning
+#{
+    let rader = data.avvisning
+    if rader.len() > 0 {
+        seksjonstabell(
+            (10%, 1fr, 1fr),
+            table.header(
+                [*13*], [*Begrunnelse for avvisning*], [],
+            ),
+            [], [*Begrunnelse til sykmeldt*], [*Begrunnelse til sykmelder*],
+            ..rader.map(r => ([], [#r.sykmeldt], [#r.sykmelder])).flatten(),
+        )
+    }
+}
+
+// Merknader
+#{
+    if data.avslatt {
+        seksjonstabell(
+            (20%, 1fr),
+            table.header([*Merknader*], []),
+            [*Avslått*], [Sykmeldingen er registrert med merknad om avslag pga. ugyldig tilbakedatering.],
+        )
+    }
+}
