@@ -1,21 +1,23 @@
-package no.nav.journey.pdf.typst
+package no.nav.journey.pdf
 
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.journey.utils.applog
 import no.nav.journey.utils.teamLogger
+import org.springframework.stereotype.Service
 import java.awt.Font
 import java.io.File
 import java.nio.file.Files
 
+@Service
 class TypstClient(
     private val typstBinaryPath: String = "/app/typst-pdf/typst",
-    private val templatePath: String = "/app/typst-pdf/pale-2.typ",
+    private val templatePath: String = "/app/typst-pdf/sykmelding.typ",
     private val fontPath: String = "/app/typst-pdf/fonts",
 ) {
-    val logger = applog()
-    val teamlog = teamLogger()
+    private val logger = applog()
+    private val teamlog = teamLogger()
 
     private val fonts: List<Font> by lazy {
         File(fontPath)
@@ -29,6 +31,8 @@ class TypstClient(
     }
 
     fun createPdf(payload: TypstPayload): ByteArray {
+        logger.info("Generating PDF for sykmelding id ${payload.sykmeldingId} using Typst")
+
         val jsonData = objectMapper.writeValueAsString(payload)
 
         return try {
@@ -97,7 +101,7 @@ class TypstClient(
         }
     }
 
-    private val objectMapper = jacksonObjectMapper()
+    val objectMapper = jacksonObjectMapper()
         .registerModule(JavaTimeModule())
         .registerModule(JavaTimeModule())
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)

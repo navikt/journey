@@ -6,6 +6,16 @@
 #set text(font: ("Source Sans 3", "Noto Color Emoji", "DejaVu Sans"), lang: "nb", size: 10pt)
 #set table(stroke: 1pt + black, inset: 4pt)
 
+// Document metadata
+#let statusPrefiks = if status.avslatt { "AVSLÅTT " } else if status.avvist { "AVVIST " } else { "" }
+#set document(
+  title: statusPrefiks + "Sykmelding for " + pasient.navn,
+  author: data.bekreftelse.sykmeldersNavn,
+  description: "HelseOpplysninger ved arbeidsuførhet",
+  keywords: ("Sykmelding",),
+  date: datetime.today(),
+)
+
 #let dokumentHeader = context [
     #let page-num = counter(page).get().first()
     #let total = counter(page).final().first()

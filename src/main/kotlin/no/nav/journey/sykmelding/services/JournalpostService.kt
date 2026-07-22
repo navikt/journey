@@ -1,6 +1,8 @@
 package no.nav.journey.sykmelding.services
 
-import no.nav.journey.pdf.PdfServiceOld
+import no.nav.journey.pdf.TypstClient
+import no.nav.journey.pdf.buildTypstPayload
+import no.nav.journey.pdf.imageToPDFA
 import no.nav.journey.pdl.PdlClient
 import no.nav.journey.sykmelding.api.DokarkivClient
 import no.nav.journey.sykmelding.models.journalpost.AvsenderMottaker
@@ -14,7 +16,6 @@ import no.nav.journey.sykmelding.models.journalpost.Vedlegg
 import no.nav.journey.sykmelding.services.util.validatePersonAndDNumber
 import no.nav.journey.utils.applog
 import no.nav.journey.utils.teamLogger
-import no.nav.pdfgen.core.pdf.createPDFA
 import no.nav.tsm.mottak.pdl.Navn
 import no.nav.tsm.mottak.pdl.PersonNotFoundException
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
@@ -38,7 +39,7 @@ import java.util.Base64
 class JournalpostService(
     val dokarkivClient: DokarkivClient,
     val bucketService: BucketService,
-    val pdfService: PdfServiceOld,
+    val typstClient: TypstClient,
     val pdlClient: PdlClient,
 ) {
     val log = applog()
@@ -63,7 +64,7 @@ class JournalpostService(
             teamlog.info("vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: type: ${it.type}, content-type: ${it.content.contentType}, description: ${it.description}")
         }
 
-        val pdf = pdfService.createPdf(sykmelding) ?: throw Exception("sykmeldingid=${sykmelding.sykmelding.id} pdf er null")
+        val pdf = typstClient.createPdf(buildTypstPayload(sykmelding))
         val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
         val response = dokarkivClient.createJournalpost(journalpostPayload)
         log.info("Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response?.journalpostId}")
@@ -80,13 +81,13 @@ class JournalpostService(
 
     private fun getVedlegg(sykmelding: SykmeldingRecord): List<Vedlegg>? {
         val metadata = sykmelding.metadata
-        val vedlegg: List<String>? = when(metadata) {
+        val vedlegg: List<String>? = when (metadata) {
             is MessageMetadata.Xml.Emottak -> metadata.vedlegg
             else -> null
         }
         if (!vedlegg.isNullOrEmpty()) {
-                log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
-                return bucketService.getVedleggFromBucket(sykmelding.sykmelding.id)
+            log.info("skal hente vedlegg for sykmelding ${sykmelding.sykmelding.id}")
+            return bucketService.getVedleggFromBucket(sykmelding.sykmelding.id)
         }
         return null
     }
@@ -169,13 +170,14 @@ class JournalpostService(
             description = vedlegg.description,
         )
     }
+
     private fun vedleggToPDF(vedlegg: GosysVedlegg): GosysVedlegg {
         if (findFiltype(vedlegg) == "PDFA") return vedlegg
         log.info("Converting vedlegg of type ${vedlegg.contentType} to PDFA")
 
         val image =
             ByteArrayOutputStream().use { outputStream ->
-                createPDFA(vedlegg.content.inputStream(), outputStream)
+                imageToPDFA(vedlegg.content.inputStream(), outputStream)
                 outputStream.toByteArray()
             }
 
@@ -213,6 +215,7 @@ class JournalpostService(
     private fun ValidationResult.ugyldigTilbakedatering(): Boolean {
         return rules.any { it.name == TilbakedatertMerknad.TILBAKEDATERING_UGYLDIG_TILBAKEDATERING.name }
     }
+
     private fun ValidationResult.delvisGodkjent(): Boolean {
         return rules.any { it.name == TilbakedatertMerknad.TILBAKEDATERING_DELVIS_GODKJENT.name }
     }
@@ -245,10 +248,15 @@ class JournalpostService(
         else -> throw IllegalArgumentException("Skal ikke opprette journalpost for sykmeldingtype ${this::class.simpleName}")
     }
 
-    private fun createAvsenderMottaker(sykmelder: Sykmelder, behandler: Behandler, sykmeldingId: String): AvsenderMottaker {
+    private fun createAvsenderMottaker(
+        sykmelder: Sykmelder,
+        behandler: Behandler,
+        sykmeldingId: String
+    ): AvsenderMottaker {
 
         try {
-            val sykmelderName = pdlClient.getPerson(sykmelder.ids.first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }.id).navn
+            val sykmelderName =
+                pdlClient.getPerson(sykmelder.ids.first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }.id).navn
             if (sykmelderName == null) {
                 throw PersonNotFoundException("Could not find name in pdl")
             }
@@ -263,7 +271,7 @@ class JournalpostService(
 
         val hpr = behandler.ids.find { it.type == PersonIdType.HPR }?.id
 
-        if (hpr != null && hpr.length >= 7 && hpr.length <= 9 ) {
+        if (hpr != null && hpr.length >= 7 && hpr.length <= 9) {
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(hpr),
                 idType = "HPRNR",
@@ -272,7 +280,7 @@ class JournalpostService(
         }
         log.warn("Could not find HPR for behandler, using fnr")
         val fnr = behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
-        if(fnr != null) {
+        if (fnr != null) {
             return AvsenderMottaker(
                 id = fnr.id,
                 idType = fnr.type.name,

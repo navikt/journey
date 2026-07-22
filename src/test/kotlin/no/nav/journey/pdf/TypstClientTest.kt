@@ -1,49 +1,29 @@
-package no.nav.journey.sykmelding
+package no.nav.journey.pdf
 
-import no.nav.journey.pdf.PdfService
-import no.nav.journey.pdf.typst.TypstClient
-import no.nav.journey.pdf.typst.buildTypstPayload
 import no.nav.journey.testUtils.digital
 import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.xml
-import no.nav.pdfgen.core.Environment
-import no.nav.pdfgen.core.PDFGenCore
-import no.nav.pdfgen.core.objectMapper
 import no.nav.tsm.sykmelding.input.core.model.*
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.awt.Desktop
 import java.io.File
 
-class PdfGenTest {
-    private val pdfService = PdfService(
-        typstClient = TypstClient(
-            typstBinaryPath = "typst-pdf/typst",
-            templatePath = "typst-pdf/sykmelding.typ",
-            fontPath = "typst-pdf/fonts",
-        )
+class TypstClientTest {
+    private val typstClient = TypstClient(
+        typstBinaryPath = "typst-pdf/typst",
+        templatePath = "typst-pdf/sykmelding.typ",
+        fontPath = "typst-pdf/fonts",
     )
 
-    companion object {
-        @JvmStatic
-        @BeforeAll
-        fun setup(): Unit {
-            VeraGreenfieldFoundryProvider.initialise()
-            val coreEnvironment = Environment()
-            PDFGenCore.init(coreEnvironment)
-        }
-    }
-
     @Test
-    fun genTestData() {
+    fun updateTypstTestData() {
+        /**
+         * no-op test that simply updates the test-data for typst-pdf generation
+         */
         val payload = buildTypstPayload(xml.record)
-        val stringied = objectMapper.writeValueAsString(payload)
+        val stringied = typstClient.objectMapper.writeValueAsString(payload)
 
-        // update typst-pdf/test-data/sykmelding.json
-
-        val testDataFile = File("typst-pdf/test-data/sykmelding.json")
-        testDataFile.writeText(stringied)
+        File("typst-pdf/test-data/sykmelding.json").writeText(stringied)
     }
 
     @Test
@@ -53,7 +33,7 @@ class PdfGenTest {
                 arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider", 80, null, null)
             )
         )
-        val pdfBytes = pdfService.createPdf(recordMedFlereArbeidsgivere)!!
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
 
         val fil = File("build/test.pdf")
         fil.writeBytes(pdfBytes)
@@ -67,7 +47,7 @@ class PdfGenTest {
     @Test
     fun `generate pdf for digital sykmelding`() {
         val sykmeldingRecord = digital.record
-        val pdfBytes = pdfService.createPdf(sykmeldingRecord)!!
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(sykmeldingRecord))
 
         val fil = File("build/test.pdf")
         fil.writeBytes(pdfBytes)
@@ -108,7 +88,7 @@ class PdfGenTest {
                 )
             )
         )
-        val pdfBytes = pdfService.createPdf(sykmeldingRecord)!!
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(sykmeldingRecord))
 
         val fil = File("build/test.pdf")
         fil.writeBytes(pdfBytes)
@@ -138,12 +118,12 @@ class PdfGenTest {
                 arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider", 80, null, null)
             )
         )
-        val pdfBytes = pdfService.createPdf(record)!!
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(record))
 
         val fil = File("build/test.pdf")
         fil.writeBytes(pdfBytes)
         val tekst = extractTextFromPdf(fil)
-        assert(tekst.contains("ICPC-2B")) { "Mangler 'diagnosesystem'" }
+        assert(tekst.contains("ICPC2B")) { "Mangler 'diagnosesystem'" }
         assert(tekst.contains("R74.0002")) { "Mangler 'diagnosekode'" }
         assert(tekst.contains("R74.0001")) { "Mangler 'diagnosekode'" }
 
@@ -173,7 +153,7 @@ class PdfGenTest {
                 )
             )
         )
-        val pdfBytes = pdfService.createPdf(sykmeldingRecord)!!
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(sykmeldingRecord))
 
         val fil = File("build/test.pdf")
         fil.writeBytes(pdfBytes)

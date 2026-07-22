@@ -1,4 +1,4 @@
-package no.nav.journey.pdf.typst
+package no.nav.journey.pdf
 
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
@@ -14,6 +14,7 @@ import no.nav.tsm.sykmelding.input.core.model.Pasient
 import no.nav.tsm.sykmelding.input.core.model.Rule
 import no.nav.tsm.sykmelding.input.core.model.RuleType
 import no.nav.tsm.sykmelding.input.core.model.SporsmalSvar
+import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
 import no.nav.tsm.sykmelding.input.core.model.Sykmelder
 import no.nav.tsm.sykmelding.input.core.model.Sykmelding
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
@@ -23,6 +24,7 @@ import no.nav.tsm.sykmelding.input.core.model.ValidationResult
 import no.nav.tsm.sykmelding.input.core.model.metadata.KontaktinfoType
 import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
 import no.nav.tsm.sykmelding.input.core.model.metadata.MetadataType
+import no.nav.tsm.sykmelding.input.core.model.metadata.PersonId
 import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -419,7 +421,7 @@ fun mapTilbakedatering(
     )
 }
 
-private fun List<no.nav.tsm.sykmelding.input.core.model.metadata.PersonId>.hpr(): String? =
+private fun List<PersonId>.hpr(): String? =
     firstOrNull { it.type == PersonIdType.HPR }?.id
 
 private fun fulltNavn(fornavn: String, mellomnavn: String?, etternavn: String): String =
@@ -509,15 +511,67 @@ fun mapUtdypendeLegacy(utdypende: Map<String, Map<String, SporsmalSvar>>?): List
         )
     }
 
-/** Digital: flat list, én gruppe per spørsmål. */
-fun mapUtdypendeDigital(utdypende: List<UtdypendeSporsmal>?): List<UtdypendeGruppe> =
-    utdypende.orEmpty().map {
-        UtdypendeGruppe(
-            tittel = "Utdypende opplysninger",
-            sporsmal = listOf(UtdypendeSporsmalRad(sporsmal = it.sporsmal, svar = it.svar)),
-        )
+// Seksjonsprefikser for digitale utdypende spørsmål.
+private const val UKE7_PREFIX = "6.3"
+private const val UKE17_PREFIX = "6.4"
+private const val UKE39_PREFIX = "6.5"
+
+// Fast spørsmålstekst + delnøkkel per spørsmålstype (brukes når spm.sporsmal mangler).
+private fun spmMapping(prefix: String): Map<Sporsmalstype, Pair<String, String>> = mapOf(
+    Sporsmalstype.MEDISINSK_OPPSUMMERING to
+        ("$prefix.1" to "Gi en kort medisinsk oppsummering av tilstanden (sykehistorie, hovedsymptomer, behandling)"),
+    Sporsmalstype.UTFORDRINGER_MED_ARBEID to
+        ("$prefix.2" to "Beskriv kort hvilke utfordringer helsetilstanden gir i arbeidssituasjonen nå. Oppgi også kort hva pasienten likevel kan mestre"),
+    Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID to
+        ("$UKE7_PREFIX.2" to "Beskriv kort hvilke helsemessige begrensninger som gjør det vanskelig å jobbe gradert"),
+    Sporsmalstype.HENSYN_PA_ARBEIDSPLASSEN to
+        ("$UKE7_PREFIX.3" to "Beskriv eventuelle medisinske forhold som bør ivaretas ved eventuell tilbakeføring til nåværende arbeid (ikke obligatorisk)"),
+    Sporsmalstype.BEHANDLING_OG_FREMTIDIG_ARBEID to
+        ("$UKE17_PREFIX.3" to "Beskriv pågående og planlagt utredning/behandling, og om dette forventes å påvirke muligheten for økt arbeidsdeltakelse fremover"),
+    Sporsmalstype.UAVKLARTE_FORHOLD to
+        ("$UKE17_PREFIX.4" to "Er det forhold som fortsatt er uavklarte eller hindrer videre arbeidsdeltakelse, som Nav bør være kjent med i sin oppfølging?"),
+    Sporsmalstype.FORVENTET_HELSETILSTAND_UTVIKLING to
+        ("$UKE39_PREFIX.3" to "Hvordan forventes helsetilstanden å utvikle seg de neste 3-6 månedene med tanke på mulighet for økt arbeidsdeltakelse?"),
+    Sporsmalstype.MEDISINSKE_HENSYN to
+        ("$UKE39_PREFIX.4" to "Er det medisinske hensyn eller avklaringsbehov Nav bør kjenne til i videre oppfølging?"),
+)
+
+/**
+ * Digital: flat liste normaliseres til samme grupperte struktur som Legacy.
+ * Delnøkkel og standard spørsmålstekst utledes per spørsmålstype, deretter
+ * grupperes det på seksjon (6.3/6.4/6.5).
+ */
+fun mapUtdypendeDigital(sporsmal: List<UtdypendeSporsmal>?): List<UtdypendeGruppe> {
+    if (sporsmal.isNullOrEmpty()) return emptyList()
+
+    val prefix = when {
+        sporsmal.any { it.type == Sporsmalstype.MEDISINSKE_HENSYN } -> UKE39_PREFIX
+        sporsmal.any { it.type == Sporsmalstype.BEHANDLING_OG_FREMTIDIG_ARBEID } -> UKE17_PREFIX
+        sporsmal.any { it.type == Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID } -> UKE7_PREFIX
+        else -> throw IllegalArgumentException("Utdypende sporsmal mangler gyldig prefiks: ${sporsmal.first().type}")
     }
 
+    val mappings = spmMapping(prefix)
+    // key -> (spørsmålstekst, svar)
+    val rader = sporsmal.mapNotNull { spm ->
+        mappings[spm.type]?.let { (key, standardSporsmal) ->
+            key to UtdypendeSporsmalRad(sporsmal = spm.sporsmal ?: standardSporsmal, svar = spm.svar)
+        }
+    }
+
+    return rader
+        .groupBy { (key, _) ->
+            when {
+                key.startsWith(UKE39_PREFIX) -> UKE39_PREFIX
+                key.startsWith(UKE17_PREFIX) -> UKE17_PREFIX
+                key.startsWith(UKE7_PREFIX) -> UKE7_PREFIX
+                else -> throw IllegalArgumentException("Sporsmal mangler gyldig prefiks: $key")
+            }
+        }
+        .map { (seksjon, par) ->
+            UtdypendeGruppe(tittel = utdypendeTittel(seksjon), sporsmal = par.map { it.second })
+        }
+}
 
 fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
     return when (val sykmelding = sykmeldingRecord.sykmelding) {
@@ -538,7 +592,10 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 aktivitet = mapAktivitet(sykmelding.aktivitet),
                 arbeidsevne = mapArbeidsevne(sykmelding.arbeidsgiver, sykmelding.tiltak),
                 meldingTilNav = mapMeldingTilNav(sykmelding.bistandNav, sykmelding.metadata.regelsettVersjon),
-                meldingTilArbeidsgiver = mapMeldingTilArbeidsgiver(sykmelding.arbeidsgiver, sykmelding.metadata.regelsettVersjon),
+                meldingTilArbeidsgiver = mapMeldingTilArbeidsgiver(
+                    sykmelding.arbeidsgiver,
+                    sykmelding.metadata.regelsettVersjon
+                ),
                 tilbakedatering = mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
                 prognose = mapPrognose(sykmelding.prognose, sykmelding.metadata.regelsettVersjon),
                 utdypende = if (sykmeldingRecord.metadata.type == MetadataType.EGENMELDT) emptyList()

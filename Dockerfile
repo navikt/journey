@@ -2,11 +2,8 @@ FROM gcr.io/distroless/java25-debian13@sha256:8ce26d023018ca2f11bf2530cd3a10a7fd
 
 WORKDIR /app
 
-COPY build/libs/app.jar app.jar
-COPY templates /app/templates
-COPY fonts /app/fonts
-COPY resources /app/resources
 COPY typst-pdf /app/typst-pdf
+COPY build/libs/app.jar app.jar
 
 ENV JAVA_OPTS="-Dlogback.configurationFile=logback.xml"
 ENV TZ="Europe/Oslo"
