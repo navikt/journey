@@ -1,6 +1,8 @@
 package no.nav.journey.pdf.typst
 
 import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
+import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
+import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
 import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
 import no.nav.tsm.sykmelding.input.core.model.Pasient
 import no.nav.tsm.sykmelding.input.core.model.RuleType
@@ -21,6 +23,7 @@ data class TypstPayload(
     val syketilfelle: Syketilfelle,
     val pasientopplysninger: Pasientopplysninger,
     val arbeidsgiver: Arbeidsgiver,
+    val diagnose: Diagnose,
 )
 
 /** Ferdigformatert pasientinfo til headeren. */
@@ -66,6 +69,31 @@ data class Arbeidsgiver(
     val navn: String?,
     val yrkesbetegnelse: String?,
     val stillingsprosent: Int?,
+)
+
+/** Seksjon 3 – diagnose. */
+data class Diagnose(
+    val hovedDiagnose: DiagnoseRad?,
+    val biDiagnoser: List<DiagnoseRad>,
+    // 3.3 – annen fraværsgrunn (normalisert på tvers av Digital/Legacy)
+    val annenFravarsgrunn: AnnenFravarsgrunn?,
+    // 3.4 / 3.5 / 3.7 – rene ja-utsagn
+    val svangerskap: Boolean,
+    val yrkesskade: Boolean,
+    val skjermetForPasient: Boolean,
+    // 3.6 – skadedato (kun når yrkesskade)
+    val yrkesskadeDato: String?,
+)
+
+data class AnnenFravarsgrunn(
+    val arsaker: List<String>,
+    val beskrivelse: String?,
+)
+
+data class DiagnoseRad(
+    val system: String,
+    val kode: String,
+    val tekst: String?,
 )
 
 private val DATETIME_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
@@ -124,6 +152,49 @@ fun mapArbeidsgiver(arbeidsgiver: ArbeidsgiverInfo, metadataType: MetadataType):
     )
 }
 
+private fun DiagnoseInfo.toRad(): DiagnoseRad =
+    DiagnoseRad(system = system.name, kode = kode, tekst = tekst)
+
+private fun AnnenFravarArsakType.label(): String = when (this) {
+    AnnenFravarArsakType.GODKJENT_HELSEINSTITUSJON -> "Godkjent helseinstitusjon"
+    AnnenFravarArsakType.BEHANDLING_FORHINDRER_ARBEID -> "Behandling forhindrer arbeid"
+    AnnenFravarArsakType.ARBEIDSRETTET_TILTAK -> "Arbeidsrettet tiltak"
+    AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND -> "Mottar tilskudd grunnet helsetilstand"
+    AnnenFravarArsakType.NODVENDIG_KONTROLLUNDENRSOKELSE -> "Nødvendig kontrollundersøkelse"
+    AnnenFravarArsakType.SMITTEFARE -> "Smittefare"
+    AnnenFravarArsakType.ABORT -> "Abort"
+    AnnenFravarArsakType.UFOR_GRUNNET_BARNLOSHET -> "Ufør grunnet barnløshet"
+    AnnenFravarArsakType.DONOR -> "Donor"
+    AnnenFravarArsakType.BEHANDLING_STERILISERING -> "Behandling/sterilisering"
+}
+
+fun mapDiagnose(medisinskVurdering: MedisinskVurdering): Diagnose =
+    Diagnose(
+        hovedDiagnose = medisinskVurdering.hovedDiagnose?.toRad(),
+        biDiagnoser = medisinskVurdering.biDiagnoser?.map { it.toRad() } ?: emptyList(),
+        annenFravarsgrunn = mapAnnenFravarsgrunn(medisinskVurdering),
+        svangerskap = medisinskVurdering.svangerskap,
+        yrkesskade = medisinskVurdering.yrkesskade != null,
+        skjermetForPasient = medisinskVurdering.skjermetForPasient,
+        yrkesskadeDato = medisinskVurdering.yrkesskade?.yrkesskadeDato?.toDate(),
+    )
+
+private fun mapAnnenFravarsgrunn(medisinskVurdering: MedisinskVurdering): AnnenFravarsgrunn? =
+    when (medisinskVurdering) {
+        is MedisinskVurdering.Digital ->
+            medisinskVurdering.annenFravarsgrunn?.let {
+                AnnenFravarsgrunn(arsaker = listOf(it.label()), beskrivelse = null)
+            }
+
+        is MedisinskVurdering.Legacy ->
+            medisinskVurdering.annenFraversArsak?.let { arsak ->
+                AnnenFravarsgrunn(
+                    arsaker = arsak.arsak?.map { it.label() } ?: emptyList(),
+                    beskrivelse = arsak.beskrivelse,
+                )
+            }
+    }
+
 
 fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
     return when (val sykmelding = sykmeldingRecord.sykmelding) {
@@ -140,6 +211,7 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 syketilfelle = mapSyketilfelle(sykmelding.medisinskVurdering, sykmeldingRecord.metadata.type),
                 pasientopplysninger = mapPasientopplysninger(sykmelding.pasient, sykmelding.metadata.regelsettVersjon),
                 arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
+                diagnose = mapDiagnose(sykmelding.medisinskVurdering),
             )
         }
 
@@ -157,6 +229,7 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                 syketilfelle = mapSyketilfelle(sykmelding.medisinskVurdering, sykmeldingRecord.metadata.type),
                 pasientopplysninger = mapPasientopplysninger(sykmelding.pasient, regelsettVersjon = null),
                 arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
+                diagnose = mapDiagnose(sykmelding.medisinskVurdering),
             )
         }
 
