@@ -5,6 +5,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import no.nav.pdfgen.core.pdf.createHtml
 import no.nav.pdfgen.core.pdf.createPDFA
+import no.nav.journey.pdf.typst.TypstClient
+import no.nav.journey.pdf.typst.TypstPayload
+import no.nav.journey.pdf.typst.buildTypstPayload
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.Aktivitetstype
 import no.nav.tsm.sykmelding.input.core.model.SporsmalSvar
@@ -18,12 +21,14 @@ import kotlin.Pair
 import kotlin.String
 
 @Service
-class PdfService {
+class PdfService(
+    private val typstClient: TypstClient
+) {
     private val uke7Prefix = "6.3"
     private val uke17Prefix = "6.4"
     private val uke39Prefix = "6.5"
 
-    fun spmMapping(prefix: String) : Map<Sporsmalstype, Pair<String, String>> =
+    fun spmMapping(prefix: String): Map<Sporsmalstype, Pair<String, String>> =
         mapOf<Sporsmalstype, Pair<String, String>>(
             Sporsmalstype.MEDISINSK_OPPSUMMERING to ("$prefix.1" to "Gi en kort medisinsk oppsummering av tilstanden (sykehistorie, hovedsymptomer, behandling)"),
             Sporsmalstype.UTFORDRINGER_MED_ARBEID to ("$prefix.2" to "Beskriv kort hvilke utfordringer helsetilstanden gir i arbeidssituasjonen nå. Oppgi også kort hva pasienten likevel kan mestre"),
@@ -35,8 +40,8 @@ class PdfService {
             Sporsmalstype.MEDISINSKE_HENSYN to ("$uke39Prefix.4" to "Er det medisinske hensyn eller avklaringsbehov Nav bør kjenne til i videre oppfølging?")
         )
 
-    fun toUtdypendeOpplysninger(sporsmal: List<UtdypendeSporsmal>?) : Map<String, Map<String, SporsmalSvar>> {
-        if(sporsmal.isNullOrEmpty()) {
+    fun toUtdypendeOpplysninger(sporsmal: List<UtdypendeSporsmal>?): Map<String, Map<String, SporsmalSvar>> {
+        if (sporsmal.isNullOrEmpty()) {
             return emptyMap()
         }
 
@@ -82,11 +87,16 @@ class PdfService {
 
     fun createPdf(sykmeldingRecord: SykmeldingRecord): ByteArray? {
         val pdfPayload = buildPdfPayload(sykmeldingRecord)
+        val typstPayload = buildTypstPayload(sykmeldingRecord)
+
+        val typstPdf = typstClient.createPdf(typstPayload)
 
         val pdf = createHtml("sm", "sm", objectMapper.valueToTree(pdfPayload))?.let { document ->
             createPDFA(document)
         }
+
         return pdf
+        // return typstPdf
 
     }
 
@@ -102,6 +112,7 @@ class PdfService {
                     utdypendeOpplysninger = sykmelding.utdypendeOpplysninger
                 )
             }
+
             is Sykmelding.Digital -> {
                 val sorterteAktiviteter = sykmelding.aktivitet.sorter().groupBy { it.type }
                 PdfPayload(
@@ -112,6 +123,7 @@ class PdfService {
                     utdypendeOpplysninger = toUtdypendeOpplysninger(sykmelding.utdypendeSporsmal)
                 )
             }
+
             else -> throw IllegalArgumentException("Kan ikke bygge pdf payload for type ${sykmelding::class.simpleName}")
         }
     }

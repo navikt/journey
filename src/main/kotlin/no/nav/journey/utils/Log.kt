@@ -8,6 +8,3 @@ inline fun <reified T> T.applog(): Logger {
 }
 inline fun <reified T> T.teamLogger(): Logger =
     LoggerFactory.getLogger("teamlog.${T::class.java.name}")
-
-
-

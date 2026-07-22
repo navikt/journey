@@ -1,27 +1,29 @@
 package no.nav.journey.sykmelding
 
 import no.nav.journey.pdf.PdfService
+import no.nav.journey.pdf.typst.TypstClient
+import no.nav.journey.pdf.typst.buildTypstPayload
 import no.nav.journey.testUtils.digital
 import no.nav.journey.testUtils.extractTextFromPdf
 import no.nav.journey.testUtils.xml
 import no.nav.pdfgen.core.Environment
 import no.nav.pdfgen.core.PDFGenCore
-import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
-import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
-import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
-import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
-import no.nav.tsm.sykmelding.input.core.model.Sporsmalstype
-import no.nav.tsm.sykmelding.input.core.model.UtdypendeSporsmal
-import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
+import no.nav.pdfgen.core.objectMapper
+import no.nav.tsm.sykmelding.input.core.model.*
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.verapdf.gf.foundry.VeraGreenfieldFoundryProvider
 import java.awt.Desktop
 import java.io.File
-import kotlin.test.Ignore
 
 class PdfGenTest {
-    private val pdfService = PdfService()
+    private val pdfService = PdfService(
+        typstClient = TypstClient(
+            typstBinaryPath = "typst-pdf/typst",
+            templatePath = "typst-pdf/sykmelding.typ",
+            fontPath = "typst-pdf/fonts",
+        )
+    )
 
     companion object {
         @JvmStatic
@@ -31,6 +33,17 @@ class PdfGenTest {
             val coreEnvironment = Environment()
             PDFGenCore.init(coreEnvironment)
         }
+    }
+
+    @Test
+    fun genTestData() {
+        val payload = buildTypstPayload(xml.record)
+        val stringied = objectMapper.writeValueAsString(payload)
+
+        // update typst-pdf/test-data/sykmelding.json
+
+        val testDataFile = File("typst-pdf/test-data/sykmelding.json")
+        testDataFile.writeText(stringied)
     }
 
     @Test
