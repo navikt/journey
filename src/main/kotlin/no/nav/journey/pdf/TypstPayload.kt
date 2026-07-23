@@ -2,6 +2,7 @@ package no.nav.journey.pdf
 
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.ArbeidsgiverInfo
+import no.nav.tsm.sykmelding.input.core.model.ArbeidsrelatertArsakType
 import no.nav.tsm.sykmelding.input.core.model.AnnenFravarArsakType
 import no.nav.tsm.sykmelding.input.core.model.AvsenderSystem
 import no.nav.tsm.sykmelding.input.core.model.Behandler
@@ -140,6 +141,7 @@ data class AktivitetRad(
     val antallBehandlingsdager: Int? = null,
     // AKTIVITET_IKKE_MULIG
     val medisinskArsak: AktivitetArsak? = null,
+    val arbeidsrelatertArsak: AktivitetArsak? = null,
 )
 
 data class AktivitetArsak(
@@ -333,6 +335,11 @@ private fun MedisinskArsakType.label(): String = when (this) {
     MedisinskArsakType.ANNET -> "Annet"
 }
 
+private fun ArbeidsrelatertArsakType.label(): String = when (this) {
+    ArbeidsrelatertArsakType.MANGLENDE_TILRETTELEGGING -> "Tilrettelegging ikke mulig"
+    ArbeidsrelatertArsakType.ANNET -> "Annet"
+}
+
 private fun Aktivitet.toRad(): AktivitetRad = when (this) {
     is Aktivitet.Avventende -> AktivitetRad(
         fom = fom.toDate(),
@@ -352,6 +359,9 @@ private fun Aktivitet.toRad(): AktivitetRad = when (this) {
         tom = tom.toDate(),
         medisinskArsak = medisinskArsak?.let {
             AktivitetArsak(arsaker = it.arsak.map(MedisinskArsakType::label), beskrivelse = it.beskrivelse)
+        },
+        arbeidsrelatertArsak = arbeidsrelatertArsak?.let {
+            AktivitetArsak(arsaker = it.arsak.map(ArbeidsrelatertArsakType::label), beskrivelse = it.beskrivelse)
         },
     )
 
