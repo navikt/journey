@@ -246,13 +246,16 @@
     }
 
     block(width: 100%, stroke: black, inset: 1pt, {
-        table(
-            columns: (1fr,),
-            stroke: white,
-            fill: (_, y) => if y == 0 { blue.lighten(60%) },
-            table.header([*4 – Mulighet for arbeid*]),
+        stack(
+            spacing: 0pt,
+            table(
+                columns: (1fr,),
+                stroke: white,
+                fill: (_, y) => if y == 0 { blue.lighten(60%) },
+                table.header([*4 – Mulighet for arbeid*]),
+            ),
+            ..data.aktivitet.map(gruppeBlokk),
         )
-        data.aktivitet.map(gruppeBlokk).join()
     })
 }
 
