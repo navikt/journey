@@ -20,7 +20,9 @@ class TypstClientTest {
         /**
          * no-op test that simply updates the test-data for typst-pdf generation
          */
-        val payload = buildTypstPayload(xml.record)
+        val payload = buildTypstPayload(xml.record.copy(
+            sykmelding = xml.sykmelding.copy(id = "f29c5569-2ff6-40c8-a919-37fbd76958be")
+        ))
         val stringied = typstClient.objectMapper.writeValueAsString(payload)
 
         File("typst-pdf/test-data/sykmelding.json").writeText(stringied)
@@ -100,6 +102,43 @@ class TypstClientTest {
         assert(tekst.contains("svar 6.3.2"))
         assert(tekst.contains("svar 6.3.3"))
 
+    }
+
+    @Test
+    fun `generate pdf for sykmelding med prognose ER_I_ARBEID`() {
+        val record = xml.record.copy(
+            sykmelding = xml.sykmelding.copy(
+                metadata = xml.sykmelding.metadata.copy(regelsettVersjon = "2"),
+                prognose = Prognose(
+                    arbeidsforEtterPeriode = true,
+                    hensynArbeidsplassen = "Trenger tilrettelagt arbeidsplass",
+                    arbeid = IArbeid.ErIArbeid(
+                        egetArbeidPaSikt = true,
+                        annetArbeidPaSikt = false,
+                        arbeidFOM = java.time.LocalDate.of(2026, 8, 1),
+                        vurderingsdato = java.time.LocalDate.of(2026, 8, 15),
+                    ),
+                ),
+            )
+        )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(record))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+        assert(tekst.contains("Pasient med arbeidsgiver: Utdypende opplysninger ved 7 uker")) { "Mangler 'ER_I_ARBEID'-overskrift" }
+        assert(tekst.contains("Beskriv eventuelle hensyn som må tas på arbeidsplassen")) { "Mangler 5.1.1-etikett" }
+        assert(tekst.contains("Trenger tilrettelagt arbeidsplass")) { "Mangler 5.1.1-verdi" }
+        assert(tekst.contains("Jeg antar at pasienten på sikt kan komme tilbake til samme")) { "Mangler 5.2.1" }
+        assert(tekst.contains("Anslå når du tror dette kan skje")) { "Mangler arbeidFOM-etikett" }
+        assert(tekst.contains("01.08.2026")) { "Mangler arbeidFOM-verdi" }
+        assert(tekst.contains("Jeg antar at pasienten på sikt kan komme i arbeid hos annen")) { "Mangler 5.2.2" }
+        assert(tekst.contains("Hvis usikker: Når antar du å kunne gi tilbakemelding på dette?")) { "Mangler 5.2.3" }
+        assert(tekst.contains("15.08.2026")) { "Mangler vurderingsdato-verdi" }
+
+        if (Desktop.isDesktopSupported()) {
+            Desktop.getDesktop().open(fil)
+        }
     }
 
     @Test

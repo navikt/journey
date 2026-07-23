@@ -273,6 +273,13 @@
     [], [#{ verdi }],
 )
 
+// Etikett-rad + verdi-rad for tre-kolonners seksjonstabeller (nr | label+verdi spenner over de to siste kolonnene).
+#let merknadRad3(nr, label, verdi) = (
+    [*#nr*], table.cell(colspan: 2)[*#label*],
+    [], table.cell(colspan: 2)[#{ verdi }],
+)
+
+
 // Seksjon 5 – Friskmelding/Prognose
 #{
     let p = data.prognose
@@ -283,7 +290,7 @@
             table.header([*5*], [*Friskmelding/Prognose*], []),
             [*5.1*], [*Pasienten er 100 prosent arbeidsfør etter denne perioden*], [#jaNei(p.arbeidsforEtterPeriode)],
             ..if p.hensynArbeidsplassen != none {
-                merknadRad("5.1.1", "Beskriv eventuelle hensyn som må tas på arbeidsplassen", p.hensynArbeidsplassen)
+                merknadRad3("5.1.1", "Beskriv eventuelle hensyn som må tas på arbeidsplassen", p.hensynArbeidsplassen)
             } else { () },
             ..if a != none and a.type == "ER_I_ARBEID" {
                 (
