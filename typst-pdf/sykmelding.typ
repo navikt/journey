@@ -223,6 +223,14 @@
                         } else { () } + if r.medisinskArsak.beskrivelse != none {
                             ([*4.3.3.2*], table.cell(colspan: 5)[#{ r.medisinskArsak.beskrivelse }])
                         } else { () }
+                    } else { () } + if r.arbeidsrelatertArsak != none {
+                        (
+                            [*4.3.4*], table.cell(colspan: 5)[*Arbeidsrelaterte årsaker hindrer arbeidsrelatert aktivitet*],
+                        ) + if r.arbeidsrelatertArsak.arsaker.len() > 0 {
+                            ([*4.3.4.1*], table.cell(colspan: 5)[#list(..r.arbeidsrelatertArsak.arsaker.map(a => [#a]))])
+                        } else { () } + if r.arbeidsrelatertArsak.beskrivelse != none {
+                            ([*4.3.4.2*], table.cell(colspan: 5)[#{ r.arbeidsrelatertArsak.beskrivelse }])
+                        } else { () }
                     } else { () }
                 }).flatten(),
             )
