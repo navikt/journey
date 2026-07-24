@@ -29,9 +29,7 @@ fun Application.configureSykmeldingKafkaConsumer() {
                         val records = consumer.poll()
                         for ((key, record) in records) {
                             if (record == null) {
-                                logger.info(
-                                    "Mottok en sykmelding tombstone for ID $key, hopper over"
-                                )
+                                logger.info("Mottok en sykmelding tombstone for ID $key, hopper over")
                                 continue
                             }
 

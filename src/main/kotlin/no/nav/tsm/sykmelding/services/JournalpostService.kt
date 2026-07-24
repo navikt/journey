@@ -49,48 +49,46 @@ class JournalpostService(
     private val teamlog = teamLogger()
 
     @WithSpan
-    suspend fun createJournalpost(
-        sykmelding: SykmeldingRecord
-    ): Either<DokarkivClient.JournalpostError, String> = either {
-        val span = Span.current()
+    suspend fun createJournalpost(sykmelding: SykmeldingRecord): Either<DokarkivClient.JournalpostError, String> =
+        either {
+            val span = Span.current()
 
-        if (!skalOpprettePdf(sykmelding)) {
-            span.setAttribute("journalpost.skipped", true)
-            span.setAttribute("journalpost.type", sykmelding.javaClass.simpleName)
+            if (!skalOpprettePdf(sykmelding)) {
+                span.setAttribute("journalpost.skipped", true)
+                span.setAttribute("journalpost.type", sykmelding.javaClass.simpleName)
 
-            val metadata = sykmelding.metadata
-            val journalpostId =
-                when (metadata) {
-                    is MessageMetadata.Papir -> metadata.journalPostId
-                    is MessageMetadata.Utenlandsk -> metadata.journalPostId
-                    else ->
-                        throw IllegalArgumentException(
-                                "Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} "
-                            )
-                            .failSpan()
-                }
+                val metadata = sykmelding.metadata
+                val journalpostId =
+                    when (metadata) {
+                        is MessageMetadata.Papir -> metadata.journalPostId
+                        is MessageMetadata.Utenlandsk -> metadata.journalPostId
+                        else ->
+                            throw IllegalArgumentException(
+                                    "Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} "
+                                )
+                                .failSpan()
+                    }
 
-            return journalpostId.right()
-        }
+                return journalpostId.right()
+            }
 
-        span.setAttribute("journalpost.skipped", false)
-        val vedlegg = getVedlegg(sykmelding)
-        vedlegg?.forEach {
-            teamlog.info(
-                "vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: type: ${it.type}, content-type: ${it.content.contentType}, description: ${it.description}"
+            span.setAttribute("journalpost.skipped", false)
+            val vedlegg = getVedlegg(sykmelding)
+            vedlegg?.forEach {
+                teamlog.info(
+                    "vedlegg for sykmeldingId ${sykmelding.sykmelding.id}: type: ${it.type}, content-type: ${it.content.contentType}, description: ${it.description}"
+                )
+            }
+
+            val pdf = typstClient.createPdf(buildTypstPayload(sykmelding))
+            val journalpostPayload = createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
+            val response = dokarkivClient.createJournalpost(journalpostPayload).bind()
+
+            logger.info(
+                "Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response.journalpostId}"
             )
+            return response.journalpostId.right()
         }
-
-        val pdf = typstClient.createPdf(buildTypstPayload(sykmelding))
-        val journalpostPayload =
-            createJournalPostRequest(sykmelding, vedlegg, pdf, sykmelding.validation)
-        val response = dokarkivClient.createJournalpost(journalpostPayload).bind()
-
-        logger.info(
-            "Created journalpost for sykmelding ${sykmelding.sykmelding.id}, journalpost: ${response.journalpostId}"
-        )
-        return response.journalpostId.right()
-    }
 
     private fun skalOpprettePdf(sykmeldingRecord: SykmeldingRecord): Boolean {
         return when (sykmeldingRecord.sykmelding) {
@@ -217,8 +215,7 @@ class JournalpostService(
             "image/tiff" -> "TIFF"
             "image/png" -> "PNG"
             "image/jpeg" -> "JPEG"
-            else ->
-                throw RuntimeException("Vedlegget er av av ukjent mimeType ${vedlegg.contentType}")
+            else -> throw RuntimeException("Vedlegget er av av ukjent mimeType ${vedlegg.contentType}")
         }
 
     private fun Sykmelding.createTittleJournalpost(validationResult: ValidationResult): String {
@@ -286,11 +283,7 @@ class JournalpostService(
         try {
             val sykmelderName =
                 pdlClient
-                    .getPerson(
-                        sykmelder.ids
-                            .first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }
-                            .id
-                    )
+                    .getPerson(sykmelder.ids.first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }.id)
                     .fold(
                         {
                             throw IllegalStateException(
@@ -298,18 +291,12 @@ class JournalpostService(
                             )
                         },
                         {
-                            it.navn
-                                ?: throw IllegalStateException(
-                                    "Person has no name in PDL (${sykmeldingId})"
-                                )
+                            it.navn ?: throw IllegalStateException("Person has no name in PDL (${sykmeldingId})")
                         },
                     )
 
             return AvsenderMottaker(
-                id =
-                    hprnummerMedRiktigLengdeOgFormat(
-                        sykmelder.ids.first { it.type == PersonIdType.HPR }.id
-                    ),
+                id = hprnummerMedRiktigLengdeOgFormat(sykmelder.ids.first { it.type == PersonIdType.HPR }.id),
                 idType = "HPRNR",
                 navn = sykmelderName.formatName(),
             )
@@ -330,8 +317,7 @@ class JournalpostService(
             )
         }
         logger.warn("Could not find HPR for behandler, using fnr")
-        val fnr =
-            behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
+        val fnr = behandler.ids.find { it.type == PersonIdType.FNR && validatePersonAndDNumber(it.id) }
         if (fnr != null) {
             return AvsenderMottaker(
                 id = fnr.id,

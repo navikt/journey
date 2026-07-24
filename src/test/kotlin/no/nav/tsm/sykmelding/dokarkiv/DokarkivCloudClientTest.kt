@@ -30,10 +30,7 @@ class DokarkivCloudClientTest {
                 ),
             kafka = mockk(relaxed = true),
             external = {
-                ExternalApis(
-                    dokarkiv =
-                        "https://dokarkiv-q2.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost"
-                )
+                ExternalApis(dokarkiv = "https://dokarkiv-q2.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost")
             },
             bucket = "test-bucket",
         )
@@ -51,7 +48,6 @@ class DokarkivCloudClientTest {
             request.url.encodedPath shouldEqual "/rest/journalpostapi/v1/journalpost"
             request.url.encodedQuery shouldEqual "forsoekFerdigstill=true"
 
-            println(request.headers)
             request.headers["Authorization"] shouldEqual "Bearer test-token"
             request.headers["Nav-Callid"] shouldEqual "ekstern-referanse-id"
 

@@ -90,8 +90,6 @@ suspend inline fun <reified T> ConfluentKafkaContainer.consumeUntil(
                     val value: T = consumerObjectMapper.readValue<T>(record.value())
                     val doWeWant = want(value)
 
-                    println("Topic $topic - key ${record.key()}, does consumer want? $doWeWant")
-
                     if (doWeWant) return@withContext value
                 }
             }

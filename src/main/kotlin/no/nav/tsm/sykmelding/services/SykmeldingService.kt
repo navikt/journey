@@ -51,9 +51,7 @@ class SykmeldingService(
                 )
             )
         } catch (exception: Exception) {
-            logger.error(
-                "failed to send sykmelding to kafka result for sykmeldingId: ${sykmelding.sykmelding.id}"
-            )
+            logger.error("failed to send sykmelding to kafka result for sykmeldingId: ${sykmelding.sykmelding.id}")
             throw exception.failSpan()
         }
     }

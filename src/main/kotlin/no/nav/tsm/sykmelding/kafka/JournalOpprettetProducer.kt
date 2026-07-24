@@ -36,10 +36,7 @@ class JournalOpprettetProducer(environment: Environment) {
             this[ProducerConfig.COMPRESSION_TYPE_CONFIG] = "gzip"
         }
 
-        println("Kafka producer properties: $kafkaProperties")
-
-        producer =
-            KafkaProducer(kafkaProperties, StringSerializer(), JournalKafkaMessageSerializer())
+        producer = KafkaProducer(kafkaProperties, StringSerializer(), JournalKafkaMessageSerializer())
     }
 
     fun opprettJournalpostRecord(journalOpprettet: JournalpostOpprettetRecord) {

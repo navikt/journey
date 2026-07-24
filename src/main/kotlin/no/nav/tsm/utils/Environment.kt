@@ -46,8 +46,6 @@ fun initializeEnvironment(config: ApplicationConfig): Environment {
                 ),
         )
 
-    println(config.config("kafka.config").toMap())
-
     return Environment(
         kafka = kafkaProperties,
         runtime =

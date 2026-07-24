@@ -27,8 +27,7 @@ class JournalpostServiceTest {
     private val bucketService: BucketService = mockk()
     private val dokarkivClient: DokarkivClient = mockk()
     private val pdlClient: PdlClient = mockk()
-    private val journalpostService =
-        JournalpostService(dokarkivClient, bucketService, typstClient, pdlClient)
+    private val journalpostService = JournalpostService(dokarkivClient, bucketService, typstClient, pdlClient)
 
     @Test
     fun `happy case - create journalpost`() = runTest {
