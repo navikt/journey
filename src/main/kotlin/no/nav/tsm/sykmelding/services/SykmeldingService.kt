@@ -2,8 +2,8 @@ package no.nav.tsm.sykmelding.services
 
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.tsm.ktor.otel.failSpan
 import java.util.UUID
+import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.sykmelding.input.core.model.RuleType
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.sykmelding.kafka.JournalOpprettetProducer
