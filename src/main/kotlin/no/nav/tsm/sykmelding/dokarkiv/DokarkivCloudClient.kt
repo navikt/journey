@@ -21,6 +21,7 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.tsm.ktor.auth.texas.TexasClient
 import no.nav.tsm.ktor.auth.texas.TexasTarget
+import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
 import no.nav.tsm.utils.Environment
@@ -76,7 +77,7 @@ class DokarkivCloudClient(
                 } catch (ex: Exception) {
                     logger.error(
                         "Feil ved parsing av response fra dokarkiv when status = CONFLICT",
-                        ex,
+                        ex.failSpan(),
                     )
                     DokarkivClient.JournalpostError.MALFORMED_CONFLICT.left()
                 }
@@ -85,7 +86,7 @@ class DokarkivCloudClient(
             response.status == HttpStatusCode.NotFound -> {
                 span.setAttribute("dokrakiv.status", "not_found")
                 logger.error(
-                    "Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}"
+                    "Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}".failSpan()
                 )
                 DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
             }
@@ -93,7 +94,7 @@ class DokarkivCloudClient(
             else -> {
                 span.setAttribute("dokrakiv.status", "error")
                 logger.error(
-                    "Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}, status=${response.status}}"
+                    "Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}, status=${response.status}}".failSpan()
                 )
                 DokarkivClient.JournalpostError.UNKNOWN_ERROR.left()
             }

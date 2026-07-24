@@ -3,6 +3,9 @@ package no.nav.tsm.sykmelding.services
 import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.right
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
+import no.nav.tsm.ktor.otel.failSpan
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -45,10 +48,16 @@ class JournalpostService(
     private val logger = logger()
     private val teamlog = teamLogger()
 
+    @WithSpan
     suspend fun createJournalpost(
         sykmelding: SykmeldingRecord
     ): Either<DokarkivClient.JournalpostError, String> = either {
+        val span = Span.current()
+
         if (!skalOpprettePdf(sykmelding)) {
+            span.setAttribute("journalpost.skipped", true)
+            span.setAttribute("journalpost.type", sykmelding.javaClass.simpleName)
+
             val metadata = sykmelding.metadata
             val journalpostId =
                 when (metadata) {
@@ -57,11 +66,13 @@ class JournalpostService(
                     else ->
                         throw IllegalArgumentException(
                             "Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} "
-                        )
+                        ).failSpan()
                 }
+
             return journalpostId.right()
         }
 
+        span.setAttribute("journalpost.skipped", false)
         val vedlegg = getVedlegg(sykmelding)
         vedlegg?.forEach {
             teamlog.info(
@@ -237,7 +248,7 @@ class JournalpostService(
                 aktiviteter.sortedSykmeldingPeriodeFOMDate().first().fom
             )
         } -" +
-            " ${
+                " ${
                     formaterDato(
                         aktiviteter.sortedSykmeldingPeriodeTOMDate().last().tom
                     )
