@@ -96,6 +96,12 @@ class DokarkivCloudClient(
                 logger.error(
                     "Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}, status=${response.status}}".failSpan()
                 )
+                // See if there is any response body to log, but don't fail if it can't be read
+                try {
+                    response.body<String>().failSpan()
+                } catch (_: Exception) {
+                }
+
                 DokarkivClient.JournalpostError.UNKNOWN_ERROR.left()
             }
         }
