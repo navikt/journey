@@ -9,18 +9,20 @@ import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.accept
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
-import io.ktor.http.headers
 import io.ktor.http.isSuccess
 import io.ktor.serialization.jackson.jackson
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.tsm.ktor.auth.texas.TexasClient
 import no.nav.tsm.ktor.auth.texas.TexasTarget
+import no.nav.tsm.ktor.auth.texas.TexasToken
 import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
@@ -56,10 +58,8 @@ class DokarkivCloudClient(
             httpClient.post("${environment.external().dokarkiv}?forsoekFerdigstill=true") {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                headers {
-                    append("Authorization", "Bearer $accessToken")
-                    append("Nav-Callid", journalpostRequest.eksternReferanseId)
-                }
+                bearerAuth(accessToken)
+                headers { append("Nav-Callid", journalpostRequest.eksternReferanseId) }
                 setBody(journalpostRequest)
             }
 
@@ -86,7 +86,8 @@ class DokarkivCloudClient(
             response.status == HttpStatusCode.NotFound -> {
                 span.setAttribute("dokrakiv.status", "not_found")
                 logger.error(
-                    "Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}".failSpan()
+                    "Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}"
+                        .failSpan()
                 )
                 DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
             }
@@ -94,20 +95,20 @@ class DokarkivCloudClient(
             else -> {
                 span.setAttribute("dokrakiv.status", "error")
                 logger.error(
-                    "Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}, status=${response.status}}".failSpan()
+                    "Oppretting av journalpost feilet for callid=${journalpostRequest.eksternReferanseId}, status=${response.status}}"
+                        .failSpan()
                 )
                 // See if there is any response body to log, but don't fail if it can't be read
                 try {
                     response.body<String>().failSpan()
-                } catch (_: Exception) {
-                }
+                } catch (_: Exception) {}
 
                 DokarkivClient.JournalpostError.UNKNOWN_ERROR.left()
             }
         }
     }
 
-    suspend fun getToken() =
+    suspend fun getToken(): TexasToken =
         texasClient.entraIdToken(
             namespace = "teamdokumenthandtering",
             app = "dokarkiv",

@@ -5,11 +5,11 @@ import arrow.core.raise.either
 import arrow.core.right
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.tsm.ktor.otel.failSpan
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Base64
+import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.pdf.buildTypstPayload
 import no.nav.tsm.pdf.imageToPDFA
@@ -65,8 +65,9 @@ class JournalpostService(
                     is MessageMetadata.Utenlandsk -> metadata.journalPostId
                     else ->
                         throw IllegalArgumentException(
-                            "Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} "
-                        ).failSpan()
+                                "Could not find journalpostId in metadata, sykmeldingId: ${sykmelding.sykmelding.id} "
+                            )
+                            .failSpan()
                 }
 
             return journalpostId.right()
@@ -248,7 +249,7 @@ class JournalpostService(
                 aktiviteter.sortedSykmeldingPeriodeFOMDate().first().fom
             )
         } -" +
-                " ${
+            " ${
                     formaterDato(
                         aktiviteter.sortedSykmeldingPeriodeTOMDate().last().tom
                     )
