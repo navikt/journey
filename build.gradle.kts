@@ -1,87 +1,72 @@
-val kafkaClientsVersion = "3.9.1"
-val logstashLogbackEncoderVersion = "9.0"
-val jacksonVersion= "2.22.1"
-val googleCloudStorageVersion = "2.70.0"
-val prometheusVersion = "0.16.0"
-val mockitoKotlinVersion = "6.1.0"
-val testContainersVersion = "1.21.3"
-val mockkVersion = "1.14.6"
-val syfoXmlCodegenVersion = "2.0.1"
-val jaxbRuntimeVersion = "2.4.0-b180830.0438"
-val jaxbApiVersion = "2.4.0-b180830.0359"
-val javaTimeAdapterVersion = "1.1.3"
-val opentelemetryLogbackMdcVersion = "2.21.0-alpha"
-val pdfboxVersion = "3.0.8"
-val tikaVersion = "3.2.3"
-val sykmelidngInputVersion = "27"
+import com.diffplug.gradle.spotless.SpotlessExtension
 
 plugins {
-	kotlin("jvm") version "2.2.21"
-	kotlin("plugin.spring") version "2.2.21"
-	id("org.springframework.boot") version "3.5.16"
-	id("io.spring.dependency-management") version "1.1.7"
+    alias(libs.plugins.kotlin.jvm)
+    alias(ktorLibs.plugins.ktor)
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.gradle.versions)
 }
 
 group = "no.nav.tsm"
-version = "0.0.2"
-java.sourceCompatibility = JavaVersion.VERSION_21
+version = "1.0.0-SNAPSHOT"
 
-repositories {
-	mavenCentral()
-	maven(url = "https://packages.confluent.io/maven/")
-	maven {
-		url = uri("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
-	}
+application {
+    mainClass = "io.ktor.server.netty.EngineMain"
 }
 
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter")
-	implementation("org.springframework.boot:spring-boot-starter-actuator")
-	implementation("org.springframework.boot:spring-boot-starter-web")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.springframework.kafka:spring-kafka")
-	implementation("org.hibernate.validator:hibernate-validator")
-	implementation("io.micrometer:micrometer-registry-prometheus")
-	implementation("io.prometheus:simpleclient_hotspot:$prometheusVersion")
-	implementation("io.prometheus:simpleclient_common:$prometheusVersion")
-	implementation("org.apache.kafka:kafka-clients:$kafkaClientsVersion")
-	implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
-	implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-	implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-	implementation("no.nav.helse.xml:sm2013:$syfoXmlCodegenVersion")
-	implementation("no.nav.helse.xml:xmlfellesformat:$syfoXmlCodegenVersion")
-	implementation("no.nav.helse.xml:kith-hodemelding:$syfoXmlCodegenVersion")
-	implementation("no.nav.helse.xml:kith-apprec:$syfoXmlCodegenVersion")
-	implementation("javax.xml.bind:jaxb-api:$jaxbApiVersion")
-	implementation("org.glassfish.jaxb:jaxb-runtime:$jaxbRuntimeVersion")
-	implementation("com.migesok", "jaxb-java-time-adapters", javaTimeAdapterVersion)
-	implementation("com.google.cloud:google-cloud-storage:$googleCloudStorageVersion")
-	implementation("org.apache.pdfbox:pdfbox:$pdfboxVersion")
-	implementation("org.apache.pdfbox:xmpbox:$pdfboxVersion")
-	implementation("io.opentelemetry.instrumentation:opentelemetry-logback-mdc-1.0:$opentelemetryLogbackMdcVersion")
-	implementation("no.nav.tsm.sykmelding", "input", sykmelidngInputVersion)
-
-	testImplementation("org.apache.tika:tika-core:$tikaVersion")
-	testImplementation("org.apache.tika:tika-parsers-standard-package:$tikaVersion")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-	testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
-	testImplementation("io.mockk:mockk:$mockkVersion")
-	testImplementation(kotlin("test"))
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+kotlin {
+    jvmToolchain(21)
 }
 
 tasks {
-	bootJar {
-		archiveFileName = "app.jar"
-		duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-	}
-	test {
-		useJUnitPlatform()
-		testLogging {
-			events("skipped", "failed")
-			showStackTraces = true
-			exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-		}
-	}
+    configure<SpotlessExtension> {
+        kotlin { ktfmt("0.64").kotlinlangStyle().configure {
+            it.setMaxWidth(120)
+            it.setContinuationIndent(4)
+        } }
+        check {
+            dependsOn("spotlessApply")
+        }
+    }
+}
+
+dependencies {
+    implementation(ktorLibs.serialization.jackson)
+    implementation(ktorLibs.server.contentNegotiation)
+    implementation(ktorLibs.server.core)
+    implementation(ktorLibs.server.di)
+    implementation(ktorLibs.server.netty)
+    implementation(ktorLibs.server.metrics.micrometer)
+    implementation(ktorLibs.client.core)
+    implementation(ktorLibs.client.apache5)
+    implementation(ktorLibs.client.contentNegotiation)
+
+    implementation(libs.micrometer.registryPrometheus)
+    implementation(libs.hayden.khealth)
+    implementation(libs.logback.classic)
+    implementation(libs.logback.encoder)
+    implementation(libs.apache.pdfbox)
+    implementation(libs.apache.xmpbox)
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
+    implementation(libs.google.cloud.storage)
+
+    implementation(libs.tsm.sykmeldinger.input)
+    implementation(libs.tsm.ktor)
+
+    // old xml libs we need for vedlegg
+    implementation(libs.helse.xml.sm2013)
+    implementation(libs.helse.xml.fellesformat)
+    implementation(libs.helse.xml.hodemelding)
+    implementation(libs.helse.xml.apprec)
+    implementation(libs.jaxb.api)
+    implementation(libs.jaxb.java.time.adapters)
+    implementation(libs.jaxb.runtime)
+
+    testImplementation(kotlin("test"))
+    testImplementation(ktorLibs.server.testHost)
+    testImplementation(ktorLibs.client.mock)
+    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.mockk)
+    testImplementation(libs.testcontainers.kafka)
 }

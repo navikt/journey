@@ -14,8 +14,6 @@
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="io.swagger.codegen.v3.generators" level="WARN"/>
     <logger name="org.apache.kafka.clients.consumer" level="WARN"/>
-    <logger name="org.testcontainers" level="WARN"/>
-    <logger name="org.apache.kafka" level="WARN"/>
 
     <!-- When running local, lets log debug for our own stuff -->
     <logger name="no.nav.tsm" level="DEBUG"/>
