@@ -65,4 +65,5 @@ dependencies {
     testImplementation(ktorLibs.client.mock)
     testImplementation(libs.kotest.assertions)
     testImplementation(libs.mockk)
+    testImplementation(libs.testcontainers.kafka)
 }
