@@ -147,11 +147,7 @@ private object shared {
                         OffsetDateTime.now(),
                         ValidationType.MANUAL,
                         Reason(
-                            "Den som\n" +
-                                "skrev\n" +
-                                "sykmeldingen\n" +
-                                "mangler\n" +
-                                "autorisasjon",
+                            "Den som\n" + "skrev\n" + "sykmeldingen\n" + "mangler\n" + "autorisasjon",
                             "Behandler er manuellterapeut/kiropraktor eller\n" +
                                 "fysioterapeut med autorisasjon har angitt annen\n" +
                                 "diagnose enn kapitel L (muskel og\n" +
@@ -163,11 +159,7 @@ private object shared {
                         ValidationType.MANUAL,
                         OffsetDateTime.now(),
                         Reason(
-                            "Den som\n" +
-                                "skrev\n" +
-                                "sykmeldingen\n" +
-                                "mangler\n" +
-                                "autorisasjon",
+                            "Den som\n" + "skrev\n" + "sykmeldingen\n" + "mangler\n" + "autorisasjon",
                             "Behandler er manuellterapeut/kiropraktor eller\n" +
                                 "fysioterapeut med autorisasjon har angitt annen\n" +
                                 "diagnose enn kapitel L (muskel og\n" +

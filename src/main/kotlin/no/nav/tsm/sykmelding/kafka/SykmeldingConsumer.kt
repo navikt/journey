@@ -60,9 +60,7 @@ class SykmeldingConsumer(environment: Environment) {
         consumer.unsubscribe()
     }
 
-    private fun tryParse(
-        record: ConsumerRecord<String, ByteArray?>
-    ): Pair<String, SykmeldingRecord?> =
+    private fun tryParse(record: ConsumerRecord<String, ByteArray?>): Pair<String, SykmeldingRecord?> =
         try {
             return record.key() to record.value()?.let { parseAndMapSykmelding(it) }
         } catch (ex: Exception) {

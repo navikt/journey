@@ -11,7 +11,5 @@ interface DokarkivClient {
         UNKNOWN_ERROR,
     }
 
-    suspend fun createJournalpost(
-        journalpostRequest: JournalpostRequest
-    ): Either<JournalpostError, JournalpostResponse>
+    suspend fun createJournalpost(journalpostRequest: JournalpostRequest): Either<JournalpostError, JournalpostResponse>
 }

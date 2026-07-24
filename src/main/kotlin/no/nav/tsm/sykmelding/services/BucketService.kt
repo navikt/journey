@@ -27,9 +27,7 @@ class BucketService(
         return if (blob != null && blob.exists()) {
             val content = blob.getContent()
             Metrics.storageDownloadCounter.increment()
-            logger.info(
-                "Downloaded ${content.size / 1024} KB vedlegg from sykmeldingId $sykmeldingId"
-            )
+            logger.info("Downloaded ${content.size / 1024} KB vedlegg from sykmeldingId $sykmeldingId")
             XmlHandler.unmarshal(content.toString(Charsets.UTF_8))
         } else {
             Metrics.storageNotFoundCounter.increment()

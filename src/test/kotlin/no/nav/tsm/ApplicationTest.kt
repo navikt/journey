@@ -30,113 +30,111 @@ class ApplicationTest : WithKafka() {
     }
 
     @Test
-    fun `should consume, create PDF, update dokarkiv and produce journalpost record`() =
-        testApplication {
-            val mockedDokarkiv = mockk<DokarkivClient>()
+    fun `should consume, create PDF, update dokarkiv and produce journalpost record`() = testApplication {
+        val mockedDokarkiv = mockk<DokarkivClient>()
 
-            application {
-                dependencies {
-                    provide<Environment>() { createIntegrationEnvironment(kafka) }
-                    provide<TypstClient>() {
-                        TypstClient(
-                            typstBinaryPath = "typst-pdf/typst",
-                            templatePath = "typst-pdf/sykmelding.typ",
-                            fontPath = "typst-pdf/fonts",
-                        )
-                    }
-                    provide<DokarkivClient>() { mockedDokarkiv }
+        application {
+            dependencies {
+                provide<Environment>() { createIntegrationEnvironment(kafka) }
+                provide<TypstClient>() {
+                    TypstClient(
+                        typstBinaryPath = "typst-pdf/typst",
+                        templatePath = "typst-pdf/sykmelding.typ",
+                        fontPath = "typst-pdf/fonts",
+                    )
                 }
-
-                module()
+                provide<DokarkivClient>() { mockedDokarkiv }
             }
 
-            startApplication()
-
-            coEvery { mockedDokarkiv.createJournalpost(any()) } answers
-                {
-                    JournalpostResponse(
-                            dokumenter = emptyList(),
-                            journalpostId = "123",
-                            journalpostferdigstilt = true,
-                            journalstatus = null,
-                            melding = null,
-                        )
-                        .right()
-                }
-
-            kafka.produce(
-                "tsm.sykmeldinger",
-                "22dfdd7e-7f78-43c7-b5fa-0329db943bfb",
-                getFullDigitalSykmeldingExample(),
-            )
-
-            val record =
-                kafka.consumeUntil<JournalpostOpprettetRecord>(
-                    "teamsykmelding.oppgave-journal-opprettet",
-                    want = { it.journalpostId == "123" },
-                    timeout = java.time.Duration.ofSeconds(20),
-                )
-
-            coVerify(exactly = 1) { mockedDokarkiv.createJournalpost(any()) }
-
-            record.journalpostId shouldEqual "123"
-            record.journalpostKilde shouldEqual "AS36"
+            module()
         }
 
-    @Test
-    fun `failing to create journalpost should not commit and gracefully retry later`() =
-        testApplication {
-            val mockedDokarkiv = mockk<DokarkivClient>()
+        startApplication()
 
-            application {
-                dependencies {
-                    provide<Environment>() { createIntegrationEnvironment(kafka) }
-                    provide<TypstClient>() {
-                        TypstClient(
-                            typstBinaryPath = "typst-pdf/typst",
-                            templatePath = "typst-pdf/sykmelding.typ",
-                            fontPath = "typst-pdf/fonts",
-                        )
-                    }
-                    provide<DokarkivClient>() { mockedDokarkiv }
-                }
-
-                module()
-            }
-
-            startApplication()
-
-            coEvery { mockedDokarkiv.createJournalpost(any()) } answers
-                {
-                    DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
-                } andThen
+        coEvery { mockedDokarkiv.createJournalpost(any()) } answers
+            {
                 JournalpostResponse(
                         dokumenter = emptyList(),
-                        journalpostId = "999",
+                        journalpostId = "123",
                         journalpostferdigstilt = true,
                         journalstatus = null,
                         melding = null,
                     )
                     .right()
+            }
 
-            kafka.produce(
-                "tsm.sykmeldinger",
-                "22dfdd7e-7f78-43c7-b5fa-0329db943bfb",
-                getFullDigitalSykmeldingExample(),
+        kafka.produce(
+            "tsm.sykmeldinger",
+            "22dfdd7e-7f78-43c7-b5fa-0329db943bfb",
+            getFullDigitalSykmeldingExample(),
+        )
+
+        val record =
+            kafka.consumeUntil<JournalpostOpprettetRecord>(
+                "teamsykmelding.oppgave-journal-opprettet",
+                want = { it.journalpostId == "123" },
+                timeout = java.time.Duration.ofSeconds(20),
             )
 
-            val record =
-                kafka.consumeUntil<JournalpostOpprettetRecord>(
-                    "teamsykmelding.oppgave-journal-opprettet",
-                    want = { it.journalpostId == "999" },
-                    timeout = java.time.Duration.ofSeconds(20),
-                )
+        coVerify(exactly = 1) { mockedDokarkiv.createJournalpost(any()) }
 
-            coVerify(exactly = 2) { mockedDokarkiv.createJournalpost(any()) }
+        record.journalpostId shouldEqual "123"
+        record.journalpostKilde shouldEqual "AS36"
+    }
 
-            record.journalpostId shouldEqual "999"
-            record.journalpostKilde shouldEqual "AS36"
+    @Test
+    fun `failing to create journalpost should not commit and gracefully retry later`() = testApplication {
+        val mockedDokarkiv = mockk<DokarkivClient>()
+
+        application {
+            dependencies {
+                provide<Environment>() { createIntegrationEnvironment(kafka) }
+                provide<TypstClient>() {
+                    TypstClient(
+                        typstBinaryPath = "typst-pdf/typst",
+                        templatePath = "typst-pdf/sykmelding.typ",
+                        fontPath = "typst-pdf/fonts",
+                    )
+                }
+                provide<DokarkivClient>() { mockedDokarkiv }
+            }
+
+            module()
         }
+
+        startApplication()
+
+        coEvery { mockedDokarkiv.createJournalpost(any()) } answers
+            {
+                DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
+            } andThen
+            JournalpostResponse(
+                    dokumenter = emptyList(),
+                    journalpostId = "999",
+                    journalpostferdigstilt = true,
+                    journalstatus = null,
+                    melding = null,
+                )
+                .right()
+
+        kafka.produce(
+            "tsm.sykmeldinger",
+            "22dfdd7e-7f78-43c7-b5fa-0329db943bfb",
+            getFullDigitalSykmeldingExample(),
+        )
+
+        val record =
+            kafka.consumeUntil<JournalpostOpprettetRecord>(
+                "teamsykmelding.oppgave-journal-opprettet",
+                want = { it.journalpostId == "999" },
+                timeout = java.time.Duration.ofSeconds(20),
+            )
+
+        coVerify(exactly = 2) { mockedDokarkiv.createJournalpost(any()) }
+
+        record.journalpostId shouldEqual "999"
+        record.journalpostKilde shouldEqual "AS36"
+    }
 }
 
 private fun getFullDigitalSykmeldingExample() =

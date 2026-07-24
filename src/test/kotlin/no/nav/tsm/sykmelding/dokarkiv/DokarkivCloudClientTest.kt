@@ -30,10 +30,7 @@ class DokarkivCloudClientTest {
                 ),
             kafka = mockk(relaxed = true),
             external = {
-                ExternalApis(
-                    dokarkiv =
-                        "https://dokarkiv-q2.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost"
-                )
+                ExternalApis(dokarkiv = "https://dokarkiv-q2.dev-fss-pub.nais.io/rest/journalpostapi/v1/journalpost")
             },
             bucket = "test-bucket",
         )

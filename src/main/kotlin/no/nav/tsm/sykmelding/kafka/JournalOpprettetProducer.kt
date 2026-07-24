@@ -38,8 +38,7 @@ class JournalOpprettetProducer(environment: Environment) {
 
         println("Kafka producer properties: $kafkaProperties")
 
-        producer =
-            KafkaProducer(kafkaProperties, StringSerializer(), JournalKafkaMessageSerializer())
+        producer = KafkaProducer(kafkaProperties, StringSerializer(), JournalKafkaMessageSerializer())
     }
 
     fun opprettJournalpostRecord(journalOpprettet: JournalpostOpprettetRecord) {

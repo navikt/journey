@@ -261,8 +261,7 @@ fun mapSyketilfelle(
 ): Syketilfelle =
     Syketilfelle(
         egenmeldt = metadataType == MetadataType.EGENMELDT,
-        startdato =
-            (medisinskVurdering as? MedisinskVurdering.Legacy)?.syketilfelletStartDato?.toDate(),
+        startdato = (medisinskVurdering as? MedisinskVurdering.Legacy)?.syketilfelletStartDato?.toDate(),
     )
 
 fun mapPasientopplysninger(pasient: Pasient, regelsettVersjon: String?): Pasientopplysninger =
@@ -277,9 +276,7 @@ fun mapPasientopplysninger(pasient: Pasient, regelsettVersjon: String?): Pasient
     )
 
 fun mapArbeidsgiver(arbeidsgiver: ArbeidsgiverInfo, metadataType: MetadataType): Arbeidsgiver {
-    val navn =
-        (arbeidsgiver as? ArbeidsgiverInfo.En)?.navn
-            ?: (arbeidsgiver as? ArbeidsgiverInfo.Flere)?.navn
+    val navn = (arbeidsgiver as? ArbeidsgiverInfo.En)?.navn ?: (arbeidsgiver as? ArbeidsgiverInfo.Flere)?.navn
     val yrkesbetegnelse =
         (arbeidsgiver as? ArbeidsgiverInfo.En)?.yrkesbetegnelse
             ?: (arbeidsgiver as? ArbeidsgiverInfo.Flere)?.yrkesbetegnelse
@@ -295,16 +292,14 @@ fun mapArbeidsgiver(arbeidsgiver: ArbeidsgiverInfo, metadataType: MetadataType):
     )
 }
 
-private fun DiagnoseInfo.toRad(): DiagnoseRad =
-    DiagnoseRad(system = system.name, kode = kode, tekst = tekst)
+private fun DiagnoseInfo.toRad(): DiagnoseRad = DiagnoseRad(system = system.name, kode = kode, tekst = tekst)
 
 private fun AnnenFravarArsakType.label(): String =
     when (this) {
         AnnenFravarArsakType.GODKJENT_HELSEINSTITUSJON -> "Godkjent helseinstitusjon"
         AnnenFravarArsakType.BEHANDLING_FORHINDRER_ARBEID -> "Behandling forhindrer arbeid"
         AnnenFravarArsakType.ARBEIDSRETTET_TILTAK -> "Arbeidsrettet tiltak"
-        AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND ->
-            "Mottar tilskudd grunnet helsetilstand"
+        AnnenFravarArsakType.MOTTAR_TILSKUDD_GRUNNET_HELSETILSTAND -> "Mottar tilskudd grunnet helsetilstand"
         AnnenFravarArsakType.NODVENDIG_KONTROLLUNDENRSOKELSE -> "Nødvendig kontrollundersøkelse"
         AnnenFravarArsakType.SMITTEFARE -> "Smittefare"
         AnnenFravarArsakType.ABORT -> "Abort"
@@ -423,8 +418,7 @@ fun mapAktivitet(aktiviteter: List<Aktivitet>): List<AktivitetGruppe> =
 
 private val ArbeidsgiverInfo.tiltakArbeidsplassen: String?
     get() =
-        (this as? ArbeidsgiverInfo.En)?.tiltakArbeidsplassen
-            ?: (this as? ArbeidsgiverInfo.Flere)?.tiltakArbeidsplassen
+        (this as? ArbeidsgiverInfo.En)?.tiltakArbeidsplassen ?: (this as? ArbeidsgiverInfo.Flere)?.tiltakArbeidsplassen
 
 private val ArbeidsgiverInfo.meldingTilArbeidsgiver: String?
     get() =
@@ -494,8 +488,7 @@ fun mapBekreftelse(
     Bekreftelse(
         egenmeldt = metadataType == MetadataType.EGENMELDT,
         bekreftelsesdato = bekreftelsesdato,
-        sykmeldersNavn =
-            fulltNavn(behandler.navn.fornavn, behandler.navn.mellomnavn, behandler.navn.etternavn),
+        sykmeldersNavn = fulltNavn(behandler.navn.fornavn, behandler.navn.mellomnavn, behandler.navn.etternavn),
         hprNummer = behandler.ids.hpr(),
         telefon = behandler.kontaktinfo.firstOrNull { it.type == KontaktinfoType.TLF }?.value,
         adresse =
@@ -610,8 +603,8 @@ private fun spmMapping(prefix: String): Map<Sporsmalstype, Pair<String, String>>
     )
 
 /**
- * Digital: flat liste normaliseres til samme grupperte struktur som Legacy. Delnøkkel og standard
- * spørsmålstekst utledes per spørsmålstype, deretter grupperes det på seksjon (6.3/6.4/6.5).
+ * Digital: flat liste normaliseres til samme grupperte struktur som Legacy. Delnøkkel og standard spørsmålstekst
+ * utledes per spørsmålstype, deretter grupperes det på seksjon (6.3/6.4/6.5).
  */
 fun mapUtdypendeDigital(sporsmal: List<UtdypendeSporsmal>?): List<UtdypendeGruppe> {
     if (sporsmal.isNullOrEmpty()) return emptyList()
@@ -622,17 +615,14 @@ fun mapUtdypendeDigital(sporsmal: List<UtdypendeSporsmal>?): List<UtdypendeGrupp
             sporsmal.any { it.type == Sporsmalstype.BEHANDLING_OG_FREMTIDIG_ARBEID } -> UKE17_PREFIX
             sporsmal.any { it.type == Sporsmalstype.UTFORDRINGER_MED_GRADERT_ARBEID } -> UKE7_PREFIX
             else ->
-                throw IllegalArgumentException(
-                    "Utdypende sporsmal mangler gyldig prefiks: ${sporsmal.first().type}"
-                )
+                throw IllegalArgumentException("Utdypende sporsmal mangler gyldig prefiks: ${sporsmal.first().type}")
         }
 
     val mappings = spmMapping(prefix)
     // key -> (spørsmålstekst, svar)
     val rader = sporsmal.mapNotNull { spm ->
         mappings[spm.type]?.let { (key, standardSporsmal) ->
-            key to
-                UtdypendeSporsmalRad(sporsmal = spm.sporsmal ?: standardSporsmal, svar = spm.svar)
+            key to UtdypendeSporsmalRad(sporsmal = spm.sporsmal ?: standardSporsmal, svar = spm.svar)
         }
     }
 
@@ -663,27 +653,23 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                         mottattDato = sykmelding.metadata.mottattDato.toDateTime(),
                         behandletDato = sykmelding.metadata.behandletTidspunkt.toDate(),
                     ),
-                syketilfelle =
-                    mapSyketilfelle(sykmelding.medisinskVurdering, sykmeldingRecord.metadata.type),
+                syketilfelle = mapSyketilfelle(sykmelding.medisinskVurdering, sykmeldingRecord.metadata.type),
                 pasientopplysninger =
                     mapPasientopplysninger(
                         sykmelding.pasient,
                         sykmelding.metadata.regelsettVersjon,
                     ),
-                arbeidsgiver =
-                    mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
+                arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
                 diagnose = mapDiagnose(sykmelding.medisinskVurdering),
                 aktivitet = mapAktivitet(sykmelding.aktivitet),
                 arbeidsevne = mapArbeidsevne(sykmelding.arbeidsgiver, sykmelding.tiltak),
-                meldingTilNav =
-                    mapMeldingTilNav(sykmelding.bistandNav, sykmelding.metadata.regelsettVersjon),
+                meldingTilNav = mapMeldingTilNav(sykmelding.bistandNav, sykmelding.metadata.regelsettVersjon),
                 meldingTilArbeidsgiver =
                     mapMeldingTilArbeidsgiver(
                         sykmelding.arbeidsgiver,
                         sykmelding.metadata.regelsettVersjon,
                     ),
-                tilbakedatering =
-                    mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
+                tilbakedatering = mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
                 prognose = mapPrognose(sykmelding.prognose, sykmelding.metadata.regelsettVersjon),
                 utdypende =
                     if (sykmeldingRecord.metadata.type == MetadataType.EGENMELDT) emptyList()
@@ -714,20 +700,15 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
                         // Digital har ingen behandletTidspunkt – faller tilbake til mottattDato.
                         behandletDato = sykmelding.metadata.mottattDato.toDate(),
                     ),
-                syketilfelle =
-                    mapSyketilfelle(sykmelding.medisinskVurdering, sykmeldingRecord.metadata.type),
-                pasientopplysninger =
-                    mapPasientopplysninger(sykmelding.pasient, regelsettVersjon = null),
-                arbeidsgiver =
-                    mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
+                syketilfelle = mapSyketilfelle(sykmelding.medisinskVurdering, sykmeldingRecord.metadata.type),
+                pasientopplysninger = mapPasientopplysninger(sykmelding.pasient, regelsettVersjon = null),
+                arbeidsgiver = mapArbeidsgiver(sykmelding.arbeidsgiver, sykmeldingRecord.metadata.type),
                 diagnose = mapDiagnose(sykmelding.medisinskVurdering),
                 aktivitet = mapAktivitet(sykmelding.aktivitet),
                 arbeidsevne = mapArbeidsevne(sykmelding.arbeidsgiver, tiltak = null),
                 meldingTilNav = mapMeldingTilNav(sykmelding.bistandNav, regelsettVersjon = null),
-                meldingTilArbeidsgiver =
-                    mapMeldingTilArbeidsgiver(sykmelding.arbeidsgiver, regelsettVersjon = null),
-                tilbakedatering =
-                    mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
+                meldingTilArbeidsgiver = mapMeldingTilArbeidsgiver(sykmelding.arbeidsgiver, regelsettVersjon = null),
+                tilbakedatering = mapTilbakedatering(sykmelding.tilbakedatering, sykmeldingRecord.metadata.type),
                 prognose = null, // Digital har ingen prognose
                 utdypende =
                     if (sykmeldingRecord.metadata.type == MetadataType.EGENMELDT) emptyList()
@@ -747,9 +728,6 @@ fun buildTypstPayload(sykmeldingRecord: SykmeldingRecord): TypstPayload {
             )
         }
 
-        else ->
-            throw IllegalArgumentException(
-                "Kan ikke bygge pdf payload for type ${sykmelding::class.simpleName}"
-            )
+        else -> throw IllegalArgumentException("Kan ikke bygge pdf payload for type ${sykmelding::class.simpleName}")
     }
 }

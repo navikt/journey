@@ -23,15 +23,12 @@ fun validatePersonDNumberMod11(personNumber: String): Boolean {
     val checksum1Final = if (checksum1 == 0) 0 else 11 - checksum1
     val checksum2Final = if (checksum2 == 0) 0 else 11 - checksum2
 
-    return checksum1Final != 10 &&
-        personNumber[9] - '0' == checksum1Final &&
-        personNumber[10] - '0' == checksum2Final
+    return checksum1Final != 10 && personNumber[9] - '0' == checksum1Final && personNumber[10] - '0' == checksum2Final
 }
 
 fun validatePersonAndPersonDNumberRange(personNumber: String): Boolean {
     val personNumberBornDay = personNumber.take(2)
-    return validatePersonNumberRange(personNumberBornDay) ||
-        validatePersonDNumberRange(personNumberBornDay)
+    return validatePersonNumberRange(personNumberBornDay) || validatePersonDNumberRange(personNumberBornDay)
 }
 
 fun validatePersonAndDNumber(personNumber: String): Boolean =
