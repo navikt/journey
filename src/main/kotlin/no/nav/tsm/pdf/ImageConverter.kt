@@ -80,9 +80,7 @@ fun imageToPDFA(imageStream: InputStream, outputStream: OutputStream) {
 
         val colorProfileStream =
             object {}.javaClass.getResourceAsStream("/pdf/sRGB2014.icc")
-                ?: throw IllegalStateException(
-                    "Fant ikke fargeprofil /pdf/sRGB2014.icc på classpath"
-                )
+                ?: throw IllegalStateException("Fant ikke fargeprofil /pdf/sRGB2014.icc på classpath")
 
         val intent = colorProfileStream.use { PDOutputIntent(document, it) }
         intent.info = "sRGB IEC61966-2.1"

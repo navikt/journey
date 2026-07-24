@@ -86,8 +86,7 @@ class DokarkivCloudClient(
             response.status == HttpStatusCode.NotFound -> {
                 span.setAttribute("dokrakiv.status", "not_found")
                 logger.error(
-                    "Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}"
-                        .failSpan()
+                    "Person not found in Dokarkiv for callid=${journalpostRequest.eksternReferanseId}".failSpan()
                 )
                 DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
             }

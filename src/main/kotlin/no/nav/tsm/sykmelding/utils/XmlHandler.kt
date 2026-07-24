@@ -86,11 +86,7 @@ object XmlHandler {
         override fun unmarshal(stringValue: String?): LocalDate? =
             when (stringValue) {
                 null -> null
-                else ->
-                    DatatypeConverter.parseDate(stringValue)
-                        .toInstant()
-                        .atZone(ZoneOffset.MAX)
-                        .toLocalDate()
+                else -> DatatypeConverter.parseDate(stringValue).toInstant().atZone(ZoneOffset.MAX).toLocalDate()
             }
     }
 }

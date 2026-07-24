@@ -23,9 +23,7 @@ class TypstClientTest {
         /** no-op test that simply updates the test-data for typst-pdf generation */
         val payload =
             buildTypstPayload(
-                xml.record.copy(
-                    sykmelding = xml.sykmelding.copy(id = "f29c5569-2ff6-40c8-a919-37fbd76958be")
-                )
+                xml.record.copy(sykmelding = xml.sykmelding.copy(id = "f29c5569-2ff6-40c8-a919-37fbd76958be"))
             )
         val stringied = typstClient.objectMapper.writeValueAsString(payload)
 
@@ -38,8 +36,7 @@ class TypstClientTest {
             xml.record.copy(
                 sykmelding =
                     xml.sykmelding.copy(
-                        arbeidsgiver =
-                            ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider", 80, null, null)
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider", 80, null, null)
                     )
             )
         val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
@@ -65,9 +62,7 @@ class TypstClientTest {
             "Mangler 'MEDISINSK_OPPSUMMERING'"
         }
         assert(
-            tekst.contains(
-                "Beskriv kort hvilke helsemessige begrensninger som gjør det vanskelig å jobbe gradert"
-            )
+            tekst.contains("Beskriv kort hvilke helsemessige begrensninger som gjør det vanskelig å jobbe gradert")
         ) {
             "Mangler 'UTFORDRINGER_MED_GRADERT_ARBEID'"
         }
@@ -193,8 +188,7 @@ class TypstClientTest {
                                         )
                                     ),
                             ),
-                        arbeidsgiver =
-                            ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider", 80, null, null),
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider", 80, null, null),
                     )
             )
         val pdfBytes = typstClient.createPdf(buildTypstPayload(record))

@@ -20,7 +20,10 @@ kotlin {
 
 tasks {
     configure<SpotlessExtension> {
-        kotlin { ktfmt("0.64").kotlinlangStyle() }
+        kotlin { ktfmt("0.64").kotlinlangStyle().configure {
+            it.setMaxWidth(120)
+            it.setContinuationIndent(4)
+        } }
         check {
             dependsOn("spotlessApply")
         }
