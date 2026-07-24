@@ -12,7 +12,7 @@ mockk = "1.14.11"
 
 syfoXmlCodegenVersion = "2.0.1"
 tsm-sykmeldinger-input = "27"
-tsm-ktor = "0.0.8"
+tsm-ktor = "0.0.10"
 
 [libraries]
 hayden-khealth = { module = "dev.hayden:khealth", version.ref = "hayden-khealth" }
