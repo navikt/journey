@@ -13,15 +13,15 @@ spec:
     cpuThresholdPercentage: 90
   port: 8080
   liveness:
-    path: /internal/health
+    path: /internal/health/alive
   readiness:
-    path: /internal/health
-  startup:
-    path: /internal/health
-    initialDelay: 60
+    path: /internal/health/ready
+  preStopHook:
+    http:
+      path: /internal/shutdown
   prometheus:
     enabled: true
-    path: /internal/prometheus
+    path: /internal/metrics
   observability:
     autoInstrumentation:
       enabled: true
