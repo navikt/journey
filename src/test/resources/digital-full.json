@@ -1,0 +1,178 @@
+{
+  "metadata" : {
+    "orgnummer" : "987654321",
+    "type" : "DIGITAL"
+  },
+  "sykmelding" : {
+    "id" : "cc79a776-d88a-45b0-84ec-6daeec283619",
+    "metadata" : {
+      "mottattDato" : "2024-01-15T10:00:00Z",
+      "genDate" : "2024-01-15T09:00:00Z",
+      "avsenderSystem" : {
+        "navn" : "avsender-app",
+        "versjon" : "2.5"
+      }
+    },
+    "pasient" : {
+      "navn" : {
+        "fornavn" : "Ola",
+        "mellomnavn" : "Mellom",
+        "etternavn" : "Nordmann"
+      },
+      "navKontor" : "NAV Oslo",
+      "navnFastlege" : "Dr. Hansen",
+      "fnr" : "12345678901",
+      "kontaktinfo" : [ {
+        "type" : "MOBILTELEFON",
+        "value" : "+4799999999"
+      }, {
+        "type" : "HOVEDTELEFON",
+        "value" : "+4722222222"
+      } ]
+    },
+    "medisinskVurdering" : {
+      "hovedDiagnose" : {
+        "system" : "ICPC2B",
+        "kode" : "R74.0001",
+        "tekst" : "diagnose-tekst"
+      },
+      "biDiagnoser" : [ {
+        "system" : "ICD10",
+        "kode" : "J06.9",
+        "tekst" : "URI"
+      }, {
+        "system" : "ICPC2",
+        "kode" : "L84",
+        "tekst" : "Rygglidelse"
+      } ],
+      "svangerskap" : true,
+      "yrkesskade" : {
+        "yrkesskadeDato" : "2023-08-01"
+      },
+      "skjermetForPasient" : false,
+      "annenFravarsgrunn" : "NODVENDIG_KONTROLLUNDENRSOKELSE"
+    },
+    "aktivitet" : [ {
+      "medisinskArsak" : {
+        "beskrivelse" : "Tilstand hindrer arbeid",
+        "arsak" : [ "TILSTAND_HINDRER_AKTIVITET" ]
+      },
+      "arbeidsrelatertArsak" : {
+        "beskrivelse" : "Manglende tilrettelegging",
+        "arsak" : [ "MANGLENDE_TILRETTELEGGING" ]
+      },
+      "fom" : "2024-01-15",
+      "tom" : "2024-01-22",
+      "type" : "AKTIVITET_IKKE_MULIG"
+    }, {
+      "grad" : 50,
+      "fom" : "2024-01-23",
+      "tom" : "2024-01-29",
+      "reisetilskudd" : false,
+      "type" : "GRADERT"
+    }, {
+      "innspillTilArbeidsgiver" : "Snakk med leder",
+      "fom" : "2024-01-30",
+      "tom" : "2024-02-04",
+      "type" : "AVVENTENDE"
+    }, {
+      "antallBehandlingsdager" : 3,
+      "fom" : "2024-02-05",
+      "tom" : "2024-02-07",
+      "type" : "BEHANDLINGSDAGER"
+    }, {
+      "fom" : "2024-02-08",
+      "tom" : "2024-01-29",
+      "type" : "REISETILSKUDD"
+    } ],
+    "behandler" : {
+      "navn" : {
+        "fornavn" : "Lege",
+        "mellomnavn" : "Mellom",
+        "etternavn" : "Legesen"
+      },
+      "adresse" : {
+        "type" : "ARBEIDSADRESSE",
+        "gateadresse" : "Gata 1",
+        "postnummer" : "0001",
+        "poststed" : "Oslo",
+        "postboks" : "boxs",
+        "kommune" : "Oslo",
+        "land" : "Norge"
+      },
+      "ids" : [ {
+        "id" : "12345678901",
+        "type" : "FNR"
+      }, {
+        "id" : "987654",
+        "type" : "HPR"
+      } ],
+      "kontaktinfo" : [ {
+        "type" : "ARBEIDSPLASS",
+        "value" : "+4733333333"
+      } ]
+    },
+    "sykmelder" : {
+      "ids" : [ {
+        "id" : "12345678901",
+        "type" : "FNR"
+      }, {
+        "id" : "987654",
+        "type" : "HPR"
+      } ],
+      "helsepersonellKategori" : "LEGE"
+    },
+    "arbeidsgiver" : {
+      "navn" : "navn",
+      "yrkesbetegnelse" : "yrke",
+      "stillingsprosent" : 20,
+      "meldingTilArbeidsgiver" : "melding til arbeidsgiver",
+      "tiltakArbeidsplassen" : "tiltak abreidsplassen",
+      "type" : "FLERE_ARBEIDSGIVERE"
+    },
+    "tilbakedatering" : {
+      "kontaktDato" : "2024-01-10",
+      "begrunnelse" : "Pasient kunne ikke møte tidligere"
+    },
+    "bistandNav" : {
+      "bistandUmiddelbart" : true,
+      "beskrivBistand" : "Trenger oppfølging"
+    },
+    "utdypendeSporsmal" : [ {
+      "svar" : "Medisinsk oppsumering",
+      "type" : "MEDISINSK_OPPSUMMERING",
+      "skjermetForArbeidsgiver" : true,
+      "sporsmal" : "Hva er utfordringene?"
+    }, {
+      "svar" : "Pasient har utfordringer",
+      "type" : "UTFORDRINGER_MED_GRADERT_ARBEID",
+      "skjermetForArbeidsgiver" : true,
+      "sporsmal" : "Hva er utfordringene?"
+    }, {
+      "svar" : "Hensyn",
+      "type" : "HENSYN_PA_ARBEIDSPLASSEN",
+      "skjermetForArbeidsgiver" : true,
+      "sporsmal" : "Hva er utfordringene?"
+    } ],
+    "type" : "DIGITAL"
+  },
+  "validation" : {
+    "status" : "OK",
+    "timestamp" : "2024-01-15T10:01:00Z",
+    "rules" : [ {
+      "name" : "RULE_OK_1",
+      "timestamp" : "2024-01-15T10:01:00Z",
+      "validationType" : "AUTOMATIC",
+      "type" : "OK"
+    }, {
+      "name" : "RULE_PENDING_1",
+      "timestamp" : "2024-01-15T10:01:00Z",
+      "validationType" : "MANUAL",
+      "reason" : {
+        "sykmeldt" : "Avventer",
+        "sykmelder" : "Avventer behandler"
+      },
+      "type" : "PENDING"
+    } ]
+  }
+}

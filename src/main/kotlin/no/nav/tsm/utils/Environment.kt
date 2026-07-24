@@ -18,7 +18,10 @@ class Runtime(
 
 class ExternalApis(val dokarkiv: String)
 
-class KafkaSykmeldingConsumer(val longPoll: Duration)
+class KafkaSykmeldingConsumer(
+    val longPoll: Duration,
+    val retryDelay: Duration,
+)
 
 class KafkaConfig(val config: Properties, val sykmeldingConsumer: KafkaSykmeldingConsumer)
 
@@ -38,7 +41,8 @@ fun initializeEnvironment(config: ApplicationConfig): Environment {
                 },
             sykmeldingConsumer =
                 KafkaSykmeldingConsumer(
-                    longPoll = config.property("kafka.sykmeldingConsumer.longPoll").getAs()
+                    longPoll = config.property("kafka.sykmeldingConsumer.longPoll").getAs(),
+                    retryDelay = config.property("kafka.sykmeldingConsumer.retryDelay").getAs(),
                 ),
         )
 
