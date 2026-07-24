@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(ktorLibs.plugins.ktor)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.gradle.versions)
 }
 
 group = "no.nav.tsm"
