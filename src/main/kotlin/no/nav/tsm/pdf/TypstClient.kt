@@ -3,6 +3,8 @@ package no.nav.tsm.pdf
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import io.opentelemetry.api.trace.Span
+import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.awt.Font
 import java.io.File
 import java.nio.file.Files
@@ -27,14 +29,20 @@ class TypstClient(
             } ?: emptyList()
     }
 
+    @WithSpan
     fun createPdf(payload: TypstPayload): ByteArray {
+        val current = Span.current()
         logger.info("Generating PDF for sykmelding id ${payload.sykmeldingId} using Typst")
 
         val jsonData = objectMapper.writeValueAsString(payload)
+        current.setAttribute("typst.sykmeldingId", payload.sykmeldingId)
+        current.setAttribute("typst.payloadSizeKb", (jsonData.length / 1024).toString())
 
         return try {
             runTypst(payload.sykmeldingId, jsonData)
         } catch (e: TypstCompilationException) {
+            current.setAttribute("typst.retry", true)
+
             val dropped = mutableListOf<String>()
             val filtered = filterUndisplayable(jsonData, dropped)
             logger.warn("Error during typst, retrying by removing invalid codepoints")
@@ -43,7 +51,11 @@ class TypstClient(
                     "retrying after dropping undisplayable chars: $dropped. " +
                     "Original error: ${e.message}"
             )
-            runTypst(payload.sykmeldingId, filtered)
+
+            current.setAttribute("typst.retry.dropped", dropped.joinToString(","))
+            runTypst(payload.sykmeldingId, filtered).also {
+                current.setAttribute("typst.retry.success", true)
+            }
         }
     }
 
@@ -60,6 +72,7 @@ class TypstClient(
             .collect(::StringBuilder, StringBuilder::appendCodePoint, StringBuilder::append)
             .toString()
 
+    @WithSpan
     private fun runTypst(id: String, jsonData: String): ByteArray {
         val dataFile = Files.createTempFile(id, ".json")
         try {

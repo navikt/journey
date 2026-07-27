@@ -42,7 +42,7 @@ class JournalOpprettetProducer(environment: Environment) {
     fun opprettJournalpostRecord(journalOpprettet: JournalpostOpprettetRecord) {
         val record = ProducerRecord(topicName, journalOpprettet.messageId, journalOpprettet)
         val result = producer.send(record).get()
-        logger.debug(
+        logger.info(
             "Producer journal opprettet with ID ${journalOpprettet.messageId}, journalpostId ${journalOpprettet.journalpostId} to topic '$topicName' on partition ${result.partition()} offset ${result.offset()}"
         )
     }
