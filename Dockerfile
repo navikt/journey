@@ -5,6 +5,7 @@ WORKDIR /app
 COPY typst-pdf /app/typst-pdf
 COPY build/libs/journey-all.jar app.jar
 
+ENV XDG_CACHE_HOME="/tmp"
 ENV JAVA_OPTS="-Dlogback.configurationFile=logback.xml"
 ENV TZ="Europe/Oslo"
 
