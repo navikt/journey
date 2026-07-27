@@ -7,6 +7,7 @@ COPY build/libs/journey-all.jar app.jar
 
 ENV JAVA_OPTS="-Dlogback.configurationFile=logback.xml"
 ENV TZ="Europe/Oslo"
+ENV XDG_CACHE_HOME="/tmp"
 
 EXPOSE 8080
 USER nonroot
