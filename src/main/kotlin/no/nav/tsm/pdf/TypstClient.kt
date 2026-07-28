@@ -39,7 +39,7 @@ class TypstClient(
         current.setAttribute("typst.payloadSizeKb", (jsonData.length / 1024).toString())
 
         return try {
-            runTypst(payload.sykmeldingId, jsonData)
+            runTypst(payload.sykmeldingId, jsonData, firstAttempt = true)
         } catch (e: TypstCompilationException) {
             current.setAttribute("typst.retry", true)
 
@@ -53,8 +53,11 @@ class TypstClient(
             )
 
             current.setAttribute("typst.retry.dropped", dropped.joinToString(","))
-            runTypst(payload.sykmeldingId, filtered).also {
+            runTypst(payload.sykmeldingId, filtered, firstAttempt = false).also {
                 current.setAttribute("typst.retry.success", true)
+                logger.info(
+                    "Had to retry typst, but succeeded on second attempt for sykmelding id ${payload.sykmeldingId}"
+                )
             }
         }
     }
@@ -73,7 +76,7 @@ class TypstClient(
             .toString()
 
     @WithSpan
-    private fun runTypst(id: String, jsonData: String): ByteArray {
+    private fun runTypst(id: String, jsonData: String, firstAttempt: Boolean): ByteArray {
         val dataFile = Files.createTempFile(id, ".json")
         try {
             Files.writeString(dataFile, jsonData)
@@ -100,7 +103,9 @@ class TypstClient(
             val exitCode = process.waitFor()
 
             if (exitCode != 0) {
-                logger.error("Typst compilation failed with exit code $exitCode")
+                if (!firstAttempt) {
+                    logger.error("Typst compilation failed with exit code $exitCode")
+                }
                 teamlog.error("Typst compilation failed with exit code $exitCode: $stderr")
                 throw TypstCompilationException("Typst compilation failed: $stderr")
             }
