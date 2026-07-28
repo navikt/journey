@@ -16,8 +16,8 @@ import io.ktor.serialization.jackson.jackson
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.tsm.ktor.auth.texas.TexasClient
+import no.nav.tsm.ktor.logger
 import no.nav.tsm.ktor.otel.failSpan
-import no.nav.tsm.utils.logger
 
 /** When working within the same cluster, the URL is always the same */
 private const val PDL_CACHE_URL = "http://tsm-pdl-cache"

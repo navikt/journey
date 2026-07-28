@@ -1,10 +1,7 @@
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        maven("https://jitpack.io")
-    }
-}
+rootProject.name = "journey"
+
+val ktorVersion = "3.5.1"
+val tsmKtorVersion = "0.0.19"
 
 dependencyResolutionManagement {
     repositories {
@@ -13,8 +10,15 @@ dependencyResolutionManagement {
         maven("https://github-package-registry-mirror.gc.nav.no/cached/maven-release")
     }
     versionCatalogs {
-        create("ktorLibs").from("io.ktor:ktor-version-catalog:3.5.1")
+        create("ktorLibs").from("io.ktor:ktor-version-catalog:${ktorVersion}")
+        create("tsmKtorLibs").from("no.nav.tsm:ktor-version-catalog:${tsmKtorVersion}")
     }
 }
 
-rootProject.name = "journey"
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        maven("https://jitpack.io")
+    }
+}

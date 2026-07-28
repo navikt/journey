@@ -52,7 +52,7 @@ dependencies {
     implementation(libs.google.cloud.storage)
 
     implementation(libs.tsm.sykmeldinger.input)
-    implementation(libs.tsm.ktor)
+    implementation(tsmKtorLibs.core)
 
     // old xml libs we need for vedlegg
     implementation(libs.helse.xml.sm2013)

@@ -23,12 +23,12 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.tsm.ktor.auth.texas.TexasClient
 import no.nav.tsm.ktor.auth.texas.TexasTarget
 import no.nav.tsm.ktor.auth.texas.TexasToken
+import no.nav.tsm.ktor.logger
 import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
 import no.nav.tsm.utils.Environment
 import no.nav.tsm.utils.RuntimeEnvironments
-import no.nav.tsm.utils.logger
 
 class DokarkivCloudClient(
     httpClient: HttpClient,

@@ -10,9 +10,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import no.nav.tsm.ktor.logger
 import no.nav.tsm.sykmelding.services.SykmeldingService
 import no.nav.tsm.utils.Environment
-import no.nav.tsm.utils.logger
 
 fun Application.configureSykmeldingKafkaConsumer() {
     val logger = logger()

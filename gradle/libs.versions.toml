@@ -13,7 +13,6 @@ testcontainers = "2.0.5"
 
 syfo-xml-codegen = "2.0.1"
 tsm-sykmeldinger-input = "27"
-tsm-ktor = "0.0.10"
 
 [libraries]
 hayden-khealth = { module = "dev.hayden:khealth", version.ref = "hayden-khealth" }
@@ -28,7 +27,6 @@ google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", versi
 
 # tsm libs
 tsm-sykmeldinger-input = { module = "no.nav.tsm.sykmelding:input", version.ref = "tsm-sykmeldinger-input" }
-tsm-ktor = { module = "no.nav.tsm:ktor", version.ref = "tsm-ktor" }
 
 # old xml libs we need for vedlegg
 helse-xml-sm2013 = { module = "no.nav.helse.xml:sm2013", version.ref = "syfo-xml-codegen" }

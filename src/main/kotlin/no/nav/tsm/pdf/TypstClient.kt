@@ -8,8 +8,8 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.awt.Font
 import java.io.File
 import java.nio.file.Files
-import no.nav.tsm.utils.logger
-import no.nav.tsm.utils.teamLogger
+import no.nav.tsm.ktor.logger
+import no.nav.tsm.ktor.teamLogger
 
 class TypstClient(
     private val typstBinaryPath: String = "/app/typst-pdf/typst",

@@ -8,11 +8,11 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import java.time.Duration
 import java.util.*
 import kotlin.time.toJavaDuration
+import no.nav.tsm.ktor.logger
+import no.nav.tsm.ktor.teamLogger
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingModule
 import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
 import no.nav.tsm.utils.Environment
-import no.nav.tsm.utils.logger
-import no.nav.tsm.utils.teamLogger
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.clients.consumer.KafkaConsumer

@@ -3,11 +3,11 @@ package no.nav.tsm.sykmelding.services
 import com.google.cloud.storage.Storage
 import com.google.cloud.storage.StorageOptions
 import no.nav.helse.eiFellesformat.XMLEIFellesformat
+import no.nav.tsm.ktor.logger
 import no.nav.tsm.sykmelding.journalpost.Vedlegg
 import no.nav.tsm.sykmelding.utils.XmlHandler
 import no.nav.tsm.utils.Environment
 import no.nav.tsm.utils.Metrics
-import no.nav.tsm.utils.logger
 
 class BucketService(
     val environment: Environment,

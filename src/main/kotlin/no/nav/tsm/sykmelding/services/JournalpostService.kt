@@ -9,7 +9,9 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Base64
+import no.nav.tsm.ktor.logger
 import no.nav.tsm.ktor.otel.failSpan
+import no.nav.tsm.ktor.teamLogger
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.pdf.buildTypstPayload
 import no.nav.tsm.pdf.imageToPDFA
@@ -36,8 +38,6 @@ import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
 import no.nav.tsm.sykmelding.journalpost.Sak
 import no.nav.tsm.sykmelding.journalpost.Vedlegg
 import no.nav.tsm.sykmelding.services.util.validatePersonAndDNumber
-import no.nav.tsm.utils.logger
-import no.nav.tsm.utils.teamLogger
 
 class JournalpostService(
     val dokarkivClient: DokarkivClient,
