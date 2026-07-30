@@ -1,7 +1,7 @@
 [versions]
 hayden-khealth = "3.0.2"
 kotlin = "2.4.10"
-logback = "1.6.0"
+logback = "1.6.1"
 logbackEncoder = "9.0"
 prometheus = "1.17.0"
 pdfbox = "3.0.8"
@@ -44,5 +44,5 @@ testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", ver
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-spotless = { id = "com.diffplug.spotless", version = "8.8.0" }
-gradle-versions = { id = "com.github.ben-manes.versions", version = "0.54.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.9.0" }
+gradle-versions = { id = "com.github.ben-manes.versions", version = "0.57.0" }
