@@ -11,7 +11,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
-import no.nav.tsm.ktor.auth.texas.TexasClient
+import no.nav.tsm.ktor.auth.texas.Texas
 import no.nav.tsm.ktor.auth.texas.TexasTarget
 import no.nav.tsm.ktor.auth.texas.TexasToken
 import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
@@ -35,7 +35,7 @@ class DokarkivCloudClientTest {
             bucket = "test-bucket",
         )
 
-    val texas = mockk<TexasClient>()
+    val texas = mockk<Texas>()
 
     @Test
     fun `should properly apply headers and stuff`() = runTest {

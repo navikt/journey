@@ -20,7 +20,7 @@ import io.ktor.http.isSuccess
 import io.ktor.serialization.jackson.jackson
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
-import no.nav.tsm.ktor.auth.texas.TexasClient
+import no.nav.tsm.ktor.auth.texas.Texas
 import no.nav.tsm.ktor.auth.texas.TexasTarget
 import no.nav.tsm.ktor.auth.texas.TexasToken
 import no.nav.tsm.ktor.logger
@@ -33,7 +33,7 @@ import no.nav.tsm.utils.RuntimeEnvironments
 class DokarkivCloudClient(
     httpClient: HttpClient,
     private val environment: Environment,
-    private val texasClient: TexasClient,
+    private val texasClient: Texas,
 ) : DokarkivClient {
     private val logger = logger()
 

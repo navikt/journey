@@ -3,6 +3,7 @@ package no.nav.tsm.pdf
 import java.awt.Desktop
 import java.io.File
 import java.time.LocalDate
+import kotlin.test.Ignore
 import kotlin.test.Test
 import no.nav.tsm.sykmelding.input.core.model.*
 import org.apache.pdfbox.Loader
@@ -19,6 +20,7 @@ class TypstClientTest {
         )
 
     @Test
+    @Ignore
     fun updateTypstTestData() {
         /** no-op test that simply updates the test-data for typst-pdf generation */
         val payload =

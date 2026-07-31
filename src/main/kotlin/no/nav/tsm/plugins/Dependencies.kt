@@ -4,7 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.apache5.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.di.*
-import no.nav.tsm.ktor.auth.texas.TexasClient
+import no.nav.tsm.ktor.auth.texas.Texas
 import no.nav.tsm.ktor.di.dynamicDependencies
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.pdl.PdlCloudClient
@@ -25,7 +25,7 @@ fun Application.configureDependencyInjection() {
     dependencies {
         provide<Environment> { initializeEnvironment(config) }
         provide<HttpClient> { configureBaseHttpClient() }
-        provide(TexasClient::class)
+        provide(Texas::class)
         provide(TypstClient::class)
         provide(SykmeldingService::class)
         provide(SykmeldingConsumer::class)
