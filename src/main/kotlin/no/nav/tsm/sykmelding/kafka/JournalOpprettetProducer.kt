@@ -3,7 +3,7 @@ package no.nav.tsm.sykmelding.kafka
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import java.util.Properties
+import no.nav.tsm.ktor.kafka.KafkaConfig
 import kotlin.collections.set
 import no.nav.tsm.ktor.logger
 import no.nav.tsm.utils.Environment
@@ -19,17 +19,16 @@ data class JournalpostOpprettetRecord(
     val journalpostKilde: String,
 )
 
-class JournalOpprettetProducer(environment: Environment) {
+class JournalOpprettetProducer(config: KafkaConfig, environment: Environment) {
     private val logger = logger()
     private val topicName = "teamsykmelding.oppgave-journal-opprettet"
 
     private val producer: KafkaProducer<String, JournalpostOpprettetRecord>
 
     init {
-        val kafkaProperties = Properties()
+        val kafkaProperties = config.toProperties()
 
         kafkaProperties.apply {
-            environment.kafka.config.forEach { (key, value) -> this[key] = value }
             this[ProducerConfig.CLIENT_ID_CONFIG] = "${environment.runtime.name}-producer"
             this[ProducerConfig.ACKS_CONFIG] = "all"
             this[ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG] = "true"

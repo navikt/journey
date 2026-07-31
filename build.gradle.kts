@@ -53,6 +53,7 @@ dependencies {
 
     implementation(libs.tsm.sykmeldinger.input)
     implementation(tsmKtorLibs.core)
+    implementation(tsmKtorLibs.kafka.sykmeldinger)
 
     // old xml libs we need for vedlegg
     implementation(libs.helse.xml.sm2013)
