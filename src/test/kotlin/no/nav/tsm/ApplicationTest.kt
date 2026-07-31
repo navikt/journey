@@ -2,7 +2,9 @@ package no.nav.tsm
 
 import arrow.core.left
 import arrow.core.right
+import com.typesafe.config.ConfigFactory
 import io.kotest.matchers.equals.shouldEqual
+import io.ktor.server.config.HoconApplicationConfig
 import io.ktor.server.plugins.di.*
 import io.ktor.server.testing.*
 import io.mockk.coEvery
@@ -33,6 +35,7 @@ class ApplicationTest : WithKafka() {
     fun `should consume, create PDF, update dokarkiv and produce journalpost record`() = testApplication {
         val mockedDokarkiv = mockk<DokarkivClient>()
 
+        autoKafkaConfig(kafka)
         application {
             dependencies {
                 provide<Environment>() { createIntegrationEnvironment(kafka) }
@@ -52,16 +55,16 @@ class ApplicationTest : WithKafka() {
         startApplication()
 
         coEvery { mockedDokarkiv.createJournalpost(any()) } answers
-            {
-                JournalpostResponse(
+                {
+                    JournalpostResponse(
                         dokumenter = emptyList(),
                         journalpostId = "123",
                         journalpostferdigstilt = true,
                         journalstatus = null,
                         melding = null,
                     )
-                    .right()
-            }
+                        .right()
+                }
 
         kafka.produce(
             "tsm.sykmeldinger",
@@ -86,6 +89,7 @@ class ApplicationTest : WithKafka() {
     fun `failing to create journalpost should not commit and gracefully retry later`() = testApplication {
         val mockedDokarkiv = mockk<DokarkivClient>()
 
+        autoKafkaConfig(kafka)
         application {
             dependencies {
                 provide<Environment>() { createIntegrationEnvironment(kafka) }
@@ -105,17 +109,17 @@ class ApplicationTest : WithKafka() {
         startApplication()
 
         coEvery { mockedDokarkiv.createJournalpost(any()) } answers
-            {
-                DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
-            } andThen
-            JournalpostResponse(
+                {
+                    DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
+                } andThen
+                JournalpostResponse(
                     dokumenter = emptyList(),
                     journalpostId = "999",
                     journalpostferdigstilt = true,
                     journalstatus = null,
                     melding = null,
                 )
-                .right()
+                    .right()
 
         kafka.produce(
             "tsm.sykmeldinger",
@@ -145,7 +149,6 @@ private fun createIntegrationEnvironment(kafka: ConfluentKafkaContainer) =
         runtime = Runtime(env = RuntimeEnvironments.DEV, name = "test-app"),
         kafka =
             KafkaConfig(
-                config = Properties().apply { this["bootstrap.servers"] = kafka.bootstrapServers },
                 sykmeldingConsumer =
                     KafkaSykmeldingConsumer(
                         longPoll = 1000.milliseconds,
@@ -155,3 +158,18 @@ private fun createIntegrationEnvironment(kafka: ConfluentKafkaContainer) =
         external = { mockk() },
         bucket = "fake-bucket",
     )
+
+private fun TestApplicationBuilder.autoKafkaConfig(kafka: ConfluentKafkaContainer) {
+    val hocon =
+        """
+                |kafka.config {
+                |  "bootstrap.servers" = "${kafka.bootstrapServers}"
+                |  "security.protocol" = "PLAINTEXT"
+                |}
+                """
+            .trimMargin()
+
+    environment {
+        config = HoconApplicationConfig(ConfigFactory.parseString(hocon))
+    }
+}

@@ -2,6 +2,7 @@ package no.nav.tsm.utils
 
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.getAs
+import no.nav.tsm.ktor.kafka.kafkaConfig
 import java.util.Properties
 import kotlin.time.Duration
 
@@ -23,7 +24,7 @@ class KafkaSykmeldingConsumer(
     val retryDelay: Duration,
 )
 
-class KafkaConfig(val config: Properties, val sykmeldingConsumer: KafkaSykmeldingConsumer)
+class KafkaConfig(val sykmeldingConsumer: KafkaSykmeldingConsumer)
 
 class Environment(
     val runtime: Runtime,
@@ -35,10 +36,6 @@ class Environment(
 fun initializeEnvironment(config: ApplicationConfig): Environment {
     val kafkaProperties =
         KafkaConfig(
-            config =
-                Properties().apply {
-                    config.config("kafka.config").toMap().forEach { this[it.key] = it.value }
-                },
             sykmeldingConsumer =
                 KafkaSykmeldingConsumer(
                     longPoll = config.property("kafka.sykmeldingConsumer.longPoll").getAs(),
