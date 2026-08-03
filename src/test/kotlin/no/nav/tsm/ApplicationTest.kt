@@ -4,13 +4,12 @@ import arrow.core.left
 import arrow.core.right
 import com.typesafe.config.ConfigFactory
 import io.kotest.matchers.equals.shouldEqual
-import io.ktor.server.config.HoconApplicationConfig
+import io.ktor.server.config.*
 import io.ktor.server.plugins.di.*
 import io.ktor.server.testing.*
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
@@ -55,16 +54,16 @@ class ApplicationTest : WithKafka() {
         startApplication()
 
         coEvery { mockedDokarkiv.createJournalpost(any()) } answers
-                {
-                    JournalpostResponse(
+            {
+                JournalpostResponse(
                         dokumenter = emptyList(),
                         journalpostId = "123",
                         journalpostferdigstilt = true,
                         journalstatus = null,
                         melding = null,
                     )
-                        .right()
-                }
+                    .right()
+            }
 
         kafka.produce(
             "tsm.sykmeldinger",
@@ -109,17 +108,17 @@ class ApplicationTest : WithKafka() {
         startApplication()
 
         coEvery { mockedDokarkiv.createJournalpost(any()) } answers
-                {
-                    DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
-                } andThen
-                JournalpostResponse(
+            {
+                DokarkivClient.JournalpostError.PERSON_NOT_FOUND.left()
+            } andThen
+            JournalpostResponse(
                     dokumenter = emptyList(),
                     journalpostId = "999",
                     journalpostferdigstilt = true,
                     journalstatus = null,
                     melding = null,
                 )
-                    .right()
+                .right()
 
         kafka.produce(
             "tsm.sykmeldinger",
@@ -153,7 +152,7 @@ private fun createIntegrationEnvironment(kafka: ConfluentKafkaContainer) =
                     KafkaSykmeldingConsumer(
                         longPoll = 1000.milliseconds,
                         retryDelay = 1000.milliseconds,
-                    ),
+                    )
             ),
         external = { mockk() },
         bucket = "fake-bucket",
