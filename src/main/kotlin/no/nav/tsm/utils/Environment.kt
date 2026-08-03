@@ -2,8 +2,6 @@ package no.nav.tsm.utils
 
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.getAs
-import no.nav.tsm.ktor.kafka.kafkaConfig
-import java.util.Properties
 import kotlin.time.Duration
 
 enum class RuntimeEnvironments(val nais: String) {
@@ -40,7 +38,7 @@ fun initializeEnvironment(config: ApplicationConfig): Environment {
                 KafkaSykmeldingConsumer(
                     longPoll = config.property("kafka.sykmeldingConsumer.longPoll").getAs(),
                     retryDelay = config.property("kafka.sykmeldingConsumer.retryDelay").getAs(),
-                ),
+                )
         )
 
     return Environment(
