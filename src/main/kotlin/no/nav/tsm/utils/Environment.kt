@@ -3,15 +3,11 @@ package no.nav.tsm.utils
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.config.getAs
 import kotlin.time.Duration
-
-enum class RuntimeEnvironments(val nais: String) {
-    LOCAL("local"),
-    DEV("dev-gcp"),
-    PROD("prod-gcp"),
-}
+import no.nav.tsm.ktor.nais.RuntimeCluster
+import no.nav.tsm.ktor.nais.getRuntimeCluster
 
 class Runtime(
-    val env: RuntimeEnvironments,
+    val env: RuntimeCluster,
     val name: String,
 )
 
@@ -45,23 +41,10 @@ fun initializeEnvironment(config: ApplicationConfig): Environment {
         kafka = kafkaProperties,
         runtime =
             Runtime(
-                env = config.inferRuntimeEnvironment(),
+                env = getRuntimeCluster(),
                 name = config.property("app.name").getString(),
             ),
         external = { ExternalApis(dokarkiv = config.property("external.dokarkiv").getString()) },
         bucket = config.property("tsm.bucket").getString(),
     )
-}
-
-private fun ApplicationConfig.inferRuntimeEnvironment(): RuntimeEnvironments {
-    return when (val configEnv = this.property("app.runtime").getString()) {
-        "local" -> RuntimeEnvironments.LOCAL
-        "prod-gcp" -> RuntimeEnvironments.PROD
-        "dev-gcp" -> RuntimeEnvironments.DEV
-        else -> {
-            throw IllegalStateException(
-                "Unexpected 'app.runtime' configuration: ${configEnv}. Should be one of 'local', 'dev-gcp' or 'prod-gcp'"
-            )
-        }
-    }
 }

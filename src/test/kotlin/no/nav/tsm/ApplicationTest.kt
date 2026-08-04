@@ -13,6 +13,7 @@ import io.mockk.mockk
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
+import no.nav.tsm.ktor.nais.RuntimeCluster
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
@@ -37,7 +38,7 @@ class ApplicationTest : WithKafka() {
         autoKafkaConfig(kafka)
         application {
             dependencies {
-                provide<Environment>() { createIntegrationEnvironment(kafka) }
+                provide<Environment>() { createIntegrationEnvironment() }
                 provide<TypstClient>() {
                     TypstClient(
                         typstBinaryPath = "typst-pdf/typst",
@@ -91,7 +92,7 @@ class ApplicationTest : WithKafka() {
         autoKafkaConfig(kafka)
         application {
             dependencies {
-                provide<Environment>() { createIntegrationEnvironment(kafka) }
+                provide<Environment>() { createIntegrationEnvironment() }
                 provide<TypstClient>() {
                     TypstClient(
                         typstBinaryPath = "typst-pdf/typst",
@@ -143,9 +144,9 @@ class ApplicationTest : WithKafka() {
 private fun getFullDigitalSykmeldingExample() =
     object {}.javaClass.getResourceAsStream("/digital-full.json")!!.readBytes()
 
-private fun createIntegrationEnvironment(kafka: ConfluentKafkaContainer) =
+private fun createIntegrationEnvironment() =
     Environment(
-        runtime = Runtime(env = RuntimeEnvironments.DEV, name = "test-app"),
+        runtime = Runtime(env = RuntimeCluster.DEV, name = "test-app"),
         kafka =
             KafkaConfig(
                 sykmeldingConsumer =
@@ -161,11 +162,11 @@ private fun createIntegrationEnvironment(kafka: ConfluentKafkaContainer) =
 private fun TestApplicationBuilder.autoKafkaConfig(kafka: ConfluentKafkaContainer) {
     val hocon =
         """
-                |kafka.config {
-                |  "bootstrap.servers" = "${kafka.bootstrapServers}"
-                |  "security.protocol" = "PLAINTEXT"
-                |}
-                """
+        |kafka.config {
+        |  "bootstrap.servers" = "${kafka.bootstrapServers}"
+        |  "security.protocol" = "PLAINTEXT"
+        |}
+        """
             .trimMargin()
 
     environment {
