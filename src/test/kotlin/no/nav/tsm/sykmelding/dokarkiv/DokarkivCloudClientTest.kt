@@ -14,11 +14,11 @@ import kotlinx.coroutines.test.runTest
 import no.nav.tsm.ktor.auth.texas.Texas
 import no.nav.tsm.ktor.auth.texas.TexasTarget
 import no.nav.tsm.ktor.auth.texas.TexasToken
+import no.nav.tsm.ktor.nais.RuntimeCluster
 import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
 import no.nav.tsm.utils.Environment
 import no.nav.tsm.utils.ExternalApis
 import no.nav.tsm.utils.Runtime
-import no.nav.tsm.utils.RuntimeEnvironments
 
 class DokarkivCloudClientTest {
     val env =
@@ -26,7 +26,7 @@ class DokarkivCloudClientTest {
             runtime =
                 Runtime(
                     name = "test-app",
-                    env = RuntimeEnvironments.DEV,
+                    env = RuntimeCluster.DEV,
                 ),
             kafka = mockk(relaxed = true),
             external = {

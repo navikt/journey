@@ -24,11 +24,11 @@ import no.nav.tsm.ktor.auth.texas.Texas
 import no.nav.tsm.ktor.auth.texas.TexasTarget
 import no.nav.tsm.ktor.auth.texas.TexasToken
 import no.nav.tsm.ktor.logger
+import no.nav.tsm.ktor.nais.RuntimeCluster
 import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
 import no.nav.tsm.utils.Environment
-import no.nav.tsm.utils.RuntimeEnvironments
 
 class DokarkivCloudClient(
     httpClient: HttpClient,
@@ -115,10 +115,10 @@ class DokarkivCloudClient(
         )
 }
 
-private fun RuntimeEnvironments.toCorrespondingFSS(): TexasTarget {
+private fun RuntimeCluster.toCorrespondingFSS(): TexasTarget {
     return when (this) {
-        RuntimeEnvironments.DEV -> TexasTarget.DEV_FSS
-        RuntimeEnvironments.PROD -> TexasTarget.PROD_FSS
+        RuntimeCluster.DEV -> TexasTarget.DEV_FSS
+        RuntimeCluster.PROD -> TexasTarget.PROD_FSS
         else ->
             throw IllegalStateException(
                 "Unexpected 'app.runtime' configuration: ${this}. Should be one of 'dev-gcp' or 'prod-gcp'"
