@@ -2,40 +2,49 @@ package no.nav.tsm
 
 import arrow.core.left
 import arrow.core.right
-import com.typesafe.config.ConfigFactory
+import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.equals.shouldEqual
-import io.ktor.server.config.*
 import io.ktor.server.plugins.di.*
 import io.ktor.server.testing.*
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
-import kotlin.test.BeforeTest
+import java.time.Duration
+import java.util.*
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
+import no.nav.tsm.ktor.kafka.test.KafkaContainer
+import no.nav.tsm.ktor.kafka.test.send
 import no.nav.tsm.ktor.nais.RuntimeCluster
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
 import no.nav.tsm.sykmelding.kafka.JournalpostOpprettetRecord
-import no.nav.tsm.utils.*
-import org.testcontainers.kafka.ConfluentKafkaContainer
-import testUtils.WithKafka
-import testUtils.consumeUntil
-import testUtils.produce
+import no.nav.tsm.utils.Environment
+import no.nav.tsm.utils.KafkaConfig
+import no.nav.tsm.utils.KafkaSykmeldingConsumer
+import no.nav.tsm.utils.Runtime
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.ByteArrayDeserializer
+import org.apache.kafka.common.serialization.StringDeserializer
 
-class ApplicationTest : WithKafka() {
+class ApplicationTest {
 
-    @BeforeTest
-    fun setup() {
-        recreateTopics()
-    }
+    val kafka = KafkaContainer(createTopics = listOf("teamsykmelding.oppgave-journal-opprettet", "tsm.sykmeldinger"))
+    val producer = kafka.createAnythingProducer()
 
     @Test
     fun `should consume, create PDF, update dokarkiv and produce journalpost record`() = testApplication {
+        kafka.configureKafka(this)
         val mockedDokarkiv = mockk<DokarkivClient>()
 
-        autoKafkaConfig(kafka)
         application {
             dependencies {
                 provide<Environment>() { createIntegrationEnvironment() }
@@ -66,7 +75,7 @@ class ApplicationTest : WithKafka() {
                     .right()
             }
 
-        kafka.produce(
+        producer.send(
             "tsm.sykmeldinger",
             "22dfdd7e-7f78-43c7-b5fa-0329db943bfb",
             getFullDigitalSykmeldingExample(),
@@ -87,9 +96,9 @@ class ApplicationTest : WithKafka() {
 
     @Test
     fun `failing to create journalpost should not commit and gracefully retry later`() = testApplication {
+        kafka.configureKafka(this)
         val mockedDokarkiv = mockk<DokarkivClient>()
 
-        autoKafkaConfig(kafka)
         application {
             dependencies {
                 provide<Environment>() { createIntegrationEnvironment() }
@@ -121,7 +130,7 @@ class ApplicationTest : WithKafka() {
                 )
                 .right()
 
-        kafka.produce(
+        producer.send(
             "tsm.sykmeldinger",
             "22dfdd7e-7f78-43c7-b5fa-0329db943bfb",
             getFullDigitalSykmeldingExample(),
@@ -159,17 +168,38 @@ private fun createIntegrationEnvironment() =
         bucket = "fake-bucket",
     )
 
-private fun TestApplicationBuilder.autoKafkaConfig(kafka: ConfluentKafkaContainer) {
-    val hocon =
-        """
-        |kafka.config {
-        |  "bootstrap.servers" = "${kafka.bootstrapServers}"
-        |  "security.protocol" = "PLAINTEXT"
-        |}
-        """
-            .trimMargin()
+private suspend inline fun <reified T> KafkaContainer.consumeUntil(
+    topic: String,
+    crossinline want: (record: T) -> Boolean,
+    timeout: Duration = Duration.ofSeconds(10),
+): T {
+    val consumerObjectMapper =
+        jacksonObjectMapper().apply {
+            registerModule(JavaTimeModule())
+            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        }
 
-    environment {
-        config = HoconApplicationConfig(ConfigFactory.parseString(hocon))
+    return withContext(Dispatchers.IO) {
+        val props =
+            this@consumeUntil.config +
+                mapOf(
+                    ConsumerConfig.GROUP_ID_CONFIG to "test-${UUID.randomUUID()}",
+                    ConsumerConfig.AUTO_OFFSET_RESET_CONFIG to "earliest",
+                )
+
+        KafkaConsumer(props, StringDeserializer(), ByteArrayDeserializer()).use { consumer ->
+            consumer.subscribe(listOf(topic))
+            val deadline = System.nanoTime() + timeout.toNanos()
+            while (System.nanoTime() < deadline) {
+                val records = runInterruptible { consumer.poll(Duration.ofMillis(200)) }
+                for (record in records) {
+                    val value: T = consumerObjectMapper.readValue<T>(record.value())
+                    val doWeWant = want(value)
+
+                    if (doWeWant) return@withContext value
+                }
+            }
+            throw AssertionError("Timed out waiting for message on topic=$topic")
+        }
     }
 }
