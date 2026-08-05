@@ -41,8 +41,6 @@ dependencies {
     implementation(ktorLibs.client.apache5)
     implementation(ktorLibs.client.contentNegotiation)
 
-    implementation(libs.micrometer.registryPrometheus)
-    implementation(libs.hayden.khealth)
     implementation(libs.logback.classic)
     implementation(libs.logback.encoder)
     implementation(libs.apache.pdfbox)

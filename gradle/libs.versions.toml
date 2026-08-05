@@ -1,9 +1,7 @@
 [versions]
-hayden-khealth = "3.0.2"
 kotlin = "2.4.10"
 logback = "1.6.0"
 logbackEncoder = "9.0"
-prometheus = "1.17.0"
 pdfbox = "3.0.8"
 arrow = "2.2.3"
 googleCloudStorage = "2.70.0"
@@ -15,10 +13,8 @@ syfo-xml-codegen = "2.0.1"
 tsm-sykmeldinger-input = "27"
 
 [libraries]
-hayden-khealth = { module = "dev.hayden:khealth", version.ref = "hayden-khealth" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 logback-encoder = { module = "net.logstash.logback:logstash-logback-encoder", version.ref = "logbackEncoder" }
-micrometer-registryPrometheus = { module = "io.micrometer:micrometer-registry-prometheus", version.ref = "prometheus" }
 apache-pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
 apache-xmpbox = { module = "org.apache.pdfbox:xmpbox", version.ref = "pdfbox" }
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
