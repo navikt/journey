@@ -3,7 +3,6 @@ package no.nav.tsm.sykmelding.dokarkiv
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.fasterxml.jackson.databind.DeserializationFeature
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
@@ -17,7 +16,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.tsm.ktor.auth.texas.Texas
@@ -39,7 +38,7 @@ class DokarkivCloudClient(
 
     private val httpClient: HttpClient = httpClient.config {
         install(ContentNegotiation) {
-            jackson { configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false) }
+            jackson {}
         }
         install(HttpRequestRetry) {
             retryOnServerErrors(maxRetries = 3)

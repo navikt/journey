@@ -1,8 +1,5 @@
 package no.nav.tsm.pdf
 
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.awt.Font
@@ -10,6 +7,7 @@ import java.io.File
 import java.nio.file.Files
 import no.nav.tsm.ktor.logger
 import no.nav.tsm.ktor.teamLogger
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 class TypstClient(
     private val typstBinaryPath: String = "/app/typst-pdf/typst",
@@ -116,11 +114,7 @@ class TypstClient(
         }
     }
 
-    val objectMapper =
-        jacksonObjectMapper()
-            .registerModule(JavaTimeModule())
-            .registerModule(JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    private val objectMapper = jacksonObjectMapper()
 }
 
 class TypstCompilationException(message: String) : RuntimeException(message)

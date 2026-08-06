@@ -3,8 +3,6 @@ package no.nav.tsm.pdl
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.HttpRequestRetry
@@ -12,7 +10,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.http.*
-import io.ktor.serialization.jackson.jackson
+import io.ktor.serialization.jackson3.jackson
 import io.opentelemetry.api.trace.Span
 import io.opentelemetry.instrumentation.annotations.WithSpan
 import no.nav.tsm.ktor.auth.texas.Texas
@@ -40,12 +38,7 @@ class PdlCloudClient(
 
     private val pdlHttpClient = httpClient.config {
         install(ContentNegotiation) {
-            jackson {
-                registerModule(JavaTimeModule())
-
-                // tsm-pdl-cache responds with some values we don't care about
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            }
+            jackson {}
         }
         install(HttpRequestRetry) {
             retryOnServerErrors(maxRetries = 5)
