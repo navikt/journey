@@ -10,6 +10,7 @@ import org.apache.pdfbox.Loader
 import org.apache.pdfbox.text.PDFTextStripper
 import testUtils.digital
 import testUtils.xml
+import tools.jackson.module.kotlin.jacksonObjectMapper
 
 class TypstClientTest {
     private val typstClient =
@@ -27,7 +28,7 @@ class TypstClientTest {
             buildTypstPayload(
                 xml.record.copy(sykmelding = xml.sykmelding.copy(id = "f29c5569-2ff6-40c8-a919-37fbd76958be"))
             )
-        val stringied = typstClient.objectMapper.writeValueAsString(payload)
+        val stringied = jacksonObjectMapper().writeValueAsString(payload)
 
         File("typst-pdf/test-data/sykmelding.json").writeText(stringied)
     }

@@ -10,7 +10,7 @@ mockk = "1.14.11"
 testcontainers = "2.0.5"
 
 syfo-xml-codegen = "2.0.1"
-tsm-sykmeldinger-input = "27"
+tsm-sykmeldinger-input = "29"
 
 [libraries]
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }

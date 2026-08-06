@@ -2,10 +2,6 @@ package no.nav.tsm
 
 import arrow.core.left
 import arrow.core.right
-import com.fasterxml.jackson.databind.SerializationFeature
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.kotest.matchers.equals.shouldEqual
 import io.ktor.server.plugins.di.*
 import io.ktor.server.testing.*
@@ -34,6 +30,8 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.ByteArrayDeserializer
 import org.apache.kafka.common.serialization.StringDeserializer
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 
 class ApplicationTest {
 
@@ -173,11 +171,7 @@ private suspend inline fun <reified T> KafkaContainer.consumeUntil(
     crossinline want: (record: T) -> Boolean,
     timeout: Duration = Duration.ofSeconds(10),
 ): T {
-    val consumerObjectMapper =
-        jacksonObjectMapper().apply {
-            registerModule(JavaTimeModule())
-            configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        }
+    val consumerObjectMapper = jacksonObjectMapper()
 
     return withContext(Dispatchers.IO) {
         val props =
