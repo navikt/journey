@@ -12,13 +12,29 @@ import testUtils.digital
 import testUtils.xml
 import tools.jackson.module.kotlin.jacksonObjectMapper
 
+private val typstPdfDir = "typst-pdf"
+
+fun getTypstBinaryPath(): String {
+    val typst = File("$typstPdfDir/typst")
+    if (typst.isFile && typst.canExecute()) {
+        return typst.absolutePath
+    } else {
+        return "typst"
+    }
+}
+
 class TypstClientTest {
-    private val typstClient =
-        TypstClient(
-            typstBinaryPath = "typst-pdf/typst",
-            templatePath = "typst-pdf/sykmelding.typ",
-            fontPath = "typst-pdf/fonts",
-        )
+    private val typstClient: TypstClient
+
+    init {
+
+        typstClient =
+            TypstClient(
+                typstBinaryPath = getTypstBinaryPath(),
+                templatePath = "typst-pdf/sykmelding.typ",
+                fontPath = "typst-pdf/fonts",
+            )
+    }
 
     @Test
     @Ignore

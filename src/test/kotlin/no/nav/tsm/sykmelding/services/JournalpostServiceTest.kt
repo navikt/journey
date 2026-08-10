@@ -8,6 +8,7 @@ import io.mockk.mockk
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
 import no.nav.tsm.pdf.TypstClient
+import no.nav.tsm.pdf.getTypstBinaryPath
 import no.nav.tsm.pdl.PdlClient
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
@@ -19,7 +20,7 @@ class JournalpostServiceTest {
 
     val typstClient =
         TypstClient(
-            typstBinaryPath = "typst-pdf/typst",
+            typstBinaryPath = getTypstBinaryPath(),
             templatePath = "typst-pdf/sykmelding.typ",
             fontPath = "typst-pdf/fonts",
         )

@@ -19,6 +19,7 @@ import no.nav.tsm.ktor.kafka.test.KafkaContainer
 import no.nav.tsm.ktor.kafka.test.send
 import no.nav.tsm.ktor.nais.RuntimeCluster
 import no.nav.tsm.pdf.TypstClient
+import no.nav.tsm.pdf.getTypstBinaryPath
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
 import no.nav.tsm.sykmelding.kafka.JournalpostOpprettetRecord
@@ -48,7 +49,7 @@ class ApplicationTest {
                 provide<Environment>() { createIntegrationEnvironment() }
                 provide<TypstClient>() {
                     TypstClient(
-                        typstBinaryPath = "typst-pdf/typst",
+                        typstBinaryPath = getTypstBinaryPath(),
                         templatePath = "typst-pdf/sykmelding.typ",
                         fontPath = "typst-pdf/fonts",
                     )
@@ -102,7 +103,7 @@ class ApplicationTest {
                 provide<Environment>() { createIntegrationEnvironment() }
                 provide<TypstClient>() {
                     TypstClient(
-                        typstBinaryPath = "typst-pdf/typst",
+                        typstBinaryPath = getTypstBinaryPath(),
                         templatePath = "typst-pdf/sykmelding.typ",
                         fontPath = "typst-pdf/fonts",
                     )
