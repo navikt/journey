@@ -45,7 +45,7 @@ class SykmeldingService(
         try {
             val messageId = UUID.randomUUID().toString()
             producer.send(
-                key = messageId,
+                key = sykmelding.sykmelding.id,
                 JournalpostOpprettetRecord(
                     messageId = messageId,
                     journalpostId = journalpostId,
