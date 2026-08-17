@@ -1,7 +1,7 @@
 rootProject.name = "journey"
 
 val ktorVersion = "3.5.2"
-val tsmKtorVersion = "1.1.3"
+val tsmKtorVersion = "1.1.7"
 
 dependencyResolutionManagement {
     repositories {
