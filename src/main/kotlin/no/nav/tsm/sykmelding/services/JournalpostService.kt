@@ -9,14 +9,14 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Base64
+import no.nav.tsm.ktor.clients.pdl.PdlClient
+import no.nav.tsm.ktor.clients.pdl.PdlNavn
 import no.nav.tsm.ktor.logger
 import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.ktor.teamLogger
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.pdf.buildTypstPayload
 import no.nav.tsm.pdf.imageToPDFA
-import no.nav.tsm.pdl.PdlClient
-import no.nav.tsm.pdl.PdlNavn
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
 import no.nav.tsm.sykmelding.input.core.model.Aktivitet
 import no.nav.tsm.sykmelding.input.core.model.Behandler
@@ -281,24 +281,21 @@ class JournalpostService(
         sykmeldingId: String,
     ): AvsenderMottaker {
         try {
-            val sykmelderName =
-                pdlClient
-                    .getPerson(sykmelder.ids.first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }.id)
-                    .fold(
-                        {
-                            throw IllegalStateException(
-                                "Could not find person in pdl, cause: ${it.name} (${sykmeldingId})"
-                            )
-                        },
-                        {
-                            it.navn ?: throw IllegalStateException("Person has no name in PDL (${sykmeldingId})")
-                        },
+            val person =
+                pdlClient.getPerson(
+                    sykmelder.ids.first { it.type == PersonIdType.FNR || it.type == PersonIdType.DNR }.id
+                ) ?: throw IllegalStateException("Could not find person in pdl, cause: doesn't exist (${sykmeldingId})")
+
+            val navn =
+                person.navn
+                    ?: throw IllegalStateException(
+                        "Could not find name for person in pdl, cause: has no name (${sykmeldingId})"
                     )
 
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(sykmelder.ids.first { it.type == PersonIdType.HPR }.id),
                 idType = "HPRNR",
-                navn = sykmelderName.formatName(),
+                navn = navn.formatName(),
             )
         } catch (e: Exception) {
             logger.warn(

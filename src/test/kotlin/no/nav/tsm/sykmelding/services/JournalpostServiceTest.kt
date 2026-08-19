@@ -7,9 +7,9 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlin.test.Test
 import kotlinx.coroutines.test.runTest
+import no.nav.tsm.ktor.clients.pdl.PdlClient
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.pdf.getTypstBinaryPath
-import no.nav.tsm.pdl.PdlClient
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
 import no.nav.tsm.sykmelding.journalpost.JournalpostResponse
 import testUtils.papir
