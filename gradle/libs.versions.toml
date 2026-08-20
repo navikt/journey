@@ -1,11 +1,11 @@
 [versions]
 kotlin = "2.4.10"
-logback = "1.6.1"
+logback = "1.6.3"
 logbackEncoder = "9.0"
 pdfbox = "3.0.8"
 arrow = "2.2.3"
 googleCloudStorage = "2.71.0"
-kotest-assertions = "6.2.3"
+kotest-assertions = "6.2.4"
 mockk = "1.14.11"
 testcontainers = "2.0.5"
 
@@ -40,5 +40,5 @@ testcontainers-kafka = { module = "org.testcontainers:testcontainers-kafka", ver
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-spotless = { id = "com.diffplug.spotless", version = "8.9.0" }
-gradle-versions = { id = "com.github.ben-manes.versions", version = "0.60.0" }
+spotless = { id = "com.diffplug.spotless", version = "8.10.0" }
+gradle-versions = { id = "com.github.ben-manes.versions", version = "0.61.0" }
