@@ -22,8 +22,8 @@ fun Application.configureSykmeldingKafka() {
         onTombstone = { key ->
             logger.info("Mottok en sykmelding tombstone for ID $key, hopper over")
         }
-        onRecord = {
-            service.handleSykmelding(it)
+        onRecord = { record, _ ->
+            service.handleSykmelding(record)
         }
     }
 
