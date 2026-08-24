@@ -11,6 +11,7 @@ testcontainers = "2.0.5"
 
 syfo-xml-codegen = "2.0.1"
 tsm-sykmeldinger-input = "29"
+tsm-pdl-client = "0.0.2"
 
 [libraries]
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
@@ -22,6 +23,7 @@ arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref 
 google-cloud-storage = { module = "com.google.cloud:google-cloud-storage", version.ref = "googleCloudStorage" }
 
 # tsm libs
+tsm-pdl-client = { module = "no.nav.tsm:pdl-client", version.ref = "tsm-pdl-client" }
 tsm-sykmeldinger-input = { module = "no.nav.tsm.sykmelding:input", version.ref = "tsm-sykmeldinger-input" }
 
 # old xml libs we need for vedlegg

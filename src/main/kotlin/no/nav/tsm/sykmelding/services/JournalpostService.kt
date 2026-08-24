@@ -8,35 +8,19 @@ import io.opentelemetry.instrumentation.annotations.WithSpan
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.util.Base64
-import no.nav.tsm.ktor.clients.pdl.PdlClient
-import no.nav.tsm.ktor.clients.pdl.PdlNavn
+import java.util.*
 import no.nav.tsm.ktor.logger
 import no.nav.tsm.ktor.otel.failSpan
 import no.nav.tsm.ktor.teamLogger
 import no.nav.tsm.pdf.TypstClient
 import no.nav.tsm.pdf.buildTypstPayload
 import no.nav.tsm.pdf.imageToPDFA
+import no.nav.tsm.pdl.PdlClient
 import no.nav.tsm.sykmelding.dokarkiv.DokarkivClient
-import no.nav.tsm.sykmelding.input.core.model.Aktivitet
-import no.nav.tsm.sykmelding.input.core.model.Behandler
-import no.nav.tsm.sykmelding.input.core.model.RuleType
-import no.nav.tsm.sykmelding.input.core.model.Sykmelder
-import no.nav.tsm.sykmelding.input.core.model.Sykmelding
-import no.nav.tsm.sykmelding.input.core.model.SykmeldingRecord
-import no.nav.tsm.sykmelding.input.core.model.TilbakedatertMerknad
-import no.nav.tsm.sykmelding.input.core.model.ValidationResult
+import no.nav.tsm.sykmelding.input.core.model.*
 import no.nav.tsm.sykmelding.input.core.model.metadata.MessageMetadata
 import no.nav.tsm.sykmelding.input.core.model.metadata.PersonIdType
-import no.nav.tsm.sykmelding.input.core.model.sykmeldingObjectMapper
-import no.nav.tsm.sykmelding.journalpost.AvsenderMottaker
-import no.nav.tsm.sykmelding.journalpost.Bruker
-import no.nav.tsm.sykmelding.journalpost.Dokument
-import no.nav.tsm.sykmelding.journalpost.Dokumentvarianter
-import no.nav.tsm.sykmelding.journalpost.GosysVedlegg
-import no.nav.tsm.sykmelding.journalpost.JournalpostRequest
-import no.nav.tsm.sykmelding.journalpost.Sak
-import no.nav.tsm.sykmelding.journalpost.Vedlegg
+import no.nav.tsm.sykmelding.journalpost.*
 import no.nav.tsm.sykmelding.services.util.validatePersonAndDNumber
 
 class JournalpostService(
@@ -295,7 +279,7 @@ class JournalpostService(
             return AvsenderMottaker(
                 id = hprnummerMedRiktigLengdeOgFormat(sykmelder.ids.first { it.type == PersonIdType.HPR }.id),
                 idType = "HPRNR",
-                navn = navn.formatName(),
+                navn = navn.displayName(),
             )
         } catch (e: Exception) {
             logger.warn(
@@ -343,12 +327,5 @@ class JournalpostService(
             "${navn.etternavn} ${navn.fornavn}"
         } else {
             "${navn.etternavn} ${navn.fornavn} ${navn.mellomnavn}"
-        }
-
-    private fun PdlNavn.formatName(): String =
-        if (mellomnavn == null) {
-            "$etternavn $fornavn"
-        } else {
-            "$etternavn $fornavn $mellomnavn"
         }
 }
