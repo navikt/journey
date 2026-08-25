@@ -33,7 +33,7 @@ or  on windows
 You can work with PDF generation locally by using typst built in watcher:
 
 ```bash
-typst watch --pdf-standard=a-2a --root=/ --font-path typst-pdf/fonts --input=data-path=test-data/sykmelding.json typst-pdf/sykmelding.typ
+typst watch --pdf-standard=a-2a --pdf-standard=ua-1 --root=/ --font-path typst-pdf/fonts --input=data-path=test-data/sykmelding.json typst-pdf/sykmelding.typ
 ```
 
 Then you can open ./typst-pdf/sykmelding.pdf. Use a PDF-viewer that supports auto-reloading for the best experience.
