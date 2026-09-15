@@ -14,12 +14,12 @@ application {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(libs.versions.jvmVersion.get().toInt())
 }
 
 tasks {
     configure<SpotlessExtension> {
-        kotlin { ktfmt("0.64").kotlinlangStyle().configure {
+        kotlin { ktfmt(libs.versions.ktfmt.get()).kotlinlangStyle().configure {
             it.setMaxWidth(120)
             it.setContinuationIndent(4)
         } }

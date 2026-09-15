@@ -1,4 +1,7 @@
 [versions]
+jvmVersion = "25"
+
+
 kotlin = "2.4.10"
 logback = "1.6.3"
 logbackEncoder = "9.0"
@@ -8,6 +11,7 @@ googleCloudStorage = "2.71.0"
 kotest-assertions = "6.2.4"
 mockk = "1.14.11"
 testcontainers = "2.0.5"
+ktfmt = "0.64"
 
 syfo-xml-codegen = "2.0.1"
 tsm-sykmeldinger-input = "29"
