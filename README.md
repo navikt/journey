@@ -5,7 +5,7 @@ This app reads from the tsm.tsm-sykmelding topic and creates a journalpost in Do
 
 ## Technologies used
 * Kotlin
-* Spring boot
+* Ktor
 * Gradle
 * Junit
 * Typst
@@ -13,7 +13,7 @@ This app reads from the tsm.tsm-sykmelding topic and creates a journalpost in Do
 #### Requirements
 
 * Docker
-* JDK 21
+* JDK 25
 * Typst
 
 Run `mise i` to install required dependencies.
@@ -23,10 +23,10 @@ Run `mise i` to install required dependencies.
 #### Compile and package application
 To build locally and run the integration tests you can simply run
 ```bash
-./gradlew bootJar
+./gradlew build
 ```
 or  on windows
-`gradlew.bat bootJar`
+`gradlew.bat build`
 
 ### Working with PDF generation
 
