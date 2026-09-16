@@ -279,6 +279,26 @@ class TypstClientTest {
             Desktop.getDesktop().open(fil)
         }
     }
+
+    @Test
+    fun `generate pdf with private use area`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider + \uF0B7", 80, null, null)
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+
 }
 
 fun extractTextFromPdf(file: File): String {
