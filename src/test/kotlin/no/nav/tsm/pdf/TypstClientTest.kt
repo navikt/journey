@@ -279,6 +279,153 @@ class TypstClientTest {
             Desktop.getDesktop().open(fil)
         }
     }
+
+    @Test
+    fun `generate pdf with private use area`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider + \uF0B7", 80, null, null)
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+    @Test
+    fun `unexpected chars`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider 이", 80, null, null)
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+    @Test
+    fun `unexpected ⦁`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider ⦁", 80, null, null)
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+    @Test
+    fun `with emojis`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver =
+                            ArbeidsgiverInfo.Flere(
+                                "Coop",
+                                "Butikkmedarbeider" + "\u2011" + "\u2642" + "\u2640" + "\uD83E\uDE7A" + "\uD83D\uDD39",
+                                80,
+                                null,
+                                null,
+                            )
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+    @Test
+    fun `with OTHER_SYMBOLS`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver = ArbeidsgiverInfo.Flere("Coop", "Butikkmedarbeider" + "�", 80, null, null)
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+    @Test
+    fun `with OTHER_SYMBOLS a`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver =
+                            ArbeidsgiverInfo.Flere(
+                                "Coop",
+                                "Butikkmedarbeider" + String(Character.toChars(0x1001AF)),
+                                80,
+                                null,
+                                null,
+                            )
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
+
+    @Test
+    fun `with FORMAT symbol U+200B`() {
+        val recordMedFlereArbeidsgivere =
+            xml.record.copy(
+                sykmelding =
+                    xml.sykmelding.copy(
+                        arbeidsgiver =
+                            ArbeidsgiverInfo.Flere(
+                                "Coop",
+                                "Butikkmedarbeider" + "\r\u200B\r",
+                                80,
+                                null,
+                                null,
+                            )
+                    )
+            )
+        val pdfBytes = typstClient.createPdf(buildTypstPayload(recordMedFlereArbeidsgivere))
+
+        val fil = File("build/test.pdf")
+        fil.writeBytes(pdfBytes)
+        val tekst = extractTextFromPdf(fil)
+
+        assert(tekst.contains("Butikkmedarbeider")) { "Mangler 'butikkmedarbeider'" }
+    }
 }
 
 fun extractTextFromPdf(file: File): String {
