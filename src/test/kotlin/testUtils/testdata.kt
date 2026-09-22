@@ -16,6 +16,7 @@ import no.nav.tsm.sykmelding.input.core.model.Behandler
 import no.nav.tsm.sykmelding.input.core.model.BistandNav
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseInfo
 import no.nav.tsm.sykmelding.input.core.model.DiagnoseSystem
+import no.nav.tsm.sykmelding.input.core.model.DigitalPrognose
 import no.nav.tsm.sykmelding.input.core.model.MedisinskArsak
 import no.nav.tsm.sykmelding.input.core.model.MedisinskArsakType
 import no.nav.tsm.sykmelding.input.core.model.MedisinskVurdering
@@ -353,6 +354,7 @@ object digital {
             behandler = shared.behandler,
             arbeidsgiver = shared.arbeidsgiver,
             sykmelder = shared.sykmelder,
+            prognose = DigitalPrognose(friskmeldingTilArbeidsformidling = true),
             bistandNav = BistandNav(true, "Bistand nav"),
             tilbakedatering =
                 Tilbakedatering(
