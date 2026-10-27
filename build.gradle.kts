@@ -1,4 +1,6 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.gradle.kotlin.dsl.named
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -19,12 +21,27 @@ kotlin {
 
 tasks {
     configure<SpotlessExtension> {
-        kotlin { ktfmt(libs.versions.ktfmt.get()).kotlinlangStyle().configure {
-            it.setMaxWidth(120)
-            it.setContinuationIndent(4)
-        } }
+        kotlin {
+            ktfmt(libs.versions.ktfmt.get()).kotlinlangStyle().configure {
+                it.setMaxWidth(120)
+                it.setContinuationIndent(4)
+            }
+        }
         check {
             dependsOn("spotlessApply")
+        }
+    }
+
+    named<DependencyUpdatesTask>("dependencyUpdates") {
+        fun String.isNonStable(): Boolean {
+            val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { uppercase().contains(it) }
+            val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+            val isStable = stableKeyword || regex.matches(this)
+            return isStable.not()
+        }
+
+        rejectVersionIf {
+            candidate.version.isNonStable()
         }
     }
 }
