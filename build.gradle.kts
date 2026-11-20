@@ -65,7 +65,6 @@ dependencies {
     implementation(libs.arrow.fx.coroutines)
     implementation(libs.google.cloud.storage)
 
-    implementation(libs.tsm.sykmeldinger.input)
     implementation(libs.tsm.pdl.client)
     implementation(tsmKtorLibs.core)
     implementation(tsmKtorLibs.kafka)
